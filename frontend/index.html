@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Nation One Election | Smart Polling Booth & Time-Slot Platform</title>
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS for Interactive Geospatial Map (with graceful offline fallback) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Core Platform Stylesheet -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <a href="/" class="brand-wrapper">
+      <div class="brand-emblem">ECI</div>
+      <div class="brand-title-group">
+        <h1>Smart Polling & Time-Slot Platform</h1>
+        <div class="sub">One Nation One Election · Uttarakhand Pilot 2026</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button id="contrastToggleBtn" class="btn-nav btn-accessibility" title="Toggle Assistive High Contrast Mode">
+        👁️ High Contrast Mode
+      </button>
+      <a href="/admin" class="btn-nav" title="Switch to Admin Logistics Dashboard">
+        🛡️ Admin Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Mandatory Architectural & Legal Disclaimer Banner -->
+  <div class="legal-banner">
+    <span class="legal-banner-badge">LEGAL & ETHICAL GUARDRAIL</span>
+    <span>
+      Simulated Logistics Platform Prototype: Purely synthetic demo identifiers (DEM-UK-2026-XXXX). Zero real sensitive IDs or biometrics. AI crowd predictions are advisory for queue load-balancing and staffing only, and never determine voter eligibility or deny access to voting.
+    </span>
+  </div>
+
+  <!-- Main Application Container -->
+  <main class="main-content">
+
+    <div class="page-header">
+      <h2>Voter Arrival Scheduling & Digital Pass Portal</h2>
+      <p>
+        Flattening peak voter arrival congestion through OS synchronization, ML crowd demand forecasting, and priority queue scheduling for simultaneous Lok Sabha & Vidhan Sabha elections.
+      </p>
+    </div>
+
+    <!-- 4-Step Interactive Progress Tracker -->
+    <div class="stepper-container" id="stepperContainer">
+      <div class="step-item active" data-step="1" id="stepIndicator1">
+        <div class="step-badge">1</div>
+        <div class="step-title">Identify / Register</div>
+      </div>
+      <div class="step-item" data-step="2" id="stepIndicator2">
+        <div class="step-badge">2</div>
+        <div class="step-title">Simulated Verification</div>
+      </div>
+      <div class="step-item" data-step="3" id="stepIndicator3">
+        <div class="step-badge">3</div>
+        <div class="step-title">Nearby Booth & Map</div>
+      </div>
+      <div class="step-item" data-step="4" id="stepIndicator4">
+        <div class="step-badge">4</div>
+        <div class="step-title">Slot & Pass Slip</div>
+      </div>
+    </div>
+
+    <!-- ========================================================================
+         STEP 1: VOTER IDENTIFICATION / QUICK DEMO LOOKUP OR REGISTRATION
+         ======================================================================== -->
+    <section class="portal-card" id="stepSection1">
+      <div class="portal-card-header">
+        <div>
+          <div class="portal-card-title">
+            <span>👤</span> Step 1: Identify Synthetic Voter Profile
+          </div>
+          <div class="portal-card-subtitle">
+            Select a seeded Uttarakhand demo voter profile for quick evaluation, or register a new synthetic identity.
+          </div>
+        </div>
+        <div class="preset-bar" style="margin: 0; padding: 0.4rem 0.8rem;">
+          <button class="preset-chip" id="tabQuickSelect">Quick Select Demo Voter</button>
+          <button class="preset-chip" id="tabNewRegister">Register New Voter</button>
+        </div>
+      </div>
+
+      <!-- Option A: Quick Select Seeded Voter -->
+      <div id="quickSelectPanel">
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="seededVoterSelect">Select Seeded Demo Voter Profile (100% Synthetic)</label>
+          <select class="form-select" id="seededVoterSelect">
+            <option value="">-- Choose a pre-seeded Uttarakhand voter --</option>
+            <option value="DEM-UK-2026-0001">DEM-UK-2026-0001 · Ramesh Chandra Sharma (Senior Citizen, Priority 1, Booth 1 - Garhi Cantt)</option>
+            <option value="DEM-UK-2026-0003">DEM-UK-2026-0003 · Arvind Singh Negi (Person with Disability, Priority 1, Booth 1)</option>
+            <option value="DEM-UK-2026-0004">DEM-UK-2026-0004 · Deepa Joshi (Pregnant Women, Priority 1, Booth 1)</option>
+            <option value="DEM-UK-2026-0005">DEM-UK-2026-0005 · Manmohan Singh Bisht (General Category, Priority 3, Booth 1)</option>
+            <option value="DEM-UK-2026-0012">DEM-UK-2026-0012 · Anjali Gurung (General Category, Priority 3, Booth 2 - Hathibarkala)</option>
+            <option value="DEM-UK-2026-0017">DEM-UK-2026-0017 · Dharam Singh Rana (Senior Citizen, Priority 1, Booth 3 - Hathibarkala)</option>
+            <option value="DEM-UK-2026-0031">DEM-UK-2026-0031 · Jagdish Prasad Bahuguna (Senior Citizen, Priority 1, Booth 5 - Rishikesh)</option>
+            <option value="DEM-UK-2026-0045">DEM-UK-2026-0045 · Bishambhar Dutt Joshi (Senior Citizen, Priority 1, Booth 7 - Haridwar BHEL)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label class="form-label" for="manualEpicInput">Or Enter Synthetic EPIC Number (DEM-UK-2026-XXXX)</label>
+          <div style="display: flex; gap: 0.75rem;">
+            <input type="text" class="form-input" id="manualEpicInput" placeholder="DEM-UK-2026-0001" style="flex: 1;" />
+            <button class="btn-primary" id="btnLookupEpic">Lookup Voter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option B: Register New Synthetic Voter Form (Hidden by default) -->
+      <div id="newRegisterPanel" style="display: none;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="regEpicNo">Synthetic EPIC No</label>
+            <input type="text" class="form-input" id="regEpicNo" value="DEM-UK-2026-9050" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regFullName">Full Name</label>
+            <input type="text" class="form-input" id="regFullName" placeholder="e.g. Alok Sharma" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regDob">Date of Birth (Age >= 18)</label>
+            <input type="date" class="form-input" id="regDob" value="1995-06-15" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regGender">Gender</label>
+            <select class="form-select" id="regGender">
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regCategory">Special Category</label>
+            <select class="form-select" id="regCategory">
+              <option value="GENERAL">General (Priority Tier 3)</option>
+              <option value="SENIOR_CITIZEN">Senior Citizen (Priority Tier 1)</option>
+              <option value="PERSON_WITH_DISABILITY">Person with Disability (Priority Tier 1)</option>
+              <option value="PREGNANT_WOMEN">Expectant Mother (Priority Tier 1)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="regBoothSelect">Assigned Polling Booth</label>
+            <select class="form-select" id="regBoothSelect">
+              <option value="1">Booth 1 · Garhi Cantt North Wing (Dehradun)</option>
+              <option value="2">Booth 2 · Garhi Cantt South Wing (Dehradun)</option>
+              <option value="3">Booth 3 · Hathibarkala Primary (Rajpur Rd)</option>
+              <option value="5">Booth 5 · Veerbhadra Academic Block (Rishikesh)</option>
+              <option value="7">Booth 7 · BHEL Sector 3 Senior Secondary (Haridwar)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btnSubmitRegistration">Register Demo Voter</button>
+      </div>
+
+      <!-- Current Selected Voter Display Box -->
+      <div id="voterProfileCard" style="display: none; margin-top: 1.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-accent); border-radius: var(--radius-md); padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <div style="font-size: 1.2rem; font-weight: 700;" id="profVoterName">Ramesh Chandra Sharma</div>
+            <div style="font-family: var(--font-mono); color: var(--accent-cyan); font-size: 0.9rem;" id="profVoterEpic">DEM-UK-2026-0001</div>
+          </div>
+          <div id="profCategoryBadge" class="badge badge-open">SENIOR_CITIZEN · PRIORITY 1</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+          <div>📍 <strong>Assigned Booth:</strong> <span id="profBoothName">Booth 1 (Garhi Cantt)</span></div>
+          <div>🏛️ <strong>Constituency:</strong> <span id="profConstituency">Tehri Garhwal (PC) · Dehradun Cantt (AC)</span></div>
+          <div>📋 <strong>Verification:</strong> <span id="profVerifStatus">UNVERIFIED</span></div>
+        </div>
+        <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+          <button class="btn-primary" id="btnProceedToStep2">Proceed to Step 2: Verification ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 2: SIMULATED ECI VOTER VERIFICATION
+         ======================================================================== -->
+    <section class="portal-card" id="stepSection2" style="display: none;">
+      <div class="portal-card-header">
+        <div>
+          <div class="portal-card-title">
+            <span>🛡️</span> Step 2: Simulated ECI Identity Verification
+          </div>
+          <div class="portal-card-subtitle">
+            Demonstrates mock multi-factor authentication with strict legal consent compliance (no real personal data).
+          </div>
+        </div>
+        <span class="badge badge-open" id="verifBadgeState">PENDING VERIFICATION</span>
+      </div>
+
+      <div class="verification-box">
+        <div class="consent-check-group">
+          <input type="checkbox" id="consentCheckbox" />
+          <label for="consentCheckbox">
+            <strong>Explicit Demo Consent:</strong> I voluntarily consent to simulated voter identity verification for time-slot scheduling in this academic prototype. I acknowledge that no real government IDs or biometrics are accepted, and my voting rights remain unconditional.
+          </label>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="verifMethodSelect">Verification Method</label>
+            <select class="form-select" id="verifMethodSelect">
+              <option value="SIMULATED_OTP">Simulated SMS OTP (Mock 6-Digit Code)</option>
+              <option value="SIMULATED_EPIC_HASH">Cryptographic Synthetic EPIC Hash</option>
+              <option value="DEMO_BIOMETRIC_TOKEN">Mock Match-on-Card Biometric Token</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="simulatedInput">Simulated Input Token (Optional)</label>
+            <input type="text" class="form-input" id="simulatedInput" placeholder="Auto-generated if blank (e.g. SIM-OTP-XXXXXX)" />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+          <button class="btn-primary" id="btnExecuteVerification">⚡ Execute Simulated Verification</button>
+          <div id="verifResultToken" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-emerald);"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+        <button class="btn-secondary" id="btnBackToStep1">⬅ Back to Step 1</button>
+        <button class="btn-primary" id="btnProceedToStep3" disabled>Proceed to Step 3: Booth Selection ➔</button>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 3: HAVERSINE GEO-RANKED BOOTH SELECTION & MAP
+         ======================================================================== -->
+    <section class="portal-card" id="stepSection3" style="display: none;">
+      <div class="portal-card-header">
+        <div>
+          <div class="portal-card-title">
+            <span>🗺️</span> Step 3: Nearby Polling Booths & Dual-Constituency Map
+          </div>
+          <div class="portal-card-subtitle">
+            Haversine distance ranking from voter GPS coordinates with simultaneous Lok Sabha + Vidhan Sabha jurisdiction mapping.
+          </div>
+        </div>
+      </div>
+
+      <!-- GPS Coordinate Controls & Campus Presets -->
+      <div style="margin-bottom: 1.25rem;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.4rem;">
+          Voter GPS Location Presets (Uttarakhand Pilot Locations):
+        </div>
+        <div class="preset-bar">
+          <button class="preset-chip" id="presetDdnCantt">📍 Dehradun Garhi Cantt (30.3421, 78.0214)</button>
+          <button class="preset-chip" id="presetRajpurRd">📍 Rajpur Road Hathibarkala (30.3398, 78.0487)</button>
+          <button class="preset-chip" id="presetRishikesh">📍 Rishikesh Campus (30.1034, 78.2947)</button>
+          <button class="preset-chip" id="presetHaridwar">📍 Haridwar BHEL Township (29.9325, 78.1189)</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem;">
+          <label style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+            <input type="checkbox" id="accessibilityFilterCheck" />
+            <span>♿ Require Wheelchair Accessible Ramps Only</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="booth-selection-grid">
+        <!-- Left: Ranked Booths List -->
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary);">
+            RANKED BY PROXIMITY & ACCESSIBILITY:
+          </div>
+          <div class="booth-list" id="boothListContainer">
+            <div style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading nearby booths...</div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Leaflet Map Canvas -->
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary);">
+            GEOSPATIAL POLLING STATION MAP:
+          </div>
+          <div class="map-canvas-container">
+            <div id="boothMap"></div>
+            <div id="mapOfflineFallback" class="map-offline-fallback" style="display: none;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗺️</div>
+              <strong>Offline Geospatial Map Fallback</strong>
+              <p>Leaflet CDN is offline or running disconnected. Polling booths remain fully selectable from the ranked list on the left.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+        <button class="btn-secondary" id="btnBackToStep2">⬅ Back to Step 2</button>
+        <button class="btn-primary" id="btnProceedToStep4" disabled>Proceed to Step 4: Time Slot Booking ➔</button>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         STEP 4: AI-ASSISTED TIME-SLOT BOOKING & DIGITAL PASS SLIP
+         ======================================================================== -->
+    <section class="portal-card" id="stepSection4" style="display: none;">
+      <div class="portal-card-header">
+        <div>
+          <div class="portal-card-title">
+            <span>⏰</span> Step 4: AI Crowd-Balanced Time Slot & Digital Pass
+          </div>
+          <div class="portal-card-subtitle" id="selectedBoothSummary">
+            Select an optimal arrival time slot for Booth 1 (Garhi Cantt North Wing).
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Smart Recommendation Callout Banner -->
+      <div class="ai-reason-box" id="aiRecommendationBanner" style="display: none;">
+        <div style="font-size: 1.2rem;">🤖</div>
+        <div>
+          <strong>AI Smart Slot Recommendation:</strong>
+          <span id="aiRecommendationText">Calculating optimal slot based on real-time bookings, Random Forest crowd demand, and distance...</span>
+        </div>
+      </div>
+
+      <!-- Discretized Slots Grid -->
+      <div class="slots-grid" id="slotsGridContainer">
+        <div style="color: var(--text-muted); text-align: center; padding: 2rem;">Loading available time slots...</div>
+      </div>
+
+      <!-- Booking Action Area -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+        <button class="btn-secondary" id="btnBackToStep3">⬅ Back to Booth Selection</button>
+        <button class="btn-primary" id="btnBookSlot" disabled style="padding: 0.9rem 2rem; font-size: 1rem;">
+          🎟️ Confirm & Allocate Time Slot (OS Mutex Locked)
+        </button>
+      </div>
+
+      <!-- Live OS PCB State Pipeline Visualization (Shown during and after booking) -->
+      <div class="pcb-pipeline-container" id="pcbPipelineContainer" style="display: none;">
+        <div class="pcb-pipeline-title">
+          <span>⚙️ OS Concurrency & PCB Process Telemetry</span>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem;" id="pcbIdTag">PID: PROC-PENDING</span>
+        </div>
+        <div class="pcb-nodes-wrapper">
+          <div class="pcb-node" id="pcbNodeNew">1. NEW</div>
+          <div class="pcb-node" id="pcbNodeReady">2. READY</div>
+          <div class="pcb-node" id="pcbNodeRunning">3. RUNNING</div>
+          <div class="pcb-node" id="pcbNodeWaiting">4. WAITING (MUTEX)</div>
+          <div class="pcb-node" id="pcbNodeTerminated">5. TERMINATED</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem;">
+          <div>Scheduler Policy: <span style="color: var(--accent-cyan); font-weight: 700;">PRIORITY_AGING</span></div>
+          <div>Critical Section: <span style="color: var(--accent-amber); font-weight: 700;">PER-SLOT MUTEX + ROW X-LOCK</span></div>
+          <div>Turnaround Latency: <span style="color: var(--accent-emerald); font-weight: 700;" id="pcbLatencyTag">0.00 ms</span></div>
+        </div>
+      </div>
+
+      <!-- Official Digital Voter Appointment Pass Slip (Rendered after successful booking) -->
+      <div class="appointment-slip" id="appointmentSlipContainer" style="display: none;">
+        <div class="slip-header-tricolor"></div>
+        <div class="slip-emblem-row">
+          <h3>ELECTION COMMISSION OF INDIA</h3>
+          <p>One Nation One Election Simultaneous Election 2026 · Official Voter Arrival Pass</p>
+        </div>
+
+        <div class="slip-body-grid">
+          <div>
+            <div class="slip-field">
+              <div class="slip-field-label">Voter Full Name</div>
+              <div class="slip-field-value" id="slipVoterName">Ramesh Chandra Sharma</div>
+            </div>
+            <div class="slip-field">
+              <div class="slip-field-label">Synthetic EPIC Number</div>
+              <div class="slip-field-value" style="font-family: var(--font-mono);" id="slipEpicNo">DEM-UK-2026-0001</div>
+            </div>
+            <div class="slip-field">
+              <div class="slip-field-label">Constituency Jurisdiction</div>
+              <div class="slip-field-value" id="slipConstituency">Tehri Garhwal (PC) · Dehradun Cantt (AC)</div>
+            </div>
+            <div class="slip-field">
+              <div class="slip-field-label">Polling Station & Booth</div>
+              <div class="slip-field-value" id="slipStationBooth">Garhi Cantt North Wing Room 101</div>
+            </div>
+            <div class="slip-field">
+              <div class="slip-field-label">Scheduled Date & Time Window</div>
+              <div class="slip-field-value" style="color: var(--accent-blue);" id="slipTimeWindow">2026-11-15 | 09:30:00 - 12:00:00</div>
+            </div>
+          </div>
+
+          <div class="slip-token-box">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #475569; text-transform: uppercase;">QUEUE NUMBER</div>
+            <div class="slip-queue-number" id="slipQueueNo">#01</div>
+            <div class="badge badge-open" style="margin-top: 0.5rem;" id="slipPriorityBadge">PRIORITY PASS</div>
+            <div class="slip-token-code" id="slipTokenCode">TKN-UK-1-XXXX-XXXX</div>
+          </div>
+        </div>
+
+        <div class="slip-footer-disclaimer">
+          ⚠️ <strong>ADVISORY SCHEDULING NOTICE:</strong> This digital appointment pass reserves your preferred queue window for simultaneous Lok Sabha + Vidhan Sabha ballot casting. If you arrive outside this window, your constitutional right to vote is fully preserved via normal walk-in verification.
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;" class="slip-actions">
+          <button class="btn-secondary" onclick="window.print()">🖨️ Print / Save Appointment Slip</button>
+          <button class="btn-danger" id="btnCancelAllocation">❌ Cancel / Free Slot Capacity</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Anchor -->
+  <div id="toastContainer"></div>
+
+  <!-- Leaflet Map JS CDN with Graceful Fallback -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" onerror="window.leafletFailed=true"></script>
+
+  <!-- Platform Client & Portal Controller -->
+  <script src="/js/api_client.js"></script>
+  <script src="/js/voter_portal.js"></script>
+</body>
+</html>

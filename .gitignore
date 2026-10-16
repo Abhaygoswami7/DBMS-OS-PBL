@@ -1,0 +1,27 @@
+# Environments & Secrets
+.env
+venv/
+.venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# ML Artifacts (joblib / pickle cache if large)
+*.joblib
+!ml_pipeline/artifacts/.gitkeep
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.log
+!logs/.gitkeep

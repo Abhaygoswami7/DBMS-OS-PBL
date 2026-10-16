@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-10-16T10:27:12.003515+00:00",
+  "dataset_rows": 1500,
+  "train_rows": 1200,
+  "test_rows": 300,
+  "feature_columns": [
+    "booth_id",
+    "hour_of_day",
+    "slot_max_capacity",
+    "priority_reserved_capacity",
+    "historical_avg_arrivals",
+    "confirmed_bookings_count",
+    "is_peak_morning_wave",
+    "is_post_lunch_wave",
+    "weather_comfort_index",
+    "onoe_dual_ballot_factor"
+  ],
+  "target_column": "expected_crowd_arrivals",
+  "baseline_model": {
+    "model_type": "HistoricalSlotBaseline",
+    "metrics": {
+      "mae": 6.5712,
+      "rmse": 8.1887,
+      "r2_score": 0.0688
+    }
+  },
+  "random_forest_model": {
+    "model_type": "RandomForestRegressor(n_estimators=150, max_depth=10)",
+    "metrics": {
+      "mae": 1.5724,
+      "rmse": 1.9154,
+      "r2_score": 0.9491
+    },
+    "feature_importances": {
+      "booth_id": 0.0066,
+      "hour_of_day": 0.0657,
+      "slot_max_capacity": 0.0011,
+      "priority_reserved_capacity": 0.0009,
+      "historical_avg_arrivals": 0.0449,
+      "confirmed_bookings_count": 0.7707,
+      "is_peak_morning_wave": 0.0553,
+      "is_post_lunch_wave": 0.0205,
+      "weather_comfort_index": 0.0227,
+      "onoe_dual_ballot_factor": 0.0116
+    }
+  },
+  "comparison": {
+    "mae_improvement_pct": 76.07,
+    "rmse_improvement_pct": 76.61,
+    "rf_outperforms_baseline": true
+  }
+}

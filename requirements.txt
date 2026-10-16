@@ -1,0 +1,22 @@
+# Core Backend Web Framework
+Flask==3.0.3
+Flask-Cors==4.0.1
+PyJWT==2.8.0
+python-dotenv==1.0.1
+Werkzeug==3.0.3
+
+# MySQL 8.0+ Connection Pool & Drivers
+mysql-connector-python>=8.4.0
+PyMySQL>=1.1.1
+cryptography>=42.0.7
+
+# Machine Learning & Crowd Analytics
+scikit-learn>=1.4.0
+joblib>=1.4.0
+numpy>=1.26.0
+pandas>=2.2.0
+
+# Concurrency, Utilities & Testing
+pytest>=8.2.0
+tabulate>=0.9.0
+colorama>=0.4.6
