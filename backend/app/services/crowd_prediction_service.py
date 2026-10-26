@@ -247,9 +247,9 @@ class CrowdPredictionService:
 
         for b in candidate_booths:
             booth_id = b["booth_id"]
-            # Station coordinates and distance
-            stn_lat = float(b.get("latitude") or 30.34215)
-            stn_lon = float(b.get("longitude") or 78.02148)
+            # Station coordinates and distance (fallback to Bhimtal academic reference)
+            stn_lat = float(b.get("latitude") or 29.3444)
+            stn_lon = float(b.get("longitude") or 79.5632)
             # Find station wheelchair ramp flag
             has_ramp = bool(b.get("has_wheelchair_ramp", 1))
 

@@ -1,11 +1,11 @@
-# Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election (ONOE)
+# VoteIT — Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election (ONOE)
 ## Academic Project Synopsis & Technical Specification
 
 ---
 
 ## 1. Title Page
 
-- **Project Title:** Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election
+- **Project Title:** VoteIT — Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election
 - **Academic Domain:** Cross-Discipline Integration of Artificial Intelligence & Machine Learning (AI/ML), Operating Systems (OS), Database Management Systems (DBMS), System Design, and Modern Web Architecture
 - **Degree / Curriculum:** Bachelor of Technology (B.Tech) in Computer Science and Engineering (Specialization: AI & ML)
 - **Academic Context:** DBMS & OS Project-Based Learning (PBL) Capstone Prototype

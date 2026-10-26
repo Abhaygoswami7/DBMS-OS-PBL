@@ -1,10 +1,10 @@
-# Project Synopsis: Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election
+# Project Synopsis: VoteIT — Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election
 ## B.Tech Computer Science & Engineering (AI & ML) Capstone Prototype
 
 ---
 
 ## 1. Project Title & Metadata
-- **Project Title:** Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election (ONOE)
+- **Project Title:** VoteIT — Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election (ONOE)
 - **Domain:** Artificial Intelligence & Machine Learning, Operating Systems, Relational DBMS, Full-Stack Web Development
 - **Course / Degree:** B.Tech Computer Science and Engineering (Specialization: AI & ML)
 - **Academic Term:** 2026 Academic Year

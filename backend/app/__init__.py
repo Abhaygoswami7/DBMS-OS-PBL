@@ -68,7 +68,16 @@ def create_app(test_config=None) -> Flask:
     frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
 
     @app.route("/", methods=["GET"])
-    def serve_index():
+    @app.route("/login", methods=["GET"])
+    @app.route("/login.html", methods=["GET"])
+    def serve_login():
+        """Serves the IRCTC Authentication Gateway."""
+        return send_from_directory(frontend_dir, "login.html")
+
+    @app.route("/voter", methods=["GET"])
+    @app.route("/voter.html", methods=["GET"])
+    @app.route("/index.html", methods=["GET"])
+    def serve_voter_portal():
         """Serves the voter portal homepage."""
         return send_from_directory(frontend_dir, "index.html")
 
@@ -87,6 +96,16 @@ def create_app(test_config=None) -> Flask:
     def serve_js(filename):
         """Serves JavaScript client files."""
         return send_from_directory(os.path.join(frontend_dir, "js"), filename)
+
+    @app.route("/assets/<path:filename>", methods=["GET"])
+    def serve_assets(filename):
+        """Serves static assets (images, icons, logos)."""
+        return send_from_directory(os.path.join(frontend_dir, "assets"), filename)
+
+    @app.route("/vote_logo.png", methods=["GET"])
+    def serve_root_logo():
+        """Serves the root vote logo if requested directly."""
+        return send_from_directory(frontend_dir, "vote_logo.png")
 
     # OS Telemetry Response Headers
     @app.after_request

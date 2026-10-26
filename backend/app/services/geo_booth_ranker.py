@@ -51,8 +51,8 @@ class GeoBoothRanker:
     """
 
     def __init__(self):
-        self.default_ref_lat = 30.34215
-        self.default_ref_lon = 78.02148
+        self.default_ref_lat = 29.3444
+        self.default_ref_lon = 79.5632
 
     def get_live_slot_availability_ratios(self, event_id: int = 1) -> Dict[int, Dict[str, Any]]:
         """

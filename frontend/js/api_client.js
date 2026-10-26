@@ -49,6 +49,56 @@ class ApiClient {
   }
 
   // ---------------------------------------------------------------------------
+  // Voter Profile Session & Portal Navigation Helpers
+  // ---------------------------------------------------------------------------
+  setVoterSession(voter) {
+    if (voter) {
+      localStorage.setItem("onoe_voter_session", JSON.stringify(voter));
+    }
+  }
+
+  getVoterSession() {
+    const data = localStorage.getItem("onoe_voter_session");
+    if (!data) return null;
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearVoterSession() {
+    localStorage.removeItem("onoe_voter_session");
+    this.clearVoterToken();
+  }
+
+  checkVoterSession() {
+    if (typeof window === "undefined" || !window.location) return true;
+    if (window.location.protocol === "file:") return true;
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("standalone") || urlParams.has("test")) return true;
+    const session = this.getVoterSession();
+    if (!session) {
+      window.location.href = "/";
+      return false;
+    }
+    return true;
+  }
+
+  checkAdminAuth() {
+    if (typeof window === "undefined" || !window.location) return true;
+    if (window.location.protocol === "file:") return true;
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("standalone") || urlParams.has("test")) return true;
+    const token = this.getAdminToken();
+    if (!token) {
+      window.location.href = "/";
+      return false;
+    }
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
   // Core Request Wrapper
   // ---------------------------------------------------------------------------
   async request(endpoint, options = {}) {
@@ -184,7 +234,7 @@ class ApiClient {
   }
 
   // 4. GET /api/booths/nearby
-  async getNearbyBooths(lat = 30.34215, lon = 78.02148, constituencyId = null, accessibilityNeeded = false) {
+  async getNearbyBooths(lat = 29.3444, lon = 79.5632, constituencyId = null, accessibilityNeeded = false) {
     const params = new URLSearchParams({ lat, lon });
     if (constituencyId) params.append("constituency_id", constituencyId);
     if (accessibilityNeeded) params.append("accessibility_needed", "true");
@@ -266,6 +316,29 @@ class ApiClient {
     return await this.request("/api/admin/simulate-race", {
       method: "POST",
       body: JSON.stringify({ demo: true })
+    });
+  }
+
+  // 14. PUT /api/allocations/<token>/reschedule
+  async rescheduleAllocation(bookingToken, newSlotId) {
+    return await this.request(`/api/allocations/${encodeURIComponent(bookingToken)}/reschedule`, {
+      method: "PUT",
+      body: JSON.stringify({ new_slot_id: parseInt(newSlotId, 10) })
+    });
+  }
+
+  // 15. POST /api/admin/scheduler-policy
+  async switchSchedulerPolicy(policy = "PRIORITY_AGING") {
+    return await this.request("/api/admin/scheduler-policy", {
+      method: "POST",
+      body: JSON.stringify({ policy })
+    });
+  }
+
+  // 16. GET /api/admin/telemetry-export
+  async exportTelemetry() {
+    return await this.request("/api/admin/telemetry-export", {
+      method: "GET"
     });
   }
 

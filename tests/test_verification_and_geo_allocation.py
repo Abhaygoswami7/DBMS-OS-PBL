@@ -164,17 +164,21 @@ def test_anonymized_verification_never_stores_raw_digits():
 
 def test_haversine_distance_computation():
     """Verify mathematical accuracy of Haversine formula."""
-    # Zero distance test (same point)
-    assert haversine_distance_km(30.34215, 78.02148, 30.34215, 78.02148) == 0.0
+    # Zero distance test (same point: Bhimtal Main Campus)
+    assert haversine_distance_km(29.3444, 79.5632, 29.3444, 79.5632) == 0.0
 
-    # Distance from Dehradun (30.34215, 78.02148) to Rishikesh (~30.1030, 78.2948) is ~38-42 km
-    dist = haversine_distance_km(30.34215, 78.02148, 30.1030, 78.2948)
-    assert 35.0 < dist < 45.0
+    # Distance from Bhimtal (29.3444, 79.5632) to Sattal Lake View Point (29.3490, 79.5317) is ~3.1 km
+    dist_sattal = haversine_distance_km(29.3444, 79.5632, 29.3490, 79.5317)
+    assert 2.5 < dist_sattal < 4.0
+
+    # Distance from Bhimtal (29.3444, 79.5632) to Bhowali Market (29.3823, 79.5197) is ~6.0 km
+    dist_bhowali = haversine_distance_km(29.3444, 79.5632, 29.3823, 79.5197)
+    assert 5.0 < dist_bhowali < 7.0
 
 def test_geo_booth_ranking_with_accessibility_filter():
     """Verify GeoBoothRanker filters by wheelchair accessibility when requested."""
-    user_lat = 30.34215
-    user_lon = 78.02148
+    user_lat = 29.3444
+    user_lon = 79.5632
 
     # Query with wheelchair accessibility required
     accessible_booths = geo_booth_ranker.rank_booths(
@@ -188,8 +192,8 @@ def test_geo_booth_ranking_with_accessibility_filter():
 
 def test_geo_booth_ranking_jurisdiction_filtering():
     """Verify candidate booths are filtered strictly by Parliamentary & Assembly jurisdiction."""
-    user_lat = 30.34215
-    user_lon = 78.02148
+    user_lat = 29.3444
+    user_lon = 79.5632
 
     # Filter by Dehradun Cantt Assembly Constituency (ac_id = 3)
     cantt_booths = geo_booth_ranker.rank_booths(
@@ -203,8 +207,8 @@ def test_geo_booth_ranking_jurisdiction_filtering():
 
 def test_geo_booth_composite_score_ordering():
     """Verify multi-criteria composite score combines proximity and live capacity ratio."""
-    user_lat = 30.34215
-    user_lon = 78.02148
+    user_lat = 29.3444
+    user_lon = 79.5632
 
     ranked = geo_booth_ranker.rank_booths(user_lat=user_lat, user_lon=user_lon)
     assert len(ranked) >= 2
@@ -303,7 +307,7 @@ def test_api_verification_mock_with_anonymized_hashing(client):
 
 def test_api_nearby_booths_geo_ranking(client):
     """Test GET /api/booths/nearby with coordinates and wheelchair filtering."""
-    res = client.get("/api/booths/nearby?lat=30.34215&lon=78.02148&requires_wheelchair_accessibility=true")
+    res = client.get("/api/booths/nearby?lat=29.3444&lon=79.5632&requires_wheelchair_accessibility=true")
     assert res.status_code == 200
     data = res.get_json()
     assert data["success"] is True

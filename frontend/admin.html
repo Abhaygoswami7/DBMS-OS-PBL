@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Logistics & Telemetry Console | Live OS Concurrency & Race Condition Simulator</title>
+  <title>VoteIT — One Nation One Election Polling Logistics Portal</title>
   
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,13 +22,12 @@
   <div class="top-utility-bar">
     <div class="top-utility-left">
       <span class="top-utility-tag">CRIS · ECI NATIONAL POLLING LOGISTICS CONTROL ROOM</span>
-      <span class="top-utility-clock" id="liveIstClockAdmin">26-Oct-2026 [10:00:00 IST]</span>
     </div>
     <div class="top-utility-right">
-      <button type="button" class="btn-contrast-mode" id="contrastToggleBtn">High Contrast Mode</button>
-      <a href="/" class="top-utility-link">Voter Portal</a>
+      <a href="/login" class="top-utility-link">Login Gate</a>
+      <a href="/voter" class="top-utility-link">Voter Portal</a>
       <a href="/admin" class="top-utility-link">Admin Control Room</a>
-      <button type="button" class="btn-outline-danger" id="btnLogoutAdmin" style="display: none; padding: 2px 8px; font-size: 11px;">Logout</button>
+      <button type="button" class="btn-nav-logout" id="btnLogoutAdmin" style="background: rgba(220, 53, 69, 0.2); border-color: rgba(220, 53, 69, 0.4); color: #ffffff; margin-left: 6px;">LOGOUT / SWITCH PORTAL</button>
     </div>
   </div>
 
@@ -36,21 +35,17 @@
   <header class="main-header">
     <div class="main-header-inner">
       <a href="/admin" class="brand-section">
-        <svg class="brand-emblem-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
-        <div class="brand-titles">
-          <h1 class="brand-main-title">Admin Logistics & Telemetry Console</h1>
-          <div class="brand-subtitle">Live OS Concurrency & Race Condition Simulator · CRIS Operations Architecture</div>
-          <div class="brand-subtitle" style="color: #fb792b; font-weight: 600;">State Election Logistics Officer Console · Central Control Room</div>
+        <div class="brand-container" style="display: flex; align-items: center; gap: 12px;">
+          <img src="/assets/vote_logo.png" alt="VoteIT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 2px;" />
+          <div>
+            <h1 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">VoteIT</h1>
+            <span style="font-size: 0.72rem; color: #a0aec0; letter-spacing: 0.04em; text-transform: uppercase;">One Nation One Election · Polling Logistics</span>
+            <div style="font-size: 0.68rem; color: #fb792b; font-weight: 600;">Admin Logistics & Telemetry Console · Live OS Concurrency & Race Condition Simulator</div>
+          </div>
         </div>
       </a>
-      <div class="header-telemetry-badge">
-        <span class="badge badge-partial" id="authRoleBadge">UNAUTHENTICATED</span>
-        <span id="authStatusText" style="font-size: 11px; color: #d6e2f5;"></span>
-      </div>
+      <span id="authRoleBadge" style="display:none;"></span>
+      <span id="authStatusText" style="display:none;"></span>
     </div>
   </header>
 
@@ -58,7 +53,7 @@
   <div class="advisory-ticker">
     <span class="advisory-badge">Control Room</span>
     <span class="advisory-text">
-      CONTROL ROOM ADVISORY: Real-time telemetry monitoring 8 polling stations, 32 discretized time-slots, LRU memory caches, and multi-threaded row-level locking (SELECT ... FOR UPDATE).
+      CONTROL ROOM ADVISORY: Real-time operational monitoring across 8 polling stations, 32 discretized time-slots, and concurrent queue scheduling.
     </span>
   </div>
 
@@ -102,10 +97,16 @@
         <div style="font-size: 14px; font-weight: 800; color: var(--irctc-navy-primary); text-transform: uppercase;">
           REAL-TIME STATE LOGISTICS & TELEMETRY
         </div>
-        <button type="button" class="btn-secondary" id="btnRefreshDashboard">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Refresh Data
-        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary" id="btnExportTelemetry">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Telemetry (JSON)
+          </button>
+          <button type="button" class="btn-secondary" id="btnRefreshDashboard">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh Data
+          </button>
+        </div>
       </div>
 
       <!-- 4 CRIS-Style KPI Cards -->
@@ -153,11 +154,11 @@
       <section class="irctc-card">
         <div class="irctc-card-header">
           <span>LIVE OS CONCURRENCY & RACE CONDITION SIMULATOR</span>
-          <span class="header-sub">10-Thread Barrier Zero Overbooking Demo (SELECT ... FOR UPDATE)</span>
+          <span class="header-sub">10-Thread Barrier Zero Overbooking Demo</span>
         </div>
         <div class="irctc-card-body">
           <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
-            Simulate 10 simultaneous voter threads contending for the exact same remaining time-slot seat using Python threading barrier synchronization and MySQL InnoDB row-level locking.
+            Simulate 10 simultaneous voter threads contending for the exact same remaining time-slot seat using barrier synchronization and atomic row-level locking.
           </p>
 
           <button type="button" class="btn-primary" id="btnRunRaceSimulation" style="padding: 10px 24px;">
@@ -175,6 +176,51 @@
 
             <div id="raceThreadsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
               <!-- Dynamically populated by admin_dashboard.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive OS CPU Scheduler Policy Comparator -->
+      <section class="irctc-card">
+        <div class="irctc-card-header">
+          <span>OS CPU SCHEDULER POLICY COMPARATOR (FCFS VS. PRIORITY AGING)</span>
+          <span class="header-sub">Starvation Prevention & Dynamic Aging Verification</span>
+        </div>
+        <div class="irctc-card-body">
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+            Simulate a batch of 6 voter requests mixing General, Senior Citizen, and Divyaangjan PwD categories with varying wait times to demonstrate how OS Priority Aging elevates waiting general requests to guarantee starvation freedom.
+          </p>
+
+          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
+            <select class="form-select" id="selectPolicySwitch" style="max-width: 240px;">
+              <option value="PRIORITY_AGING">Policy: Priority with Aging</option>
+              <option value="FCFS">Policy: First-Come-First-Served (FCFS)</option>
+            </select>
+            <button type="button" class="btn-primary" id="btnComparePolicies" style="font-size: 12px; padding: 8px 18px;">
+              Run 6-Request Policy Simulation
+            </button>
+          </div>
+
+          <div id="policyComparisonArea" style="display: none;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); margin-bottom: 6px;" id="policyActiveNotice"></div>
+            <div class="data-table-container">
+              <table class="data-table" id="policyComparisonTable">
+                <thead>
+                  <tr>
+                    <th>Dispatch Rank</th>
+                    <th>Voter Name</th>
+                    <th>Category Quota</th>
+                    <th>Base Priority</th>
+                    <th>Wait Time</th>
+                    <th>Effective Priority</th>
+                    <th>Starvation Freedom Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated by admin_dashboard.js -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -211,7 +257,7 @@
       <section class="irctc-card">
         <div class="irctc-card-header">
           <span>OS CONCURRENCY & TRANSACTION AUDIT LOG (os_concurrency_audit)</span>
-          <span class="header-sub">ACID Telemetry & Mutex Contention Records</span>
+          <span class="header-sub">Transaction & Concurrency Audit Records</span>
         </div>
         <div class="data-table-container">
           <table class="data-table" id="auditTable">
@@ -329,19 +375,6 @@
   <script src="/js/api_client.js"></script>
   <script src="/js/admin_dashboard.js"></script>
 
-  <!-- Live Clock Script -->
-  <script>
-    function updateClockAdmin() {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, '0');
-      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} IST`;
-      const clockElem = document.getElementById("liveIstClockAdmin");
-      if (clockElem) {
-        clockElem.textContent = `26-Oct-2026 [${timeStr}]`;
-      }
-    }
-    setInterval(updateClockAdmin, 1000);
-    updateClockAdmin();
-  </script>
+
 </body>
 </html>

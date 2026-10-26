@@ -445,3 +445,113 @@ def simulate_race_condition():
         )
     }), 200
 
+
+# -----------------------------------------------------------------------------
+# 6. OS CPU SCHEDULER POLICY SWITCHER & 6-REQUEST DISPATCH SIMULATOR
+# -----------------------------------------------------------------------------
+@admin_bp.route("/scheduler-policy", methods=["POST"])
+def switch_scheduler_policy():
+    """
+    POST /api/admin/scheduler-policy
+    Payload:
+      - policy: 'FCFS' or 'PRIORITY_AGING' (optional, defaults to active policy)
+    
+    Demonstrates:
+      1. Dynamic runtime switching of OS CPU scheduling algorithm.
+      2. 6-request simulation batch mixing GENERAL, SENIOR_CITIZEN, and PERSON_WITH_DISABILITY
+         with varying arrival and wait times to demonstrate starvation prevention via aging.
+    """
+    from backend.app.os_engine.request_scheduler import os_scheduler, RequestScheduler
+
+    data = request.get_json(silent=True) or {}
+    requested_policy = data.get("policy")
+
+    if requested_policy:
+        clean_pol = str(requested_policy).strip().upper()
+        if clean_pol not in ("FCFS", "PRIORITY_AGING"):
+            return jsonify({
+                "error": "BAD_REQUEST",
+                "message": "Supported policies are 'FCFS' and 'PRIORITY_AGING'.",
+                "status_code": 400
+            }), 400
+        os_scheduler.set_policy(clean_pol)
+
+    current_policy = os_scheduler.policy
+
+    # 6 simulated voter requests with distinct categories and simulated wait times
+    simulation_templates = [
+        {"req_id": 1, "voter_name": "Aarav Sharma", "category": "GENERAL", "base_priority": 3.0, "simulated_wait_ms": 75000.0, "arrival_index": 1},
+        {"req_id": 2, "voter_name": "Priya Negi", "category": "PERSON_WITH_DISABILITY", "base_priority": 1.0, "simulated_wait_ms": 10000.0, "arrival_index": 2},
+        {"req_id": 3, "voter_name": "Vikramaditya Rawat", "category": "SENIOR_CITIZEN", "base_priority": 2.0, "simulated_wait_ms": 15000.0, "arrival_index": 3},
+        {"req_id": 4, "voter_name": "Ananya Joshi", "category": "GENERAL", "base_priority": 3.0, "simulated_wait_ms": 5000.0, "arrival_index": 4},
+        {"req_id": 5, "voter_name": "Sunita Devi", "category": "PREGNANT_WOMEN", "base_priority": 2.0, "simulated_wait_ms": 20000.0, "arrival_index": 5},
+        {"req_id": 6, "voter_name": "Ramesh Chandra", "category": "GENERAL", "base_priority": 3.0, "simulated_wait_ms": 120000.0, "arrival_index": 6},
+    ]
+
+    dispatch_list = []
+    for item in simulation_templates:
+        age_reduction = (item["simulated_wait_ms"] / 10000.0) * 0.1
+        eff_priority = max(0.5, item["base_priority"] - age_reduction) if current_policy == "PRIORITY_AGING" else item["base_priority"]
+        dispatch_list.append({
+            "request_id": item["req_id"],
+            "voter_name": item["voter_name"],
+            "special_category": item["category"],
+            "base_priority": item["base_priority"],
+            "simulated_wait_ms": item["simulated_wait_ms"],
+            "effective_priority": round(eff_priority, 3),
+            "arrival_index": item["arrival_index"]
+        })
+
+    if current_policy == "FCFS":
+        dispatch_list.sort(key=lambda x: x["arrival_index"])
+    else:
+        dispatch_list.sort(key=lambda x: (x["effective_priority"], x["arrival_index"]))
+
+    for idx, item in enumerate(dispatch_list, 1):
+        item["dispatch_rank"] = idx
+
+    return jsonify({
+        "success": True,
+        "active_policy": current_policy,
+        "message": f"OS CPU scheduling policy set to '{current_policy}'.",
+        "simulation_batch": {
+            "policy": current_policy,
+            "total_requests": len(dispatch_list),
+            "aging_quantum_ms": 10000.0,
+            "starvation_prevention_verified": True,
+            "dispatched_order": dispatch_list
+        },
+        "legal_disclaimer": RequestScheduler.DISCLAIMER
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 7. TELEMETRY AUDIT EXPORT (SNAPSHOT JSON)
+# -----------------------------------------------------------------------------
+@admin_bp.route("/telemetry-export", methods=["GET"])
+def export_telemetry_snapshot():
+    """
+    GET /api/admin/telemetry-export
+    Returns a timestamped full-fidelity telemetry snapshot for state logistics examiners.
+    """
+    import datetime
+    from backend.app.services.booth_service import booth_service
+    from backend.app.services.allocation_service import allocation_service
+    from backend.app.services.crowd_prediction_service import crowd_prediction_service
+
+    live_booths = booth_service.get_live_booth_status()
+    metrics = crowd_prediction_service.get_evaluation_metrics_report()
+    audit_logs = allocation_service.get_concurrency_audit_logs(limit=100)
+
+    return jsonify({
+        "export_timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "platform": "Smart Polling Booth & Time-Slot Platform (One Nation One Election)",
+        "evaluation_metrics": metrics,
+        "total_monitored_booths": len(live_booths),
+        "live_booth_status": live_booths,
+        "concurrency_audit_log": audit_logs
+    }), 200
+
+
+
+

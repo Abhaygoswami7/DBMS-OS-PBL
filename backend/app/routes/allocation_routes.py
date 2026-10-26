@@ -224,3 +224,136 @@ def cancel_allocation(alloc_id):
         "message": f"Could not cancel allocation: {status_code}",
         "status_code": 400
     }), 400
+
+
+# -----------------------------------------------------------------------------
+# 4. DEADLOCK-SAFE SLOT RESCHEDULING (Coffman Condition Prevention)
+# -----------------------------------------------------------------------------
+@allocation_bp.route("/allocations/<path:alloc_id>/reschedule", methods=["PUT"])
+def reschedule_allocation(alloc_id):
+    """
+    PUT /api/allocations/<booking_token>/reschedule
+    Payload:
+      - new_slot_id: int (required)
+    
+    Guarantees:
+      1. Dual resource ordering: min(old_slot_id, new_slot_id) -> max(old_slot_id, new_slot_id).
+      2. Atomically frees capacity in old slot and reserves capacity in new slot inside ACID transaction.
+      3. Returns updated appointment slip, lock acquisition order, and PCB telemetry.
+    """
+    data = request.get_json(silent=True) or {}
+    new_slot_id = data.get("new_slot_id")
+
+    if not new_slot_id:
+        return jsonify({
+            "error": "BAD_REQUEST",
+            "message": "Missing required field: 'new_slot_id'.",
+            "status_code": 400
+        }), 400
+
+    try:
+        new_slot_num = int(new_slot_id)
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "BAD_REQUEST",
+            "message": "'new_slot_id' must be an integer.",
+            "status_code": 400
+        }), 400
+
+    # Retrieve current active allocation
+    with db_pool.get_cursor() as (conn, cursor):
+        if alloc_id.startswith("TKN-") or "-" in alloc_id:
+            cursor.execute(
+                """
+                SELECT allocation_id, voter_id, booth_id, slot_id, booking_reference_token, status
+                FROM slot_allocations
+                WHERE booking_reference_token = %s;
+                """,
+                (alloc_id,)
+            )
+        else:
+            try:
+                numeric_id = int(alloc_id)
+                cursor.execute(
+                    """
+                    SELECT allocation_id, voter_id, booth_id, slot_id, booking_reference_token, status
+                    FROM slot_allocations
+                    WHERE allocation_id = %s;
+                    """,
+                    (numeric_id,)
+                )
+            except ValueError:
+                cursor.execute(
+                    """
+                    SELECT allocation_id, voter_id, booth_id, slot_id, booking_reference_token, status
+                    FROM slot_allocations
+                    WHERE booking_reference_token = %s;
+                    """,
+                    (alloc_id,)
+                )
+
+        row = cursor.fetchone()
+
+    if not row or row["status"] != "CONFIRMED":
+        return jsonify({
+            "error": "NOT_FOUND",
+            "message": f"Active confirmed allocation for '{alloc_id}' not found.",
+            "status_code": 404
+        }), 404
+
+    voter_id = row["voter_id"]
+    booth_id = row["booth_id"]
+    old_slot_id = row["slot_id"]
+    token = row["booking_reference_token"]
+
+    if int(old_slot_id) == new_slot_num:
+        return jsonify({
+            "error": "BAD_REQUEST",
+            "message": "New slot ID must be different from current slot ID.",
+            "status_code": 400
+        }), 400
+
+    lock_order = [min(int(old_slot_id), new_slot_num), max(int(old_slot_id), new_slot_num)]
+
+    realloc_res = allocation_service.reallocate_voter_slot(
+        voter_id=voter_id,
+        booth_id=booth_id,
+        old_slot_id=int(old_slot_id),
+        new_slot_id=new_slot_num,
+        booking_reference_token=token
+    )
+
+    if realloc_res["success"]:
+        new_token = realloc_res["new_booking_reference_token"]
+        new_slip = allocation_service.get_voter_appointment_slip(booking_reference_token=new_token)
+        return jsonify({
+            "success": True,
+            "status": "CONFIRMED",
+            "message": "Time-slot successfully rescheduled with deadlock-free lock ordering.",
+            "booking_reference_token": new_token,
+            "new_booking_reference_token": new_token,
+            "old_slot_id": int(old_slot_id),
+            "new_slot_id": new_slot_num,
+            "lock_acquisition_order": lock_order,
+            "appointment_slip": new_slip,
+            "pcb_telemetry": realloc_res.get("pcb_telemetry", {})
+        }), 200
+
+    status_code = realloc_res.get("status_code", "REALLOCATION_FAILED")
+    if "CAPACITY" in status_code or "FULL" in status_code:
+        return jsonify({
+            "error": "CONFLICT",
+            "status_code": status_code,
+            "message": f"Target time-slot {new_slot_num} has reached maximum capacity.",
+            "lock_acquisition_order": lock_order,
+            "pcb_telemetry": realloc_res.get("pcb_telemetry", {})
+        }), 409
+
+    return jsonify({
+        "error": status_code,
+        "status_code": status_code,
+        "message": f"Could not reschedule slot: {status_code}",
+        "lock_acquisition_order": lock_order,
+        "pcb_telemetry": realloc_res.get("pcb_telemetry", {})
+    }), 400
+

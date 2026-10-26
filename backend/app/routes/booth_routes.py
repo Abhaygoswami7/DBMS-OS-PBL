@@ -48,10 +48,10 @@ def get_nearby_booths():
     elif legacy_access_param is not None:
         accessibility_flag = legacy_access_param.lower() in ("true", "1", "yes")
 
-    # Validate coordinates if provided
+    # Validate coordinates if provided (default to Bhimtal academic reference)
     try:
-        user_lat = float(lat_param) if lat_param is not None else 30.34215
-        user_lon = float(lon_param) if lon_param is not None else 78.02148
+        user_lat = float(lat_param) if lat_param is not None else 29.3444
+        user_lon = float(lon_param) if lon_param is not None else 79.5632
     except (ValueError, TypeError):
         return jsonify({
             "error": "BAD_REQUEST",

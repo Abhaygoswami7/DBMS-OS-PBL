@@ -1,4 +1,5 @@
-# Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election
+# VoteIT — One Nation One Election Polling Logistics Platform
+### Smart Polling Booth & Time-Slot Allocation Platform for One Nation One Election (ONOE)
 
 [![Academic Level](https://img.shields.io/badge/Degree-B.Tech%20CSE%20(AI%2FML)-blue.svg)](https://en.wikipedia.org/wiki/Bachelor_of_Technology)
 [![Subject](https://img.shields.io/badge/Course-DBMS%20%2B%20OS%20Project--Based%20Learning-orange.svg)]()

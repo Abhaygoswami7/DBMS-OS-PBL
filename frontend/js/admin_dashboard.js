@@ -25,15 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authRoleBadge = document.getElementById("authRoleBadge");
   const authStatusText = document.getElementById("authStatusText");
 
-  // Contrast Mode Toggle
-  const contrastBtn = document.getElementById("contrastToggleBtn");
-  if (contrastBtn) {
-    contrastBtn.addEventListener("click", () => {
-      document.body.classList.toggle("high-contrast-mode");
-      const active = document.body.classList.contains("high-contrast-mode");
-      contrastBtn.textContent = active ? "Normal Mode" : "High Contrast Mode";
-    });
-  }
+
 
   // Preset Selector change
   adminQuickPreset?.addEventListener("change", (e) => {
@@ -42,10 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
     adminPassword.value = p;
   });
 
-  // Check existing token on page load
+  // Check existing token on page load or redirect to Login Gateway
   const existingToken = window.apiClient.getAdminToken();
   if (existingToken) {
     initializeDashboard();
+  } else {
+    // If not authenticated, enforce Gateway access
+    window.apiClient.checkAdminAuth();
   }
 
   // Login Execution
@@ -74,13 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Logout Execution
   btnLogoutAdmin?.addEventListener("click", () => {
     window.apiClient.clearAdminToken();
-    adminAuthSection.style.display = "block";
-    dashboardMainArea.style.display = "none";
-    btnLogoutAdmin.style.display = "none";
-    authRoleBadge.textContent = "UNAUTHENTICATED";
-    authRoleBadge.className = "badge badge-partial";
-    authStatusText.textContent = "";
     window.apiClient.showToast("Logged out successfully.", "info");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 200);
   });
 
   async function initializeDashboard(user = null) {
@@ -91,8 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const role = user?.role || "SUPER_ADMIN";
     const name = user?.name || "State Election Logistics Officer";
 
-    authRoleBadge.textContent = `${role} · ${name}`;
-    authRoleBadge.className = "badge badge-open";
+    if (authRoleBadge) {
+      authRoleBadge.textContent = `${role} · ${name}`;
+      authRoleBadge.className = "badge badge-open";
+    }
 
     await refreshDashboardData();
     await loadCrowdPredictionsChart();
@@ -497,4 +491,79 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshDashboardData();
     }
   });
+
+  // ---------------------------------------------------------------------------
+  // 1-Click Telemetry Audit Export (JSON Snapshot)
+  // ---------------------------------------------------------------------------
+  const btnExportTelemetry = document.getElementById("btnExportTelemetry");
+  btnExportTelemetry?.addEventListener("click", async () => {
+    btnExportTelemetry.disabled = true;
+    btnExportTelemetry.textContent = "Exporting...";
+
+    const res = await window.apiClient.exportTelemetry();
+    btnExportTelemetry.disabled = false;
+    btnExportTelemetry.textContent = "Export Telemetry (JSON)";
+
+    if (res.ok) {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(res, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `State_Logistics_Telemetry_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      window.apiClient.showToast("Telemetry report snapshot downloaded successfully.", "success");
+    } else {
+      window.apiClient.showToast("Failed to export telemetry snapshot.", "error");
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Interactive OS CPU Scheduler Policy Comparator (FCFS vs Priority Aging)
+  // ---------------------------------------------------------------------------
+  const btnComparePolicies = document.getElementById("btnComparePolicies");
+  const selectPolicySwitch = document.getElementById("selectPolicySwitch");
+  const policyComparisonArea = document.getElementById("policyComparisonArea");
+  const policyActiveNotice = document.getElementById("policyActiveNotice");
+  const policyComparisonTableBody = document.querySelector("#policyComparisonTable tbody");
+
+  btnComparePolicies?.addEventListener("click", async () => {
+    const selectedPolicy = selectPolicySwitch?.value || "PRIORITY_AGING";
+    btnComparePolicies.disabled = true;
+    btnComparePolicies.textContent = "Simulating Dispatch Batch...";
+
+    const res = await window.apiClient.switchSchedulerPolicy(selectedPolicy);
+    btnComparePolicies.disabled = false;
+    btnComparePolicies.textContent = "Run 6-Request Policy Simulation";
+
+    if (res.ok && res.simulation_batch) {
+      policyComparisonArea.style.display = "block";
+      policyActiveNotice.textContent = `Active Dispatch Policy: ${res.active_policy} · Starvation Prevention Guaranteed`;
+
+      if (policyComparisonTableBody) {
+        policyComparisonTableBody.innerHTML = "";
+        res.simulation_batch.dispatched_order.forEach(item => {
+          const tr = document.createElement("tr");
+          const isPromoted = (item.effective_priority < item.base_priority);
+          const statusBadge = (res.active_policy === "PRIORITY_AGING")
+            ? (isPromoted ? `<span class="badge badge-open">PROMOTED BY AGING</span>` : `<span class="badge badge-partial">BASE QUOTA PRIORITY</span>`)
+            : `<span class="badge badge-partial">FIFO QUEUE ORDER</span>`;
+
+          tr.innerHTML = `
+            <td style="font-family: var(--font-mono); font-weight: 700;">#${item.dispatch_rank}</td>
+            <td><strong>${item.voter_name}</strong></td>
+            <td><span class="jurisdiction-tag">${item.special_category}</span></td>
+            <td style="font-family: var(--font-mono);">${item.base_priority}</td>
+            <td style="font-family: var(--font-mono);">${(item.simulated_wait_ms / 1000).toFixed(0)}s wait</td>
+            <td style="font-family: var(--font-mono); font-weight: 700; color: ${isPromoted ? 'var(--irctc-orange-primary)' : 'inherit'};">${item.effective_priority}</td>
+            <td>${statusBadge}</td>
+          `;
+          policyComparisonTableBody.appendChild(tr);
+        });
+      }
+
+      window.apiClient.showToast(`Scheduler switched to ${res.active_policy}: 6 requests dispatched.`, "success");
+    }
+  });
 });
+

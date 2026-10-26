@@ -24,8 +24,21 @@ logger = logging.getLogger("auth_service")
 DEMO_ADMIN_CREDENTIALS = {
     "admin": {
         "password": "admin2026password",
+        "alt_passwords": ["Admin@ONOE2026!", "admin123"],
         "role": "SUPER_ADMIN",
         "name": "State Election Logistics Officer"
+    },
+    "eci_observer": {
+        "password": "observer2026",
+        "alt_passwords": ["observer2026password"],
+        "role": "SUPER_ADMIN",
+        "name": "ECI Central Observer"
+    },
+    "booth_officer": {
+        "password": "officer456",
+        "alt_passwords": ["officer2026password"],
+        "role": "BOOTH_OPERATOR",
+        "name": "Booth Returning Officer"
     },
     "constituency_officer": {
         "password": "officer2026password",
@@ -62,7 +75,10 @@ class AuthService:
     def authenticate_admin(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """Validates administrator credentials and issues a signed JWT token."""
         user = DEMO_ADMIN_CREDENTIALS.get(username)
-        if not user or user["password"] != password:
+        if not user:
+            return None
+        valid_passwords = [user["password"]] + user.get("alt_passwords", [])
+        if password not in valid_passwords:
             return None
 
         now = int(time.time())
