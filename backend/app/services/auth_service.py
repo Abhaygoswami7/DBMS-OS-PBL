@@ -154,66 +154,19 @@ class AuthService:
     ) -> Tuple[bool, str, Optional[str]]:
         """
         Simulates voter identity verification (guardrail compliant):
-        - Validates voter existence.
-        - Generates synthetic verification token (SIM-OTP, SIM-EPIC-HASH, DEMO-BIOMETRIC-TOKEN).
+        - Delegates to verification_service for SHA-256 salted anonymized hashing.
+        - Guarantees that raw identification digits are never stored in the database.
         - Inserts an audit entry into MySQL `simulated_verifications`.
         - Updates voter `simulated_verification_status` to 'SIMULATED_VERIFIED'.
         """
-        valid_methods = {"SIMULATED_OTP", "SIMULATED_EPIC_HASH", "DEMO_BIOMETRIC_TOKEN"}
-        if method not in valid_methods:
-            return False, "INVALID_VERIFICATION_METHOD", None
-
-        with db_pool.get_cursor() as (conn, cursor):
-            # 1. Fetch voter record
-            cursor.execute(
-                "SELECT voter_id, demo_epic_no, assigned_booth_id, simulated_verification_status "
-                "FROM voters WHERE voter_id = %s;",
-                (voter_id,)
-            )
-            voter = cursor.fetchone()
-            if not voter:
-                return False, "VOTER_NOT_FOUND", None
-
-            # 2. Verify booth jurisdiction
-            if voter["assigned_booth_id"] != booth_id:
-                return False, "INVALID_BOOTH_JURISDICTION", None
-
-            # 3. Generate synthetic token
-            if method == "SIMULATED_OTP":
-                token = mock_input if (mock_input and mock_input.startswith("SIM-OTP-")) else self.generate_simulated_otp(voter_id)
-            elif method == "SIMULATED_EPIC_HASH":
-                token = f"SIM-EPIC-HASH-{abs(hash(voter['demo_epic_no'])) % 1000000:06d}"
-            else:
-                token = f"SIM-BIO-DEMO-{random.randint(100000, 999999)}"
-
-            # 4. Insert into simulated_verifications
-            cursor.execute(
-                """
-                INSERT INTO simulated_verifications
-                (voter_id, booth_id, simulated_token, verification_method, status, failure_reason)
-                VALUES (%s, %s, %s, %s, 'PASSED', NULL);
-                """,
-                (voter_id, booth_id, token, method)
-            )
-
-            # 5. Update voter verification status
-            cursor.execute(
-                """
-                UPDATE voters
-                SET simulated_verification_status = 'SIMULATED_VERIFIED'
-                WHERE voter_id = %s;
-                """,
-                (voter_id,)
-            )
-            conn.commit()
-
-            os_file_logger.log_trace(
-                event_type="SIMULATED_VERIFICATION_SUCCESS",
-                message=f"Voter {voter_id} successfully verified using {method}",
-                extra={"voter_id": voter_id, "booth_id": booth_id, "token": token}
-            )
-
-            return True, "SUCCESS", token
+        from backend.app.services.verification_service import verification_service
+        return verification_service.process_anonymized_verification(
+            voter_id=voter_id,
+            booth_id=booth_id,
+            raw_identification=mock_input,
+            verification_method=method,
+            mock_input=mock_input
+        )
 
 # Singleton instance
 auth_service = AuthService()

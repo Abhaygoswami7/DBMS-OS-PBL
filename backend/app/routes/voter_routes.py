@@ -14,6 +14,7 @@ from flask import Blueprint, request, jsonify
 from backend.app.services.voter_service import voter_service
 from backend.app.services.auth_service import auth_service
 from backend.app.services.booth_service import booth_service
+from backend.app.services.verification_service import verification_service
 
 voter_bp = Blueprint("voter_bp", __name__)
 
@@ -117,6 +118,19 @@ def register_or_lookup_voter():
             "status_code": 400
         }), 400
 
+    # Optional Identification number validation before registration (Never store raw digits)
+    raw_id = data.get("identification_number") or data.get("id_number")
+    anonymized_hash = None
+    if raw_id:
+        is_valid, err_code, err_msg = verification_service.validate_raw_identifier(raw_id)
+        if not is_valid:
+            return jsonify({
+                "error": err_code,
+                "message": f"Identification validation failed: {err_msg}",
+                "status_code": 400
+            }), 400
+        anonymized_hash = verification_service.hash_identifier(raw_id)
+
     # Perform registration
     success, reason, new_voter_id = voter_service.register_synthetic_voter(data)
     if not success:
@@ -126,12 +140,30 @@ def register_or_lookup_voter():
             "status_code": 400
         }), 400
 
+    # If identification was supplied, record only the 64-character anonymized hash token in simulated_verifications
+    if anonymized_hash and new_voter_id:
+        try:
+            from database.db_pool import db_pool
+            with db_pool.get_cursor() as (conn, cursor):
+                cursor.execute(
+                    """
+                    INSERT INTO simulated_verifications
+                    (voter_id, booth_id, simulated_token, verification_method, status)
+                    VALUES (%s, %s, %s, 'SIMULATED_EPIC_HASH', 'PASSED');
+                    """,
+                    (new_voter_id, int(assigned_booth_id), anonymized_hash)
+                )
+                conn.commit()
+        except Exception as e:
+            pass
+
     created_voter = voter_service.get_voter_by_id(new_voter_id)
     return jsonify({
         "success": True,
         "status": "REGISTERED",
         "message": f"Synthetic demo voter registered successfully with ID {new_voter_id}.",
-        "voter": created_voter
+        "voter": created_voter,
+        "anonymized_hash": anonymized_hash
     }), 201
 
 
@@ -140,7 +172,8 @@ def simulated_verification():
     """
     POST /api/verification/mock
     Simulated ECI identity verification with explicit consent_given=true check.
-    Never accepts real government IDs or biometrics.
+    Validates format pre-hashing and computes 64-character anonymized token.
+    Never accepts real government IDs or raw biometrics.
     """
     data = request.get_json(silent=True) or {}
 
@@ -181,7 +214,17 @@ def simulated_verification():
         }), 400
 
     method = data.get("verification_method", "SIMULATED_OTP").upper()
-    mock_input = data.get("mock_input")
+    mock_input = data.get("mock_input") or data.get("identification_number") or data.get("id_number")
+
+    # Pre-hashing format validation on raw input (clean rejection without storing)
+    if mock_input and not str(mock_input).startswith("SIM-OTP-"):
+        is_valid, err_code, err_msg = verification_service.validate_raw_identifier(mock_input)
+        if not is_valid:
+            return jsonify({
+                "error": err_code,
+                "message": f"Identification format invalid: {err_msg}",
+                "status_code": 400
+            }), 400
 
     success, status_code, token = auth_service.verify_simulated_voter(
         voter_id=int(voter_id),

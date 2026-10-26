@@ -18,6 +18,8 @@ from backend.app.services.crowd_prediction_service import (
 
 booth_bp = Blueprint("booth_bp", __name__)
 
+from backend.app.services.geo_booth_ranker import geo_booth_ranker, haversine_distance_km
+
 @booth_bp.route("/booths/nearby", methods=["GET"])
 def get_nearby_booths():
     """
@@ -26,13 +28,25 @@ def get_nearby_booths():
       - lat: float (voter GPS latitude)
       - lon: float (voter GPS longitude)
       - constituency_id: optional int (filter by PC or AC)
-      - accessibility_needed: optional bool ('true'/'1' requires wheelchair ramp)
-    Calculates Haversine distance and ranks booths by composite accessibility and proximity score.
+      - pc_id: optional int (filter by Parliamentary Constituency)
+      - ac_id: optional int (filter by Assembly Constituency)
+      - requires_wheelchair_accessibility / accessibility_needed: optional bool ('true'/'1' requires ramp)
+    Calculates Haversine distance and ranks booths by composite accessibility, proximity, and live capacity score.
     """
     lat_param = request.args.get("lat")
     lon_param = request.args.get("lon")
     constituency_param = request.args.get("constituency_id")
-    accessibility_param = request.args.get("accessibility_needed", "false").lower() in ("true", "1", "yes")
+    pc_param = request.args.get("pc_id")
+    ac_param = request.args.get("ac_id")
+    
+    # Check both requires_wheelchair_accessibility and accessibility_needed query flags
+    req_access_param = request.args.get("requires_wheelchair_accessibility")
+    legacy_access_param = request.args.get("accessibility_needed")
+    accessibility_flag = False
+    if req_access_param is not None:
+        accessibility_flag = req_access_param.lower() in ("true", "1", "yes")
+    elif legacy_access_param is not None:
+        accessibility_flag = legacy_access_param.lower() in ("true", "1", "yes")
 
     # Validate coordinates if provided
     try:
@@ -56,46 +70,37 @@ def get_nearby_booths():
                 "status_code": 400
             }), 400
 
-    all_booths = booth_service.get_polling_booths()
-    ranked_booths = []
+    pc_id = None
+    if pc_param is not None:
+        try:
+            pc_id = int(pc_param)
+        except ValueError:
+            return jsonify({
+                "error": "BAD_REQUEST",
+                "message": "Invalid pc_id parameter. Must be an integer.",
+                "status_code": 400
+            }), 400
 
-    for b in all_booths:
-        # Constituency filter
-        if constituency_id is not None:
-            if b.get("pc_id") != constituency_id and b.get("ac_id") != constituency_id:
-                continue
+    ac_id = None
+    if ac_param is not None:
+        try:
+            ac_id = int(ac_param)
+        except ValueError:
+            return jsonify({
+                "error": "BAD_REQUEST",
+                "message": "Invalid ac_id parameter. Must be an integer.",
+                "status_code": 400
+            }), 400
 
-        # Wheelchair accessibility filter
-        has_ramp = bool(b.get("has_wheelchair_ramp", 1))
-        if accessibility_param and not has_ramp:
-            continue
-
-        stn_lat = float(b.get("latitude") or 30.34215)
-        stn_lon = float(b.get("longitude") or 78.02148)
-        dist_km = haversine_distance_km(user_lat, user_lon, stn_lat, stn_lon)
-
-        # Composite proximity & capacity ranking score (lower is better)
-        composite_score = round(dist_km * 2.0 - (b.get("max_capacity_per_slot", 40) * 0.05), 3)
-
-        ranked_booths.append({
-            "booth_id": b["booth_id"],
-            "booth_number": b["booth_number"],
-            "booth_name": b["booth_name"],
-            "room_number": b["room_number"],
-            "max_capacity_per_slot": b["max_capacity_per_slot"],
-            "evm_units_count": b["evm_units_count"],
-            "station_id": b["station_id"],
-            "station_name": b["station_name"],
-            "station_address": b["station_address"],
-            "has_wheelchair_ramp": has_ramp,
-            "parliamentary_constituency": b["parliamentary_constituency"],
-            "assembly_constituency": b["assembly_constituency"],
-            "distance_km": dist_km,
-            "composite_score": composite_score
-        })
-
-    # Sort by composite score
-    ranked_booths.sort(key=lambda x: x["composite_score"])
+    # Delegate to GeoBoothRanker for Haversine distance and multi-criteria composite ranking
+    ranked_booths = geo_booth_ranker.rank_booths(
+        user_lat=user_lat,
+        user_lon=user_lon,
+        constituency_id=constituency_id,
+        requires_wheelchair_accessibility=accessibility_flag,
+        pc_id=pc_id,
+        ac_id=ac_id
+    )
 
     return jsonify({
         "success": True,
@@ -103,7 +108,10 @@ def get_nearby_booths():
             "latitude": user_lat,
             "longitude": user_lon,
             "constituency_id": constituency_id,
-            "accessibility_needed": accessibility_param
+            "pc_id": pc_id,
+            "ac_id": ac_id,
+            "requires_wheelchair_accessibility": accessibility_flag,
+            "accessibility_needed": accessibility_flag
         },
         "total_booths_found": len(ranked_booths),
         "booths": ranked_booths

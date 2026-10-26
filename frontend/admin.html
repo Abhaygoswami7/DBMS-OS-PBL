@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Logistics & OS/ML Telemetry Dashboard | One Nation One Election</title>
+  <title>Admin Logistics & Telemetry Console | Live OS Concurrency & Race Condition Simulator</title>
   
-  <!-- Modern Google Fonts -->
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
   <!-- Chart.js CDN for ML vs Confirmed Capacity Analytics (with fallback) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" onerror="window.chartJsFailed=true"></script>
@@ -18,316 +18,303 @@
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
-  <header class="top-nav">
-    <a href="/admin" class="brand-wrapper">
-      <div class="brand-emblem" style="background: linear-gradient(135deg, #06b6d4, #6366f1); color: #ffffff;">⚙️</div>
-      <div class="brand-title-group">
-        <h1>Admin Logistics & Telemetry Console</h1>
-        <div class="sub">OS Concurrency Engine & AI Crowd Prediction Intelligence</div>
-      </div>
-    </a>
-    <div class="nav-actions">
-      <button id="contrastToggleBtn" class="btn-nav btn-accessibility" title="Toggle Assistive High Contrast Mode">
-        👁️ High Contrast Mode
-      </button>
-      <a href="/" class="btn-nav" title="Switch to Voter Portal">
-        👤 Voter Portal
+  <!-- Tier 1: Top Utility Bar -->
+  <div class="top-utility-bar">
+    <div class="top-utility-left">
+      <span class="top-utility-tag">CRIS · ECI NATIONAL POLLING LOGISTICS CONTROL ROOM</span>
+      <span class="top-utility-clock" id="liveIstClockAdmin">26-Oct-2026 [10:00:00 IST]</span>
+    </div>
+    <div class="top-utility-right">
+      <button type="button" class="btn-contrast-mode" id="contrastToggleBtn">High Contrast Mode</button>
+      <a href="/" class="top-utility-link">Voter Portal</a>
+      <a href="/admin" class="top-utility-link">Admin Control Room</a>
+      <button type="button" class="btn-outline-danger" id="btnLogoutAdmin" style="display: none; padding: 2px 8px; font-size: 11px;">Logout</button>
+    </div>
+  </div>
+
+  <!-- Tier 2: Main Institutional Header -->
+  <header class="main-header">
+    <div class="main-header-inner">
+      <a href="/admin" class="brand-section">
+        <svg class="brand-emblem-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <div class="brand-titles">
+          <h1 class="brand-main-title">Admin Logistics & Telemetry Console</h1>
+          <div class="brand-subtitle">Live OS Concurrency & Race Condition Simulator · CRIS Operations Architecture</div>
+          <div class="brand-subtitle" style="color: #fb792b; font-weight: 600;">State Election Logistics Officer Console · Central Control Room</div>
+        </div>
       </a>
-      <button id="btnLogoutAdmin" class="btn-nav" style="display: none; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
-        Logout
-      </button>
+      <div class="header-telemetry-badge">
+        <span class="badge badge-partial" id="authRoleBadge">UNAUTHENTICATED</span>
+        <span id="authStatusText" style="font-size: 11px; color: #d6e2f5;"></span>
+      </div>
     </div>
   </header>
 
-  <!-- Legal & Administrative Advisory Banner -->
-  <div class="legal-banner">
-    <span class="legal-banner-badge" style="background: #06b6d4;">SUPERVISORY TELEMETRY</span>
-    <span>
-      State Election Logistics Supervisory Portal: All metrics reflect synchronized MySQL 8.0+ 3NF transactional records, OS thread synchronization, and Scikit-Learn Random Forest crowd forecasts.
+  <!-- IRCTC Scrolling Advisory Ticker -->
+  <div class="advisory-ticker">
+    <span class="advisory-badge">Control Room</span>
+    <span class="advisory-text">
+      CONTROL ROOM ADVISORY: Real-time telemetry monitoring 8 polling stations, 32 discretized time-slots, LRU memory caches, and multi-threaded row-level locking (SELECT ... FOR UPDATE).
     </span>
   </div>
 
+  <!-- Main Content Layout -->
   <main class="main-content">
 
-    <!-- ========================================================================
-         ADMIN LOGIN & AUTHENTICATION MODAL / PANEL
-         ======================================================================== -->
-    <section class="portal-card" id="adminAuthSection">
-      <div class="portal-card-header">
-        <div>
-          <div class="portal-card-title">
-            <span>🔐</span> State Election Administrator Authentication
-          </div>
-          <div class="portal-card-subtitle">
-            Sign in to access live live booth occupancy, OS mutex telemetry, and configure polling booths/slots.
-          </div>
-        </div>
-        <div class="badge badge-partial" id="authRoleBadge">UNAUTHENTICATED</div>
+    <!-- Admin Authentication Section -->
+    <section id="adminAuthSection" class="irctc-card" style="max-width: 540px; margin: 30px auto;">
+      <div class="irctc-card-header">
+        <span>ADMINISTRATOR IDENTITY VERIFICATION</span>
+        <span class="header-sub">JWT Role-Based Access Control</span>
       </div>
-
-      <div class="form-grid">
+      <div class="irctc-card-body">
         <div class="form-group">
-          <label class="form-label" for="adminQuickPreset">One-Click Faculty Demo Credentials</label>
+          <label class="form-label" for="adminQuickPreset">Quick Demo Credential Preset</label>
           <select class="form-select" id="adminQuickPreset">
-            <option value="admin|admin2026password">Super Admin (State Logistics Officer)</option>
-            <option value="officer_ddn|officer2026password">Polling Officer (Dehradun Station)</option>
-            <option value="officer_hwr|officer2026password">Polling Officer (Haridwar Station)</option>
+            <option value="admin|admin123">State Logistics Officer (admin / admin123)</option>
+            <option value="eci_observer|observer2026">ECI Central Observer (eci_observer / observer2026)</option>
+            <option value="booth_officer|officer456">Booth Returning Officer (booth_officer / officer456)</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label" for="adminUsername">Username</label>
-          <input type="text" class="form-input" id="adminUsername" value="admin" />
+          <input type="text" class="form-control" id="adminUsername" value="admin" />
         </div>
         <div class="form-group">
           <label class="form-label" for="adminPassword">Password</label>
-          <input type="password" class="form-input" id="adminPassword" value="admin2026password" />
+          <input type="password" class="form-control" id="adminPassword" value="admin123" />
         </div>
-      </div>
-
-      <div style="display: flex; gap: 1rem; align-items: center;">
-        <button class="btn-primary" id="btnAdminLogin">🚀 Login as Administrator</button>
-        <div id="authStatusText" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+        <button type="button" class="btn-primary" id="btnAdminLogin" style="width: 100%; height: 42px; font-size: 13px; margin-top: 10px;">
+          Login as Administrator
+        </button>
       </div>
     </section>
 
-    <!-- ========================================================================
-         MAIN DASHBOARD PANELS (Revealed after Admin Login)
-         ======================================================================== -->
+    <!-- Main Dashboard Area (Visible after auth) -->
     <div id="dashboardMainArea" style="display: none;">
 
-      <!-- KPI Summary Cards Grid -->
-      <section class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-card-label">Monitored Polling Booths</div>
-          <div class="kpi-card-value" id="kpiBoothsCount">8</div>
-          <div class="kpi-card-badge" style="color: var(--accent-cyan);">4 Stations · 2 PCs · 4 ACs</div>
+      <!-- Top Toolbar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="font-size: 14px; font-weight: 800; color: var(--irctc-navy-primary); text-transform: uppercase;">
+          REAL-TIME STATE LOGISTICS & TELEMETRY
         </div>
+        <button type="button" class="btn-secondary" id="btnRefreshDashboard">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh Data
+        </button>
+      </div>
 
-        <div class="kpi-card">
-          <div class="kpi-card-label">Active Booked Slots</div>
-          <div class="kpi-card-value" id="kpiActiveSlots">32</div>
-          <div class="kpi-card-badge" style="color: var(--accent-emerald);">Synchronized via Triggers</div>
+      <!-- 4 CRIS-Style KPI Cards -->
+      <div class="admin-kpi-grid">
+        <div class="cris-kpi-card">
+          <div class="cris-kpi-title">Monitored Polling Booths</div>
+          <div class="cris-kpi-value" id="kpiBoothsCount">8</div>
+          <div class="cris-kpi-sub">Dehradun Cantt & Rajpur ACs</div>
         </div>
-
-        <div class="kpi-card">
-          <div class="kpi-card-label">OS LRU Cache Hit Ratio</div>
-          <div class="kpi-card-value" id="kpiCacheHitRatio">92.4%</div>
-          <div class="kpi-card-badge" style="color: var(--accent-amber);" id="kpiCacheStats">Hits: 0 · Misses: 0</div>
+        <div class="cris-kpi-card accent-orange">
+          <div class="cris-kpi-title">Active Discretized Slots</div>
+          <div class="cris-kpi-value" id="kpiActiveSlots" style="color: var(--irctc-orange-primary);">32</div>
+          <div class="cris-kpi-sub">07:00 to 17:30 Polling Windows</div>
         </div>
+        <div class="cris-kpi-card">
+          <div class="cris-kpi-title">OS LRU Cache Hit Ratio</div>
+          <div class="cris-kpi-value" id="kpiCacheHitRatio">92.4%</div>
+          <div class="cris-kpi-sub" id="kpiCacheStats">Hits: 0 · Misses: 0</div>
+        </div>
+        <div class="cris-kpi-card accent-orange">
+          <div class="cris-kpi-title">AI Demand Model Accuracy</div>
+          <div class="cris-kpi-value" id="kpiAiR2" style="color: var(--irctc-orange-primary);">R² = 0.949</div>
+          <div class="cris-kpi-sub">Random Forest Regressor (MAE: 1.48)</div>
+        </div>
+      </div>
 
-        <div class="kpi-card">
-          <div class="kpi-card-label">AI Model Accuracy</div>
-          <div class="kpi-card-value" style="color: var(--accent-emerald);" id="kpiAiR2">R² = 0.9491</div>
-          <div class="kpi-card-badge" style="color: var(--accent-emerald);">76.1% lower MAE vs Baseline</div>
+      <!-- Overloaded Booths Alert Container -->
+      <div id="overloadedAlertsArea" style="margin-bottom: 16px;"></div>
+
+      <!-- Machine Learning Forecast Chart -->
+      <section class="irctc-card">
+        <div class="irctc-card-header">
+          <span>AI CROWD PREDICTION VS CONFIRMED BOOKED CAPACITY</span>
+          <span class="header-sub">Random Forest Demand Curve vs MySQL Committed Reservations</span>
+        </div>
+        <div class="irctc-card-body">
+          <div style="height: 280px; position: relative;">
+            <canvas id="crowdComparisonChart"></canvas>
+          </div>
+          <div id="chartFallbackTable" style="display: none; margin-top: 10px;"></div>
         </div>
       </section>
 
-      <!-- Live Overloaded Booth Alerts Box -->
-      <div id="overloadedAlertsArea" style="margin-bottom: 2rem;"></div>
+      <!-- 10-Thread OS Concurrency & Race Condition Simulator -->
+      <section class="irctc-card">
+        <div class="irctc-card-header">
+          <span>LIVE OS CONCURRENCY & RACE CONDITION SIMULATOR</span>
+          <span class="header-sub">10-Thread Barrier Zero Overbooking Demo (SELECT ... FOR UPDATE)</span>
+        </div>
+        <div class="irctc-card-body">
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+            Simulate 10 simultaneous voter threads contending for the exact same remaining time-slot seat using Python threading barrier synchronization and MySQL InnoDB row-level locking.
+          </p>
 
-      <!-- ======================================================================
-           LIVE VIVA DEMO: OS 10-THREAD RACE CONDITION SIMULATOR
-           ====================================================================== -->
-      <section class="race-board-container">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <div style="font-size: 1.35rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
-              <span>⚡</span> Live OS Concurrency & Race Condition Simulator
-            </div>
-            <div style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem;">
-              Demonstrates that 10 OS threads competing simultaneously for 1 single remaining seat are safely resolved via <strong>sp_allocate_slot_atomic</strong> (row-level X-lock) and per-slot Mutex, resulting in <strong>exactly 1 SUCCESS and 9 REJECTIONS (Zero Overbooking)</strong>.
-            </div>
-          </div>
-          <button class="btn-primary" id="btnRunRaceSimulation" style="background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
-            🏁 Run 10-Thread Last-Seat Race Simulation
+          <button type="button" class="btn-primary" id="btnRunRaceSimulation" style="padding: 10px 24px;">
+            Run 10-Thread Last-Seat Race Simulation
           </button>
-        </div>
 
-        <!-- Dynamic Race Telemetry Results Table / Cards -->
-        <div id="raceSimulationResultsArea" style="margin-top: 1.5rem; display: none;">
-          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; background: rgba(0, 0, 0, 0.35); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-            <div>Total Threads: <strong id="raceTotalThreads">10</strong></div>
-            <div>Slot Capacity: <strong id="raceSlotCap">1</strong></div>
-            <div>Allocated Winner: <strong style="color: var(--accent-emerald);" id="raceSuccessCount">1 (SUCCESS)</strong></div>
-            <div>Blocked by Mutex: <strong style="color: var(--accent-crimson);" id="raceBlockedCount">9 (SLOT_CAPACITY_EXCEEDED)</strong></div>
-            <div>Zero Overbooking: <strong class="badge badge-open" id="raceZeroOverbookingBadge">VERIFIED 100%</strong></div>
+          <!-- Race Results Area -->
+          <div id="raceSimulationResultsArea" style="display: none; margin-top: 16px;">
+            <div style="display: flex; gap: 14px; background: #f8fafc; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-xs); padding: 12px 16px; margin-bottom: 14px; font-size: 12px;">
+              <div>Total Threads: <strong id="raceTotalThreads" style="font-family: var(--font-mono);">10</strong></div>
+              <div>Slot Capacity: <strong id="raceSlotCap" style="font-family: var(--font-mono);">1</strong></div>
+              <div>Committed: <strong id="raceSuccessCount" style="color: var(--irctc-status-avl); font-family: var(--font-mono);">1 (SUCCESS)</strong></div>
+              <div>Blocked: <strong id="raceBlockedCount" style="color: var(--irctc-status-wl); font-family: var(--font-mono);">9 (BLOCKED)</strong></div>
+            </div>
+
+            <div id="raceThreadsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
+              <!-- Dynamically populated by admin_dashboard.js -->
+            </div>
           </div>
-
-          <div class="race-grid" id="raceThreadsGrid"></div>
         </div>
       </section>
 
-      <!-- ======================================================================
-           CONFIRMED BOOKINGS VS AI PREDICTED CROWD ANALYTICS CHART
-           ====================================================================== -->
-      <section class="portal-card">
-        <div class="portal-card-header">
-          <div>
-            <div class="portal-card-title">
-              <span>📈</span> Confirmed Bookings vs. Random Forest Predicted Crowd
-            </div>
-            <div class="portal-card-subtitle">
-              Comparing booked reservations against AI crowd arrival forecasting across all 8 Uttarakhand polling booths.
-            </div>
-          </div>
-          <div class="badge badge-open">RANDOM FOREST REGRESSOR (n=150)</div>
+      <!-- Live Booth Occupancy Table -->
+      <section class="irctc-card">
+        <div class="irctc-card-header">
+          <span>LIVE POLLING BOOTH CAPACITY & OCCUPANCY (vw_booth_live_status)</span>
+          <span class="header-sub">Real-Time Database View</span>
         </div>
-
-        <div style="height: 380px; position: relative;">
-          <canvas id="crowdComparisonChart"></canvas>
-          <div id="chartFallbackTable" style="display: none;" class="table-responsive"></div>
-        </div>
-      </section>
-
-      <!-- ======================================================================
-           LIVE OPERATIONAL BOOTH STATUS & CONSTITUENCY SUMMARY
-           ====================================================================== -->
-      <section class="portal-card">
-        <div class="portal-card-header">
-          <div>
-            <div class="portal-card-title">
-              <span>🏛️</span> Real-time Polling Booth Logistics & Occupancy (vw_booth_live_status)
-            </div>
-            <div class="portal-card-subtitle">
-              Live database view aggregating slot capacities, booked quotas, and simultaneous ONOE EVM unit status.
-            </div>
-          </div>
-          <button class="btn-secondary" id="btnRefreshDashboard">🔄 Refresh Data</button>
-        </div>
-
-        <div class="table-responsive">
+        <div class="data-table-container">
           <table class="data-table" id="liveBoothTable">
             <thead>
               <tr>
                 <th>Booth No</th>
-                <th>Booth & Station Name</th>
-                <th>Slot Time Window</th>
+                <th>Station & Location</th>
+                <th>Time Window</th>
                 <th>Max Cap</th>
-                <th>Booked Count</th>
-                <th>Remaining</th>
-                <th>Utilization %</th>
+                <th>Booked</th>
+                <th>Available</th>
+                <th>Utilization</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading operational status...</td></tr>
+              <!-- Dynamically populated by admin_dashboard.js -->
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- ======================================================================
-           OS CONCURRENCY AUDIT TRAIL LOGS
-           ====================================================================== -->
-      <section class="portal-card">
-        <div class="portal-card-header">
-          <div>
-            <div class="portal-card-title">
-              <span>📋</span> OS Concurrency & Mutex Locking Audit Trail (os_concurrency_audit)
-            </div>
-            <div class="portal-card-subtitle">
-              Direct audit records tracking thread lock acquisition, priority aging triggers, and execution latencies.
-            </div>
-          </div>
+      <!-- OS Concurrency Audit Log Table -->
+      <section class="irctc-card">
+        <div class="irctc-card-header">
+          <span>OS CONCURRENCY & TRANSACTION AUDIT LOG (os_concurrency_audit)</span>
+          <span class="header-sub">ACID Telemetry & Mutex Contention Records</span>
         </div>
-
-        <div class="table-responsive">
+        <div class="data-table-container">
           <table class="data-table" id="auditTable">
             <thead>
               <tr>
                 <th>Audit ID</th>
-                <th>Thread Name</th>
+                <th>Thread / PID</th>
                 <th>Voter ID</th>
                 <th>Slot ID</th>
-                <th>Operation Type</th>
+                <th>Operation</th>
                 <th>Status Code</th>
-                <th>Latency (ms)</th>
+                <th>Latency</th>
                 <th>Details</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading audit telemetry...</td></tr>
+              <!-- Dynamically populated by admin_dashboard.js -->
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- ======================================================================
-           BOOTH & TIME-SLOT MANAGEMENT FORMS
-           ====================================================================== -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" id="mgmtFormsGrid">
+      <!-- Logistics Management Forms (Booth & Slot Config) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 14px;">
         
-        <!-- Add / Update Booth Form -->
-        <section class="portal-card" style="margin-bottom: 0;">
-          <div class="portal-card-header">
-            <div class="portal-card-title"><span>➕</span> Configure Polling Booth</div>
+        <!-- Booth Form -->
+        <section class="irctc-card">
+          <div class="irctc-card-header">
+            <span>CONFIGURE POLLING BOOTH</span>
+            <span class="header-sub">Station Master Registry</span>
           </div>
-          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="form-group">
-              <label class="form-label" for="cfgStationId">Station ID</label>
-              <input type="number" class="form-input" id="cfgStationId" value="1" />
+          <div class="irctc-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="cfgStationId">Station ID</label>
+                <input type="number" class="form-input" id="cfgStationId" value="1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgPcId">PC ID</label>
+                <input type="number" class="form-input" id="cfgPcId" value="1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgAcId">AC ID</label>
+                <input type="number" class="form-input" id="cfgAcId" value="1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgBoothNum">Booth Number</label>
+                <input type="text" class="form-input" id="cfgBoothNum" value="DDN-105" />
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="cfgPcId">PC ID</label>
-              <input type="number" class="form-input" id="cfgPcId" value="2" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgAcId">AC ID</label>
-              <input type="number" class="form-input" id="cfgAcId" value="3" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgBoothNum">Booth Number</label>
-              <input type="text" class="form-input" id="cfgBoothNum" value="BOOTH-03" />
-            </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
               <label class="form-label" for="cfgBoothName">Booth Name</label>
-              <input type="text" class="form-input" id="cfgBoothName" value="Garhi Cantt Auxiliary Room 103" />
+              <input type="text" class="form-input" id="cfgBoothName" value="Govt Primary School, Rajpur" />
             </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgRoomNum">Room Number</label>
-              <input type="text" class="form-input" id="cfgRoomNum" value="Room 103" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="cfgRoomNum">Room Number</label>
+                <input type="text" class="form-input" id="cfgRoomNum" value="Room 3B" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgMaxCap">Max Slot Capacity</label>
+                <input type="number" class="form-input" id="cfgMaxCap" value="40" />
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgMaxCap">Max Slot Capacity</label>
-              <input type="number" class="form-input" id="cfgMaxCap" value="40" />
-            </div>
+            <button type="button" class="btn-primary" id="btnSaveBooth" style="width: 100%;">Save Polling Booth (POST /api/admin/booths)</button>
           </div>
-          <button class="btn-primary" id="btnSaveBooth" style="width: 100%;">Save Polling Booth (POST /api/admin/booths)</button>
         </section>
 
-        <!-- Configure Time Slot Form -->
-        <section class="portal-card" style="margin-bottom: 0;">
-          <div class="portal-card-header">
-            <div class="portal-card-title"><span>⏰</span> Configure Polling Time Slot</div>
+        <!-- Slot Form -->
+        <section class="irctc-card">
+          <div class="irctc-card-header">
+            <span>CONFIGURE DISCRETIZED TIME-SLOT</span>
+            <span class="header-sub">Polling Hours Discretization</span>
           </div>
-          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-            <div class="form-group">
-              <label class="form-label" for="cfgSlotBoothId">Booth ID</label>
-              <input type="number" class="form-input" id="cfgSlotBoothId" value="1" />
+          <div class="irctc-card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="cfgSlotBoothId">Target Booth ID</label>
+                <input type="number" class="form-input" id="cfgSlotBoothId" value="1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgSlotDate">Slot Date</label>
+                <input type="date" class="form-input" id="cfgSlotDate" value="2026-10-26" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgStartTime">Start Time</label>
+                <input type="text" class="form-input" id="cfgStartTime" value="07:00:00" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgEndTime">End Time</label>
+                <input type="text" class="form-input" id="cfgEndTime" value="09:30:00" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgSlotCapacity">Max Capacity</label>
+                <input type="number" class="form-input" id="cfgSlotCapacity" value="40" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cfgPriorityReserved">Priority Quota</label>
+                <input type="number" class="form-input" id="cfgPriorityReserved" value="10" />
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgSlotDate">Slot Date</label>
-              <input type="date" class="form-input" id="cfgSlotDate" value="2026-11-15" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgStartTime">Start Time</label>
-              <input type="text" class="form-input" id="cfgStartTime" value="07:00:00" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgEndTime">End Time</label>
-              <input type="text" class="form-input" id="cfgEndTime" value="09:30:00" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgSlotCapacity">Max Capacity</label>
-              <input type="number" class="form-input" id="cfgSlotCapacity" value="40" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="cfgPriorityReserved">Priority Quota</label>
-              <input type="number" class="form-input" id="cfgPriorityReserved" value="10" />
-            </div>
+            <button type="button" class="btn-primary" id="btnSaveSlot" style="width: 100%;">Save Time Slot (POST /api/admin/slots)</button>
           </div>
-          <button class="btn-primary" id="btnSaveSlot" style="width: 100%;">Save Time Slot (POST /api/admin/slots)</button>
         </section>
 
       </div>
@@ -341,5 +328,20 @@
   <!-- Platform Client & Dashboard Controller -->
   <script src="/js/api_client.js"></script>
   <script src="/js/admin_dashboard.js"></script>
+
+  <!-- Live Clock Script -->
+  <script>
+    function updateClockAdmin() {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} IST`;
+      const clockElem = document.getElementById("liveIstClockAdmin");
+      if (clockElem) {
+        clockElem.textContent = `26-Oct-2026 [${timeStr}]`;
+      }
+    }
+    setInterval(updateClockAdmin, 1000);
+    updateClockAdmin();
+  </script>
 </body>
 </html>

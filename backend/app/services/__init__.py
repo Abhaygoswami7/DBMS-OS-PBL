@@ -13,6 +13,8 @@ from backend.app.services.voter_service import VoterService, voter_service
 from backend.app.services.booth_service import BoothService, booth_service
 from backend.app.services.allocation_service import AllocationService, allocation_service
 from backend.app.services.crowd_prediction_service import CrowdPredictionService, crowd_prediction_service
+from backend.app.services.verification_service import VerificationService, verification_service
+from backend.app.services.geo_booth_ranker import GeoBoothRanker, geo_booth_ranker
 
 __all__ = [
     "AuthService",
@@ -24,5 +26,9 @@ __all__ = [
     "AllocationService",
     "allocation_service",
     "CrowdPredictionService",
-    "crowd_prediction_service"
+    "crowd_prediction_service",
+    "VerificationService",
+    "verification_service",
+    "GeoBoothRanker",
+    "geo_booth_ranker"
 ]

@@ -1,5 +1,5 @@
 /**
- * Voter Portal Controller
+ * Voter Portal Controller (IRCTC Next-Gen Architecture)
  * Project: Smart Polling Booth & Time-Slot Allocation Platform (One Nation One Election)
  * Module: frontend/js/voter_portal.js
  * 
@@ -8,8 +8,8 @@
  *   2. Synthetic voter lookup & registration
  *   3. Simulated ECI verification with explicit consent
  *   4. Haversine geo-ranking & interactive Leaflet map
- *   5. AI crowd demand forecasting & smart slot recommendation
- *   6. Concurrency-safe atomic booking, OS PCB animation, and pass slip management
+ *   5. AI crowd demand forecasting & IRCTC-style class availability cards
+ *   6. Concurrency-safe atomic booking, OS PCB animation, and IRCTC ERS pass
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     contrastBtn.addEventListener("click", () => {
       document.body.classList.toggle("high-contrast-mode");
       const active = document.body.classList.contains("high-contrast-mode");
-      contrastBtn.textContent = active ? "☀️ Normal Mode" : "👁️ High Contrast Mode";
+      contrastBtn.textContent = active ? "Normal Mode" : "High Contrast Mode";
     });
   }
 
@@ -83,6 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // Expose to window for testing hooks
+  window.goToStep = goToStep;
 
   // ---------------------------------------------------------------------------
   // STEP 1: Identification & Registration
@@ -125,10 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const verifElem = document.getElementById("profVerifStatus");
     if (state.isVerified) {
-      verifElem.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 700;">✅ SIMULATED_VERIFIED</span>`;
+      verifElem.innerHTML = `<span class="badge badge-open">SIMULATED_VERIFIED</span>`;
       document.getElementById("btnProceedToStep3").disabled = false;
     } else {
-      verifElem.innerHTML = `<span style="color: var(--accent-amber); font-weight: 700;">⏳ UNVERIFIED</span>`;
+      verifElem.innerHTML = `<span class="badge badge-partial">UNVERIFIED</span>`;
     }
 
     voterProfileCard.style.display = "block";
@@ -148,40 +151,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const res = await window.apiClient.lookupVoter(epic);
     if (res.ok && res.voter) {
       displayVoter(res.voter);
-      window.apiClient.showToast(`Loaded voter profile for ${res.voter.full_name}`, "success");
+      window.apiClient.showToast(`Voter record loaded for ${res.voter.full_name}`, "info");
     }
   });
 
   // Manual EPIC lookup
   btnLookupEpic.addEventListener("click", async () => {
-    const epic = manualEpicInput.value.trim().toUpperCase();
+    const epic = manualEpicInput.value.trim();
     if (!epic) {
-      window.apiClient.showToast("Please enter a synthetic EPIC number.", "warning");
+      window.apiClient.showToast("Please enter an EPIC number.", "warning");
       return;
     }
     const res = await window.apiClient.lookupVoter(epic);
     if (res.ok && res.voter) {
       displayVoter(res.voter);
-      window.apiClient.showToast(`Found: ${res.voter.full_name}`, "success");
+      window.apiClient.showToast(`Voter profile retrieved: ${res.voter.full_name}`, "success");
     }
   });
 
-  // Submit new registration
+  // New synthetic registration
   btnSubmitRegistration.addEventListener("click", async () => {
-    const epic = document.getElementById("regEpicNo").value.trim().toUpperCase();
     const fullName = document.getElementById("regFullName").value.trim();
     const dob = document.getElementById("regDob").value;
     const gender = document.getElementById("regGender").value;
     const category = document.getElementById("regCategory").value;
-    const boothId = parseInt(document.getElementById("regBoothSelect").value, 10);
+    const boothId = parseInt(document.getElementById("regBoothId").value, 10);
 
-    if (!fullName) {
-      window.apiClient.showToast("Full name is required.", "warning");
+    if (!fullName || !dob) {
+      window.apiClient.showToast("Full Name and Date of Birth are mandatory.", "warning");
       return;
     }
 
+    // Auto-generate synthetic demo EPIC
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    const demoEpic = `DEM-UK-2026-${rand}`;
+
+    btnSubmitRegistration.disabled = true;
+    btnSubmitRegistration.textContent = "Registering...";
+
     const res = await window.apiClient.registerVoter({
-      demo_epic_no: epic,
+      demo_epic_no: demoEpic,
       full_name: fullName,
       dob: dob,
       gender: gender,
@@ -189,9 +198,12 @@ document.addEventListener("DOMContentLoaded", () => {
       assigned_booth_id: boothId
     });
 
+    btnSubmitRegistration.disabled = false;
+    btnSubmitRegistration.textContent = "Create Synthetic Registration";
+
     if (res.ok && res.voter) {
-      window.apiClient.showToast(`Voter registered successfully!`, "success");
       displayVoter(res.voter);
+      window.apiClient.showToast(`Registered successfully with EPIC: ${res.voter.demo_epic_no}`, "success");
     }
   });
 
@@ -238,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     btnExecuteVerification.disabled = false;
-    btnExecuteVerification.textContent = "⚡ Execute Simulated Verification";
+    btnExecuteVerification.textContent = "Execute Simulated Verification";
 
     if (res.ok && res.simulated_token) {
       state.isVerified = true;
@@ -270,30 +282,30 @@ document.addEventListener("DOMContentLoaded", () => {
   btnBackToStep2.addEventListener("click", () => goToStep(2));
 
   // Presets
-  document.getElementById("presetDdnCantt").addEventListener("click", () => {
+  document.getElementById("presetDdnCantt")?.addEventListener("click", () => {
     state.gps = { lat: 30.34215, lon: 78.02148 };
     loadNearbyBooths();
   });
-  document.getElementById("presetRajpurRd").addEventListener("click", () => {
+  document.getElementById("presetRajpurRd")?.addEventListener("click", () => {
     state.gps = { lat: 30.33982, lon: 78.04871 };
     loadNearbyBooths();
   });
-  document.getElementById("presetRishikesh").addEventListener("click", () => {
+  document.getElementById("presetRishikesh")?.addEventListener("click", () => {
     state.gps = { lat: 30.10342, lon: 78.29471 };
     loadNearbyBooths();
   });
-  document.getElementById("presetHaridwar").addEventListener("click", () => {
+  document.getElementById("presetHaridwar")?.addEventListener("click", () => {
     state.gps = { lat: 29.93254, lon: 78.11892 };
     loadNearbyBooths();
   });
 
-  accessibilityFilterCheck.addEventListener("change", (e) => {
+  accessibilityFilterCheck?.addEventListener("change", (e) => {
     state.accessibilityNeeded = e.target.checked;
     loadNearbyBooths();
   });
 
   async function loadNearbyBooths() {
-    boothListContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">Calculating Haversine distances...</div>`;
+    boothListContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 12px;">Calculating Haversine proximity matrix...</div>`;
 
     const res = await window.apiClient.getNearbyBooths(
       state.gps.lat,
@@ -303,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     if (!res.ok || !res.booths) {
-      boothListContainer.innerHTML = `<div style="color: var(--accent-crimson); padding: 1rem;">Failed to load nearby booths.</div>`;
+      boothListContainer.innerHTML = `<div style="color: var(--irctc-status-wl); padding: 1rem; font-size: 12px;">Failed to load nearby booths.</div>`;
       return;
     }
 
@@ -311,10 +323,13 @@ document.addEventListener("DOMContentLoaded", () => {
     initOrUpdateMap(res.booths);
   }
 
+  // Expose to window for testing hooks
+  window.loadNearbyBooths = loadNearbyBooths;
+
   function renderBoothList(booths) {
     boothListContainer.innerHTML = "";
     if (booths.length === 0) {
-      boothListContainer.innerHTML = `<div style="color: var(--text-muted); padding: 1.5rem;">No booths matching your criteria.</div>`;
+      boothListContainer.innerHTML = `<div style="color: var(--text-muted); padding: 1.5rem; font-size: 12px;">No booths matching your criteria.</div>`;
       return;
     }
 
@@ -327,19 +342,21 @@ document.addEventListener("DOMContentLoaded", () => {
       card.innerHTML = `
         <div class="booth-card-header">
           <div>
-            <div class="booth-card-title">${b.station_name}</div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">${b.booth_name} (${b.room_number})</div>
+            <div class="booth-card-title">${b.booth_name} · ${b.station_name}</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">${b.room_number || 'Room Main'} · Capacity: ${b.max_capacity_per_slot} per slot</div>
           </div>
-          <div class="booth-distance-tag">${b.distance_km} km</div>
+          <div class="booth-distance-tag">${b.distance_km} KM FROM VOTER</div>
         </div>
-        <div class="booth-jurisdiction-tags">
-          <span class="jurisdiction-tag">🏛️ PC: ${b.parliamentary_constituency}</span>
-          <span class="jurisdiction-tag">🗳️ AC: ${b.assembly_constituency}</span>
-          ${b.has_wheelchair_ramp ? '<span class="jurisdiction-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">♿ Wheelchair Ramp</span>' : ''}
-          ${isAssigned ? '<span class="badge badge-open" style="font-size: 0.65rem;">YOUR ASSIGNED BOOTH</span>' : ''}
-        </div>
-        <div style="font-size: 0.78rem; color: var(--text-muted);">
-          📍 ${b.station_address} · Capacity: ${b.max_capacity_per_slot} per slot
+        <div class="booth-card-body">
+          <div class="booth-jurisdiction-tags">
+            <span class="jurisdiction-tag">PC: ${b.parliamentary_constituency}</span>
+            <span class="jurisdiction-tag">AC: ${b.assembly_constituency}</span>
+            ${b.has_wheelchair_ramp ? '<span class="badge badge-open">RAMP AVAILABLE</span>' : ''}
+            ${isAssigned ? '<span class="badge badge-open">YOUR ASSIGNED BOOTH</span>' : ''}
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">
+            Station Address: ${b.station_address}
+          </div>
         </div>
       `;
 
@@ -348,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.classList.add("selected");
         state.selectedBooth = b;
         btnProceedToStep4.disabled = false;
-        btnProceedToStep4.textContent = `Select ${b.booth_name} & Proceed ➔`;
+        btnProceedToStep4.textContent = `Select ${b.booth_name} & Proceed`;
       });
 
       // Default select voter's assigned booth or the closest booth
@@ -356,7 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
         state.selectedBooth = b;
         card.classList.add("selected");
         btnProceedToStep4.disabled = false;
-        btnProceedToStep4.textContent = `Select ${b.booth_name} & Proceed ➔`;
+        btnProceedToStep4.textContent = `Select ${b.booth_name} & Proceed`;
       }
 
       boothListContainer.appendChild(card);
@@ -387,13 +404,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Voter location pin
     const voterMarker = L.circleMarker([state.gps.lat, state.gps.lon], {
-      radius: 9,
-      fillColor: "#06b6d4",
+      radius: 8,
+      fillColor: "#fb792b",
       color: "#ffffff",
-      weight: 3,
+      weight: 2,
       opacity: 1,
-      fillOpacity: 0.9
-    }).addTo(state.map).bindPopup("<b>Your Current Location</b>").openPopup();
+      fillOpacity: 0.95
+    }).addTo(state.map).bindPopup("<b>Your Registered Location</b>").openPopup();
     state.markers.push(voterMarker);
 
     // Station pins
@@ -406,7 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <b>${b.station_name}</b><br/>
         ${b.booth_name}<br/>
         Distance: ${b.distance_km} km<br/>
-        ${b.has_wheelchair_ramp ? '♿ Accessible Ramp' : ''}
+        ${b.has_wheelchair_ramp ? 'Wheelchair Accessible Ramp Available' : ''}
       `);
       state.markers.push(marker);
     });
@@ -421,7 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------------------------------------------------------------------
-  // STEP 4: Slots & AI Demand Recommendation
+  // STEP 4: Slots & AI Demand Recommendation (IRCTC Class Box Style)
   // ---------------------------------------------------------------------------
   const slotsGridContainer = document.getElementById("slotsGridContainer");
   const selectedBoothSummary = document.getElementById("selectedBoothSummary");
@@ -437,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadAvailableSlots(boothId) {
     selectedBoothSummary.textContent = `Showing time-slots for ${state.selectedBooth.station_name} (${state.selectedBooth.booth_name})`;
-    slotsGridContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">Predicting crowd arrival curve with AI...</div>`;
+    slotsGridContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 12px;">Querying discretized polling windows and AI crowd forecasts...</div>`;
 
     const res = await window.apiClient.getAvailableSlots(
       boothId,
@@ -445,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     if (!res.ok || !res.slots) {
-      slotsGridContainer.innerHTML = `<div style="color: var(--accent-crimson); padding: 1.5rem;">Failed to load time slots.</div>`;
+      slotsGridContainer.innerHTML = `<div style="color: var(--irctc-status-wl); padding: 1.5rem; font-size: 12px;">Failed to load time slots.</div>`;
       return;
     }
 
@@ -469,53 +486,41 @@ document.addEventListener("DOMContentLoaded", () => {
       const total = s.max_capacity;
       const pct = Math.min(100, Math.round(((total - avail) / total) * 100));
 
-      let badgeClass = "badge-open";
-      if (s.occupancy_status === "FULL") badgeClass = "badge-full";
-      else if (s.occupancy_status === "PARTIALLY_OCCUPIED") badgeClass = "badge-partial";
-
-      let fillBg = "#10b981";
-      if (pct > 70) fillBg = "#f59e0b";
-      if (pct >= 95) fillBg = "#ef4444";
-
       const ai = s.ai_crowd_forecast || {};
 
+      let statusHtml = "";
+      if (avail > 0 && pct <= 75) {
+        statusHtml = `<div class="slot-status-line slot-status-avl">AVAILABLE-${String(avail).padStart(4, '0')}</div>`;
+      } else if (avail > 0 && pct > 75) {
+        statusHtml = `<div class="slot-status-line slot-status-rac">MOD CROWD / AVL-${String(avail).padStart(4, '0')}</div>`;
+      } else {
+        statusHtml = `<div class="slot-status-line slot-status-wl">REGRET / FULL-0000</div>`;
+      }
+
       card.innerHTML = `
-        ${isRecommended ? '<div class="recommended-ribbon">⭐ AI Best Pick</div>' : ''}
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span class="badge ${badgeClass}">${s.occupancy_status}</span>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">${s.slot_date}</span>
+        ${isRecommended ? '<div class="recommended-ribbon">AI OPTIMAL SLOT</div>' : ''}
+        <div class="slot-header-row">
+          <div class="slot-time-range">${s.start_time.slice(0, 5)} - ${s.end_time.slice(0, 5)} HRS</div>
+          <span style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">${s.slot_date}</span>
         </div>
-        <div class="slot-time-range">${s.start_time} - ${s.end_time}</div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary);">
-          <span>Seats Available: <strong>${avail} / ${total}</strong></span>
+        ${statusHtml}
+        <div style="font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between;">
+          <span>Capacity: <strong>${avail} / ${total}</strong></span>
           <span>${pct}% booked</span>
         </div>
-        <div class="slot-capacity-bar">
-          <div class="slot-capacity-fill" style="width: ${pct}%; background: ${fillBg};"></div>
-        </div>
-        <div style="background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-sm); padding: 0.6rem; font-size: 0.75rem; margin-top: 0.5rem;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-            <span>🤖 Predicted Crowd:</span>
-            <strong style="color: var(--accent-cyan);">${ai.predicted_arrivals || '~30'} voters</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-            <span>🚦 Congestion Level:</span>
-            <strong class="badge badge-${(ai.congestion_level || 'LOW').toLowerCase().slice(0, 4)}">${ai.congestion_level || 'LOW'}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>⏱️ Estimated Wait:</span>
-            <strong>~${ai.estimated_wait_minutes || '8'} mins</strong>
-          </div>
+        <div class="slot-telemetry-line">
+          <span>ML: ${ai.predicted_arrivals || '24'} Arrivals</span>
+          <span>Est. Wait: ~${ai.estimated_wait_minutes || '6'} min</span>
         </div>
       `;
 
-      if (s.occupancy_status !== "FULL") {
+      if (s.occupancy_status !== "FULL" && avail > 0) {
         card.addEventListener("click", () => {
           document.querySelectorAll(".slot-card").forEach(c => c.classList.remove("selected"));
           card.classList.add("selected");
           state.selectedSlot = s;
           btnBookSlot.disabled = false;
-          btnBookSlot.textContent = `🎟️ Book Slot ${s.start_time} - ${s.end_time} (OS Mutex Locked)`;
+          btnBookSlot.textContent = `Book Slot ${s.start_time.slice(0, 5)} - ${s.end_time.slice(0, 5)} (OS Mutex Locked)`;
         });
 
         // Auto select recommended slot
@@ -523,10 +528,10 @@ document.addEventListener("DOMContentLoaded", () => {
           card.classList.add("selected");
           state.selectedSlot = s;
           btnBookSlot.disabled = false;
-          btnBookSlot.textContent = `🎟️ Book Slot ${s.start_time} - ${s.end_time} (OS Mutex Locked)`;
+          btnBookSlot.textContent = `Book Slot ${s.start_time.slice(0, 5)} - ${s.end_time.slice(0, 5)} (OS Mutex Locked)`;
         }
       } else {
-        card.style.opacity = "0.5";
+        card.style.opacity = "0.6";
         card.style.cursor = "not-allowed";
       }
 
@@ -575,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const latency = (performance.now() - t0).toFixed(2);
 
     btnBookSlot.disabled = false;
-    btnBookSlot.textContent = "🎟️ Confirm & Allocate Time Slot (OS Mutex Locked)";
+    btnBookSlot.textContent = "Confirm & Allocate Time Slot (OS Mutex Locked)";
 
     if (!res.ok) {
       resetPcbNodes();
@@ -590,20 +595,20 @@ document.addEventListener("DOMContentLoaded", () => {
     state.activeAllocation = res;
     window.apiClient.showToast("Time slot successfully allocated and committed to database!", "success");
 
-    // Render Digital Appointment Slip
+    // Render Digital Appointment Slip (IRCTC ERS)
     renderAppointmentSlip(res);
   });
 
   function resetPcbNodes() {
     ["pcbNodeNew", "pcbNodeReady", "pcbNodeRunning", "pcbNodeWaiting", "pcbNodeTerminated"].forEach(id => {
       const node = document.getElementById(id);
-      node.classList.remove("active", "completed");
+      node?.classList.remove("active", "completed");
     });
   }
 
   function activatePcbNode(nodeId) {
     const node = document.getElementById(nodeId);
-    node.classList.add("active");
+    node?.classList.add("active");
   }
 
   function sleep(ms) {
@@ -621,7 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const priBadge = document.getElementById("slipPriorityBadge");
     if (state.voter.priority_level === 1) {
-      priBadge.textContent = "⭐ PRIORITY FAST-TRACK PASS";
+      priBadge.textContent = "PRIORITY FAST-TRACK PASS";
       priBadge.className = "badge badge-open";
     } else {
       priBadge.textContent = "STANDARD SCHEDULED PASS";
@@ -646,7 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const res = await window.apiClient.cancelAllocation(token);
     btnCancelAllocation.disabled = false;
-    btnCancelAllocation.textContent = "❌ Cancel / Free Slot Capacity";
+    btnCancelAllocation.textContent = "Cancel / Free Slot Capacity";
 
     if (res.ok) {
       window.apiClient.showToast("Booking cancelled and slot capacity restored.", "success");

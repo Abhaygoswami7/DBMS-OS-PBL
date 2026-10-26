@@ -1,12 +1,12 @@
 /**
- * Admin Logistics & OS/ML Telemetry Dashboard Controller
+ * Admin Logistics & OS/ML Telemetry Dashboard Controller (CRIS / IRCTC Operations Architecture)
  * Project: Smart Polling Booth & Time-Slot Allocation Platform (One Nation One Election)
  * Module: frontend/js/admin_dashboard.js
  * 
  * Orchestrates:
  *   1. Administrator JWT authentication & one-click demo credentials
  *   2. Real-time KPI summaries (Booths, Active Slots, LRU Cache Hit Ratio, AI R2)
- *   3. Confirmed Bookings vs Random Forest Predicted Crowd Chart (Chart.js)
+ *   3. Confirmed Bookings (#213d77) vs Random Forest Predicted Crowd (#fb792b) (Chart.js)
  *   4. Live OS Concurrency & Race Condition Simulation (10-Thread Barrier Zero Overbooking Demo)
  *   5. Real-time booth operational status table (vw_booth_live_status)
  *   6. OS Synchronization audit log viewer (os_concurrency_audit)
@@ -31,12 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     contrastBtn.addEventListener("click", () => {
       document.body.classList.toggle("high-contrast-mode");
       const active = document.body.classList.contains("high-contrast-mode");
-      contrastBtn.textContent = active ? "☀️ Normal Mode" : "👁️ High Contrast Mode";
+      contrastBtn.textContent = active ? "Normal Mode" : "High Contrast Mode";
     });
   }
 
   // Preset Selector change
-  adminQuickPreset.addEventListener("change", (e) => {
+  adminQuickPreset?.addEventListener("change", (e) => {
     const [u, p] = e.target.value.split("|");
     adminUsername.value = u;
     adminPassword.value = p;
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Login Execution
-  btnAdminLogin.addEventListener("click", async () => {
+  btnAdminLogin?.addEventListener("click", async () => {
     const username = adminUsername.value.trim();
     const password = adminPassword.value.trim();
 
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const res = await window.apiClient.loginAdmin(username, password);
 
     btnAdminLogin.disabled = false;
-    btnAdminLogin.textContent = "🚀 Login as Administrator";
+    btnAdminLogin.textContent = "Login as Administrator";
 
     if (res.ok) {
       initializeDashboard(res.user);
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Logout Execution
-  btnLogoutAdmin.addEventListener("click", () => {
+  btnLogoutAdmin?.addEventListener("click", () => {
     window.apiClient.clearAdminToken();
     adminAuthSection.style.display = "block";
     dashboardMainArea.style.display = "none";
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnRefresh.addEventListener("click", async () => {
       btnRefresh.textContent = "Refreshing...";
       await refreshDashboardData();
-      btnRefresh.textContent = "🔄 Refresh Data";
+      btnRefresh.textContent = "Refresh Data";
       window.apiClient.showToast("Operational status updated from database.", "success");
     });
   }
@@ -141,8 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (alerts.length === 0) {
       container.innerHTML = `
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 0.75rem 1.25rem; font-size: 0.85rem; color: #a7f3d0; display: flex; align-items: center; gap: 0.5rem;">
-          <span>✅</span>
+        <div style="background: var(--irctc-status-avl-bg); border: 1px solid rgba(25, 135, 84, 0.3); border-radius: var(--radius-xs); padding: 9px 16px; font-size: 12px; color: var(--irctc-status-avl); display: flex; align-items: center; gap: 8px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
           <span><strong>Zero Congestion Bottlenecks:</strong> All 8 polling booths and discretized time-slots operating within safe capacity limits.</span>
         </div>
       `;
@@ -152,20 +152,20 @@ document.addEventListener("DOMContentLoaded", () => {
     alerts.forEach(a => {
       const banner = document.createElement("div");
       banner.style.cssText = `
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        border-radius: var(--radius-sm);
-        padding: 0.75rem 1.25rem;
-        font-size: 0.85rem;
-        color: #fca5a5;
-        margin-bottom: 0.5rem;
+        background: var(--irctc-status-wl-bg);
+        border: 1px solid rgba(220, 53, 69, 0.35);
+        border-radius: var(--radius-xs);
+        padding: 9px 16px;
+        font-size: 12px;
+        color: var(--irctc-status-wl);
+        margin-bottom: 6px;
         display: flex;
         justify-content: space-between;
         align-items: center;
       `;
       banner.innerHTML = `
         <div>
-          <strong>🚨 ${a.severity} CONGESTION ALERT:</strong> ${a.alert_message} (${a.booth_name})
+          <strong>${a.severity} CONGESTION ALERT:</strong> ${a.alert_message} (${a.booth_name})
         </div>
         <span class="badge badge-full">${a.capacity_utilization_pct}% BOOKED</span>
       `;
@@ -193,14 +193,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.innerHTML = `
         <td style="font-family: var(--font-mono); font-weight: 700;">${r.booth_number}</td>
         <td>
-          <div style="font-weight: 600;">${r.booth_name}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">${r.station_name}</div>
+          <div style="font-weight: 700; color: var(--irctc-navy-primary);">${r.booth_name}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${r.station_name}</div>
         </td>
-        <td style="font-family: var(--font-mono); font-size: 0.82rem;">${r.start_time} - ${r.end_time}</td>
-        <td>${r.max_capacity}</td>
-        <td><strong>${r.allocated_count}</strong></td>
-        <td>${r.available_capacity}</td>
-        <td><strong>${util}%</strong></td>
+        <td style="font-family: var(--font-mono); font-size: 11.5px;">${r.start_time} - ${r.end_time}</td>
+        <td style="font-family: var(--font-mono);">${r.max_capacity}</td>
+        <td style="font-family: var(--font-mono); font-weight: 700;">${r.allocated_count}</td>
+        <td style="font-family: var(--font-mono);">${r.available_capacity}</td>
+        <td style="font-family: var(--font-mono); font-weight: 700;">${util}%</td>
         <td><span class="badge ${badgeClass}">${r.slot_status || 'OPEN'}</span></td>
       `;
       tbody.appendChild(tr);
@@ -221,21 +221,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const isSuccess = (l.status_code === "COMMITTED" || l.status_code === "LOCK_ACQUIRED" || l.status_code === "SUCCESS");
       
       tr.innerHTML = `
-        <td style="font-family: var(--font-mono); font-size: 0.78rem;">#${l.audit_id}</td>
-        <td style="font-family: var(--font-mono); font-size: 0.78rem;">${l.thread_name}</td>
+        <td style="font-family: var(--font-mono); font-size: 11px;">#${l.audit_id}</td>
+        <td style="font-family: var(--font-mono); font-size: 11px;">${l.thread_name}</td>
         <td>${l.voter_id ? `#${l.voter_id}` : '-'}</td>
         <td>${l.slot_id ? `Slot ${l.slot_id}` : '-'}</td>
         <td><span class="jurisdiction-tag">${l.operation_type}</span></td>
         <td><span class="badge ${isSuccess ? 'badge-open' : 'badge-partial'}">${l.status_code}</span></td>
-        <td style="font-family: var(--font-mono); font-size: 0.82rem;">${l.execution_latency_ms} ms</td>
-        <td style="font-size: 0.78rem; color: var(--text-secondary); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.details || '-'}</td>
+        <td style="font-family: var(--font-mono); font-size: 11.5px;">${l.execution_latency_ms} ms</td>
+        <td style="font-size: 11px; color: var(--text-secondary); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.details || '-'}</td>
       `;
       tbody.appendChild(tr);
     });
   }
 
   // ---------------------------------------------------------------------------
-  // Confirmed Bookings vs Random Forest Predicted Demand Chart
+  // Confirmed Bookings vs Random Forest Predicted Demand Chart (Chart.js)
   // ---------------------------------------------------------------------------
   let crowdChart = null;
 
@@ -289,24 +289,24 @@ document.addEventListener("DOMContentLoaded", () => {
           {
             label: "Confirmed Bookings",
             data: bookedData,
-            backgroundColor: "rgba(56, 189, 248, 0.75)",
-            borderColor: "#38bdf8",
-            borderWidth: 1.5,
-            borderRadius: 4
+            backgroundColor: "#213d77",
+            borderColor: "#213d77",
+            borderWidth: 1,
+            borderRadius: 3
           },
           {
             label: "AI Predicted Demand (Random Forest)",
             data: predictedData,
-            backgroundColor: "rgba(245, 158, 11, 0.8)",
-            borderColor: "#f59e0b",
-            borderWidth: 1.5,
-            borderRadius: 4
+            backgroundColor: "rgba(251, 121, 43, 0.8)",
+            borderColor: "#fb792b",
+            borderWidth: 1,
+            borderRadius: 3
           },
           {
             label: "Slot Capacity Limit",
             data: capacityData,
             type: "line",
-            borderColor: "#ef4444",
+            borderColor: "#dc3545",
             borderDash: [5, 5],
             borderWidth: 2,
             pointRadius: 3,
@@ -319,28 +319,57 @@ document.addEventListener("DOMContentLoaded", () => {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: "#94a3b8", font: { family: "Outfit", size: 12 } }
+            labels: {
+              color: "#212529",
+              font: {
+                family: "Arial, sans-serif",
+                size: 11,
+                weight: "600"
+              }
+            }
           },
           tooltip: {
-            backgroundColor: "#0d1627",
-            borderColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "#14264c",
+            titleColor: "#ffffff",
+            bodyColor: "#ffffff",
+            borderColor: "#fb792b",
             borderWidth: 1
           }
         },
         scales: {
           x: {
-            ticks: { color: "#94a3b8", font: { family: "JetBrains Mono", size: 10 } },
-            grid: { color: "rgba(255, 255, 255, 0.05)" }
+            ticks: {
+              color: "#495057",
+              font: {
+                family: '"SF Mono", "JetBrains Mono", Consolas, monospace',
+                size: 10
+              }
+            },
+            grid: { color: "rgba(0, 0, 0, 0.06)" }
           },
           y: {
-            ticks: { color: "#94a3b8", font: { family: "JetBrains Mono" } },
-            grid: { color: "rgba(255, 255, 255, 0.05)" },
-            title: { display: true, text: "Voter Count", color: "#64748b" }
+            ticks: {
+              color: "#495057",
+              font: {
+                family: '"SF Mono", "JetBrains Mono", Consolas, monospace',
+                size: 10
+              }
+            },
+            grid: { color: "rgba(0, 0, 0, 0.06)" },
+            title: {
+              display: true,
+              text: "Voter Count",
+              color: "#6c757d",
+              font: { size: 11, weight: "700" }
+            }
           }
         }
       }
     });
   }
+
+  // Expose to window for testing hooks
+  window.loadCrowdPredictionsChart = loadCrowdPredictionsChart;
 
   function renderChartFallback(labels, booked, predicted, capacity) {
     const tableDiv = document.getElementById("chartFallbackTable");
@@ -353,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <tbody>
     `;
     labels.forEach((l, i) => {
-      html += `<tr><td>${l}</td><td>${booked[i]}</td><td style="color: var(--accent-amber); font-weight: 700;">${predicted[i]}</td><td>${capacity[i]}</td></tr>`;
+      html += `<tr><td>${l}</td><td>${booked[i]}</td><td style="color: var(--irctc-orange-primary); font-weight: 700;">${predicted[i]}</td><td>${capacity[i]}</td></tr>`;
     });
     html += `</tbody></table>`;
     tableDiv.innerHTML = html;
@@ -366,14 +395,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const raceResultsArea = document.getElementById("raceSimulationResultsArea");
   const raceThreadsGrid = document.getElementById("raceThreadsGrid");
 
-  btnRunRaceSimulation.addEventListener("click", async () => {
+  btnRunRaceSimulation?.addEventListener("click", async () => {
     btnRunRaceSimulation.disabled = true;
     btnRunRaceSimulation.textContent = "Firing 10 Simultaneous Barrier Threads...";
 
     const res = await window.apiClient.simulateRaceCondition();
 
     btnRunRaceSimulation.disabled = false;
-    btnRunRaceSimulation.textContent = "🏁 Run 10-Thread Last-Seat Race Simulation";
+    btnRunRaceSimulation.textContent = "Run 10-Thread Last-Seat Race Simulation";
 
     if (!res.ok) return;
 
@@ -390,18 +419,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const isWinner = tr.is_winner;
       card.className = `race-thread-card ${isWinner ? 'winner' : 'blocked'}`;
 
+      const statusBadge = isWinner
+        ? `<span class="badge badge-open">CNF / SEAT LOCKED</span>`
+        : `<span class="badge badge-full">REGRET / SLOT_CAPACITY_EXCEEDED</span>`;
+
       card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-          <strong>Thread #${tr.thread_id}</strong>
-          <span class="badge ${isWinner ? 'badge-open' : 'badge-full'}">${tr.status}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <strong style="font-family: var(--font-mono); font-size: 11.5px; color: var(--irctc-navy-primary);">Thread #${tr.thread_id}</strong>
+          ${statusBadge}
         </div>
-        <div style="font-size: 0.72rem; color: var(--text-secondary);">${tr.voter_name} (ID: ${tr.voter_id})</div>
-        <div style="margin: 0.4rem 0; font-size: 0.72rem;">
-          ${isWinner ? `🎟️ <strong>Token:</strong> ${tr.booking_reference_token}` : '🚫 <strong>Lock Rejected:</strong> Mutex Contention'}
+        <div style="font-size: 11px; color: var(--text-secondary);">${tr.voter_name} (ID: ${tr.voter_id})</div>
+        <div style="margin: 4px 0; font-size: 11px; font-family: var(--font-mono);">
+          ${isWinner ? `<strong>Token:</strong> ${tr.booking_reference_token}` : '<strong>Contention Status:</strong> BLOCKED BY SELECT ... FOR UPDATE'}
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 0.3rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); border-top: 1px solid var(--irctc-border-subtle); padding-top: 4px;">
           <span>PID: ${tr.pcb_id}</span>
-          <span style="color: ${isWinner ? 'var(--accent-emerald)' : 'inherit'}; font-weight: 700;">${tr.execution_latency_ms} ms</span>
+          <span style="font-weight: 700; color: ${isWinner ? 'var(--irctc-status-avl)' : 'inherit'};">${tr.execution_latency_ms} ms</span>
         </div>
       `;
 
@@ -416,7 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Booth & Slot Management Form Handlers
   // ---------------------------------------------------------------------------
   const btnSaveBooth = document.getElementById("btnSaveBooth");
-  btnSaveBooth.addEventListener("click", async () => {
+  btnSaveBooth?.addEventListener("click", async () => {
     const stationId = parseInt(document.getElementById("cfgStationId").value, 10);
     const pcId = parseInt(document.getElementById("cfgPcId").value, 10);
     const acId = parseInt(document.getElementById("cfgAcId").value, 10);
@@ -442,7 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const btnSaveSlot = document.getElementById("btnSaveSlot");
-  btnSaveSlot.addEventListener("click", async () => {
+  btnSaveSlot?.addEventListener("click", async () => {
     const boothId = parseInt(document.getElementById("cfgSlotBoothId").value, 10);
     const slotDate = document.getElementById("cfgSlotDate").value;
     const startTime = document.getElementById("cfgStartTime").value.trim();

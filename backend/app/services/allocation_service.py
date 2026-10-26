@@ -31,6 +31,124 @@ class AllocationService:
     """Core logistical allocation orchestrator linking OS Concurrency Engine to MySQL 3NF layer."""
 
     # -------------------------------------------------------------------------
+    # 0. POLLING HOURS DISCRETIZATION & CAPACITY SETUP
+    # -------------------------------------------------------------------------
+    def discretize_polling_hours(
+        self,
+        booth_id: int,
+        event_id: int = 1,
+        slot_date: Optional[str] = None,
+        max_capacity_per_slot: int = 60,
+        priority_reserved_capacity: int = 15
+    ) -> List[Dict[str, Any]]:
+        """
+        Discretizes polling hours into arrival time slots in MySQL `time_slots` table.
+        Default standard ONOE schedule:
+          - Slot 1: 07:00:00 - 09:30:00 (Early Morning / Priority Quota)
+          - Slot 2: 09:30:00 - 12:00:00 (Late Morning Peak)
+          - Slot 3: 12:30:00 - 15:00:00 (Afternoon Staggered)
+          - Slot 4: 15:00:00 - 17:30:00 (Evening Pre-Close)
+        Enforces strict database-level capacity and reserved quotas.
+        """
+        if not slot_date:
+            with db_pool.get_cursor() as (conn, cursor):
+                cursor.execute("SELECT election_date FROM election_events WHERE event_id = %s;", (event_id,))
+                row = cursor.fetchone()
+                slot_date = str(row["election_date"]) if row else "2026-11-15"
+
+        default_windows = [
+            ("07:00:00", "09:30:00"),
+            ("09:30:00", "12:00:00"),
+            ("12:30:00", "15:00:00"),
+            ("15:00:00", "17:30:00")
+        ]
+
+        created_slots = []
+        with db_pool.get_cursor() as (conn, cursor):
+            for start_t, end_t in default_windows:
+                insert_sql = """
+                INSERT INTO time_slots
+                (booth_id, event_id, slot_date, start_time, end_time, max_capacity, allocated_count, priority_reserved_capacity, status)
+                VALUES (%s, %s, %s, %s, %s, %s, 0, %s, 'OPEN')
+                ON DUPLICATE KEY UPDATE
+                    max_capacity = VALUES(max_capacity),
+                    priority_reserved_capacity = VALUES(priority_reserved_capacity);
+                """
+                cursor.execute(insert_sql, (
+                    booth_id, event_id, slot_date, start_t, end_t,
+                    max_capacity_per_slot, priority_reserved_capacity
+                ))
+            conn.commit()
+
+            cursor.execute(
+                """
+                SELECT slot_id, booth_id, event_id, slot_date, start_time, end_time,
+                       max_capacity, allocated_count, priority_reserved_capacity, status
+                FROM time_slots
+                WHERE booth_id = %s AND event_id = %s AND slot_date = %s
+                ORDER BY start_time ASC;
+                """,
+                (booth_id, event_id, slot_date)
+            )
+            rows = cursor.fetchall()
+            for r in rows:
+                if r.get("slot_date"):
+                    r["slot_date"] = str(r["slot_date"])
+                if r.get("start_time"):
+                    r["start_time"] = str(r["start_time"])
+                if r.get("end_time"):
+                    r["end_time"] = str(r["end_time"])
+                created_slots.append(r)
+
+        return created_slots
+
+    def verify_capacity_invariant(self, slot_id: int) -> Dict[str, Any]:
+        """
+        Validates the ACID capacity invariant: allocated_count <= max_capacity (+ priority_reserved_capacity).
+        Ensures no overbooking or race condition has breached limits in MySQL.
+        """
+        query = """
+        SELECT
+            slot_id, booth_id, max_capacity, allocated_count, priority_reserved_capacity, status
+        FROM time_slots
+        WHERE slot_id = %s;
+        """
+        with db_pool.get_cursor() as (conn, cursor):
+            cursor.execute(query, (slot_id,))
+            slot = cursor.fetchone()
+            if not slot:
+                return {"invariant_satisfied": False, "error": "SLOT_NOT_FOUND"}
+
+            allocated = int(slot["allocated_count"])
+            max_cap = int(slot["max_capacity"])
+            priority_cap = int(slot["priority_reserved_capacity"])
+            hard_limit = max_cap + priority_cap
+
+            cursor.execute(
+                """
+                SELECT COUNT(*) as active_allocations
+                FROM slot_allocations
+                WHERE slot_id = %s AND status IN ('CONFIRMED', 'CHECKED_IN');
+                """,
+                (slot_id,)
+            )
+            actual_alloc = cursor.fetchone()["active_allocations"]
+
+            invariant_satisfied = (allocated <= hard_limit) and (allocated == actual_alloc)
+
+            return {
+                "slot_id": slot_id,
+                "invariant_satisfied": invariant_satisfied,
+                "allocated_count": allocated,
+                "active_allocations_count": actual_alloc,
+                "max_capacity": max_cap,
+                "priority_reserved_capacity": priority_cap,
+                "hard_limit": hard_limit,
+                "remaining_standard_capacity": max(0, max_cap - allocated),
+                "status": slot["status"]
+            }
+
+    # -------------------------------------------------------------------------
     # 1. ATOMIC SLOT ALLOCATION (Thread-Safe Critical Section)
     # -------------------------------------------------------------------------
     def allocate_voter_slot(
@@ -71,6 +189,7 @@ class AllocationService:
         status_code = "UNKNOWN"
         booking_token = None
         queue_token = 0
+        appointment_slip = None
 
         # Step D: Enter Synchronization Critical Section
         try:
@@ -89,9 +208,10 @@ class AllocationService:
                     booking_token = result_args[5]
                     queue_token = result_args[6]
 
-            # Invalidate booth LRU cache on successful allocation
+            # Invalidate booth LRU cache on successful allocation and generate appointment pass slip
             if status_code == "SUCCESS":
                 os_lru_cache.invalidate()
+                appointment_slip = self.get_voter_appointment_slip(booking_reference_token=booking_token)
                 dispatched_pcb.transition_to(
                     ProcessState.TERMINATED,
                     f"Allocation committed successfully. Token: {booking_token}"
@@ -130,6 +250,7 @@ class AllocationService:
             "status_code": status_code,
             "booking_reference_token": booking_token,
             "queue_token_no": queue_token,
+            "appointment_slip": appointment_slip,
             "pcb_telemetry": dispatched_pcb.to_dict()
         }
 

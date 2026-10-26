@@ -1,103 +1,52 @@
-/* ==============================================================================
-   SMART POLLING BOOTH PLATFORM - CORE DESIGN SYSTEM & STYLESHEET
-   Project: One Nation One Election (ONOE) Logistical & Time-Slot Platform
-   Architecture: Vanilla CSS3 with CSS Variables, Glassmorphism, Dark/High-Contrast Modes
-   ============================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* ==========================================================================
+   IRCTC Next-Gen Official Design System Stylesheet
+   Project: Smart Polling Booth & Time-Slot Platform (One Nation One Election)
+   File: frontend/css/styles.css
+   Style: IRCTC Next Generation eTicketing Portal Design Architecture
+   ========================================================================== */
 
 :root {
-  /* Color Palette - Modern Dark Theme */
-  --bg-primary: #070d18;
-  --bg-secondary: #0d1627;
-  --bg-surface: rgba(18, 29, 51, 0.75);
-  --bg-surface-elevated: rgba(27, 43, 74, 0.85);
-  --bg-surface-hover: rgba(37, 59, 100, 0.7);
-  --bg-overlay: rgba(5, 10, 20, 0.85);
-
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(56, 189, 248, 0.35);
-  --border-focus: #38bdf8;
-
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #070d18;
-
-  /* Accent & State Colors */
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.25);
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --accent-amber: #f59e0b;
-  --accent-amber-glow: rgba(245, 158, 11, 0.25);
-  --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-  --accent-crimson: #ef4444;
-  --accent-crimson-glow: rgba(239, 68, 68, 0.25);
-  --accent-gold: #fbbf24;
-
+  /* Official IRCTC Next-Gen Color Palette */
+  --irctc-navy-dark: #14264c;
+  --irctc-navy-primary: #213d77;
+  --irctc-navy-light: #2c4d8f;
+  --irctc-navy-subtle: #e9eff8;
+  --irctc-orange-primary: #fb792b;
+  --irctc-orange-hover: #e06318;
+  --irctc-orange-light: #fff5ee;
+  --irctc-bg-canvas: #f2f4f8;
+  --irctc-surface-white: #ffffff;
+  --irctc-border-grey: #d6dce5;
+  --irctc-border-subtle: #e2e8f0;
+  --irctc-border-focus: #213d77;
+  
   /* Status Colors */
-  --status-open: #10b981;
-  --status-partial: #f59e0b;
-  --status-full: #ef4444;
-
-  /* Congestion Levels */
-  --cong-low: #10b981;
-  --cong-mod: #3b82f6;
-  --cong-high: #f59e0b;
-  --cong-crit: #ef4444;
+  --irctc-status-avl: #198754;
+  --irctc-status-avl-bg: #e8f5e9;
+  --irctc-status-rac: #d97706;
+  --irctc-status-rac-bg: #fef3c7;
+  --irctc-status-wl: #dc3545;
+  --irctc-status-wl-bg: #fee2e2;
 
   /* Typography */
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+  --text-navy: #213d77;
+  --font-sans: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
 
-  /* Elevations & Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --shadow-glow-cyan: 0 0 25px rgba(6, 182, 212, 0.3);
-  --shadow-glow-emerald: 0 0 25px rgba(16, 185, 129, 0.35);
-
-  /* Transitions & Curves */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Elevation & Geometry */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 3px 10px rgba(33, 61, 119, 0.10);
+  --shadow-lg: 0 6px 20px rgba(33, 61, 119, 0.14);
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
 }
 
-/* ==============================================================================
-   HIGH CONTRAST / ASSISTIVE MODE (Senior Citizen & Accessibility Friendly)
-   ============================================================================== */
-body.high-contrast-mode {
-  --bg-primary: #000000;
-  --bg-secondary: #0a0a0a;
-  --bg-surface: #141414;
-  --bg-surface-elevated: #222222;
-  --bg-surface-hover: #333333;
-  --border-subtle: #ffff00;
-  --border-accent: #ffff00;
-  --text-primary: #ffffff;
-  --text-secondary: #ffff55;
-  --text-muted: #e2e8f0;
-  --accent-cyan: #00ffff;
-  --accent-amber: #ffff00;
-  --accent-emerald: #00ff66;
-  --accent-crimson: #ff3333;
-  font-size: 110%;
-}
-
-body.high-contrast-mode .badge,
-body.high-contrast-mode button,
-body.high-contrast-mode .card {
-  border: 2px solid #ffff00 !important;
-}
-
-/* Base Reset & Global Styles */
+/* Base Reset & Core Styles */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -105,1073 +54,1191 @@ body.high-contrast-mode .card {
 }
 
 html {
-  font-size: 16px;
+  font-size: 14px;
   scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-primary);
+  background-color: var(--irctc-bg-canvas);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
-  background-attachment: fixed;
 }
 
-/* ==============================================================================
-   HEADER & NAVIGATION
-   ============================================================================== */
-.top-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(7, 13, 24, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 0.75rem 1.5rem;
+/* Accessible Focus Ring */
+:focus-visible {
+  outline: 2px solid var(--irctc-orange-primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   IRCTC TWO-TIER HEADER & UTILITY NAVIGATION
+   ========================================================================== */
+
+/* Top Utility Bar (Tier 1) */
+.top-utility-bar {
+  background: var(--irctc-navy-dark);
+  color: #ffffff;
+  height: 34px;
+  font-size: 11.5px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 1000;
 }
 
-.brand-wrapper {
+.top-utility-left,
+.top-utility-right {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  text-decoration: none;
-  color: inherit;
+  gap: 16px;
 }
 
-.brand-emblem {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #f59e0b, #10b981);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: #070d18;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-}
-
-.brand-title-group h1 {
-  font-size: 1.15rem;
+.top-utility-tag {
   font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(to right, #f8fafc, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.04em;
+  color: #ffffff;
 }
 
-.brand-title-group .sub {
-  font-size: 0.72rem;
-  color: var(--accent-cyan);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
+.top-utility-clock {
+  font-family: var(--font-mono);
+  color: #c5d2e8;
+  font-size: 11px;
 }
 
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-/* Navigation Buttons */
-.btn-nav {
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 600;
+.top-utility-link {
+  color: #ffffff;
   text-decoration: none;
-  cursor: pointer;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  transition: all var(--transition-fast);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  gap: 4px;
+  transition: color 0.15s ease;
 }
 
-.btn-nav:hover {
-  background: var(--bg-surface-elevated);
-  border-color: var(--border-accent);
+.top-utility-link:hover {
+  color: var(--irctc-orange-primary);
 }
 
-.btn-nav.active {
-  background: var(--accent-cyan);
-  color: #070d18;
-  border-color: var(--accent-cyan);
-  box-shadow: var(--shadow-glow-cyan);
-}
-
-.btn-accessibility {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
-}
-
-.btn-accessibility:hover {
-  background: rgba(245, 158, 11, 0.25);
-}
-
-/* ==============================================================================
-   MANDATORY LEGAL DISCLAIMER BANNER
-   ============================================================================== */
-.legal-banner {
-  background: linear-gradient(90deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
-  border-bottom: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 0.6rem 1.5rem;
-  font-size: 0.8rem;
-  color: #e2e8f0;
+.accessibility-btn-group {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
 }
 
-.legal-banner-badge {
-  background: #f59e0b;
-  color: #070d18;
-  font-weight: 800;
-  font-size: 0.65rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+.btn-acc-size {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.btn-contrast-mode {
+  background: #ffffff;
+  color: var(--irctc-navy-dark);
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
 }
 
-/* ==============================================================================
-   LAYOUT & CONTAINER
-   ============================================================================== */
-.main-content {
-  flex: 1;
-  max-width: 1280px;
-  width: 100%;
+.btn-contrast-mode:hover {
+  background: var(--irctc-orange-primary);
+  color: #ffffff;
+}
+
+/* Main Institutional Navbar (Tier 2) */
+.main-header {
+  background: var(--irctc-navy-primary);
+  color: #ffffff;
+  border-bottom: 3.5px solid var(--irctc-orange-primary);
+  padding: 12px 24px;
+  box-shadow: var(--shadow-sm);
+  z-index: 999;
+}
+
+.main-header-inner {
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-/* Page Header */
-.page-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.page-header h2 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(to right, #38bdf8, #818cf8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.page-header p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-/* ==============================================================================
-   STEP PROGRESS BAR (VOTER PORTAL)
-   ============================================================================== */
-.stepper-container {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 2.5rem;
-  position: relative;
-  background: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  padding: 1rem 1.5rem;
-  border: 1px solid var(--border-subtle);
-  overflow-x: auto;
+  gap: 20px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.brand-emblem-svg {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  fill: #ffffff;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-main-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 0.82rem;
+  color: #d6e2f5;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.header-telemetry-badge {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #e2e8f0;
+}
+
+.telemetry-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.telemetry-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* IRCTC Scrolling Advisory Ticker */
+.advisory-ticker {
+  background: #fff8e6;
+  border-bottom: 1px solid #f5d488;
+  color: #855200;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.advisory-badge {
+  background: var(--irctc-orange-primary);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.advisory-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* ==========================================================================
+   IRCTC STEPPER BAR / BOOKING WORKFLOW PROGRESS
+   ========================================================================== */
+
+.stepper-container {
+  max-width: 1380px;
+  margin: 16px auto 0;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.stepper-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .step-item {
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  opacity: 0.45;
-  transition: all var(--transition-normal);
-  white-space: nowrap;
+  gap: 10px;
+  background: #ffffff;
+  border-right: 1px solid var(--irctc-border-grey);
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.step-item.active {
-  opacity: 1;
+.step-item:last-child {
+  border-right: none;
 }
 
-.step-item.completed {
-  opacity: 0.85;
-}
-
-.step-badge {
-  width: 32px;
-  height: 32px;
+.step-number {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  background: #e2e8f0;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  background: var(--bg-secondary);
-  border: 2px solid var(--text-muted);
-  color: var(--text-secondary);
-  transition: all var(--transition-normal);
-}
-
-.step-item.active .step-badge {
-  background: var(--accent-cyan);
-  border-color: var(--accent-cyan);
-  color: #070d18;
-  box-shadow: var(--shadow-glow-cyan);
-}
-
-.step-item.completed .step-badge {
-  background: var(--accent-emerald);
-  border-color: var(--accent-emerald);
-  color: #070d18;
+  flex-shrink: 0;
 }
 
 .step-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-/* ==============================================================================
-   STEP CARDS & GLASS PANELS
-   ============================================================================== */
-.portal-card {
-  background: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 2rem;
-  transition: all var(--transition-normal);
-}
-
-.portal-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.portal-card-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.portal-card-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
-
-/* ==============================================================================
-   FORMS & INPUTS
-   ============================================================================== */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.form-label {
-  font-size: 0.82rem;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
-.form-input, .form-select {
-  background: rgba(13, 22, 39, 0.85);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  transition: all var(--transition-fast);
-  outline: none;
+.step-item.active {
+  background: #eef4fc;
+  border-bottom: 3px solid var(--irctc-orange-primary);
 }
 
-.form-input:focus, .form-select:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-}
-
-.form-input::placeholder {
-  color: var(--text-muted);
-}
-
-/* Quick Select Presets Bar */
-.preset-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(13, 22, 39, 0.6);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-}
-
-.preset-chip {
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--accent-cyan);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.preset-chip:hover {
-  background: var(--accent-cyan);
-  color: #070d18;
-}
-
-/* Action Buttons */
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-  color: #070d18;
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: 0.8rem 1.6rem;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
-  transition: all var(--transition-normal);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
-}
-
-.btn-secondary {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.75rem 1.4rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-secondary:hover {
-  background: var(--bg-surface-hover);
-  border-color: var(--border-accent);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+.step-item.active .step-number {
+  background: var(--irctc-navy-primary);
   color: #ffffff;
+}
+
+.step-item.active .step-title {
+  color: var(--irctc-navy-primary);
   font-weight: 700;
-  padding: 0.75rem 1.4rem;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
-  transition: all var(--transition-fast);
 }
 
-.btn-danger:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
+.step-item.completed {
+  background: #f8fafc;
 }
 
-/* ==============================================================================
-   BADGES & PILLS
-   ============================================================================== */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.step-item.completed .step-number {
+  background: var(--irctc-status-avl);
+  color: #ffffff;
 }
 
-.badge-open {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+.step-item.completed .step-title {
+  color: var(--irctc-status-avl);
 }
 
-.badge-partial {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+/* ==========================================================================
+   IRCTC HERO BOOKING FRAME & MAIN CONTENT LAYOUT
+   ========================================================================== */
+
+.main-content {
+  max-width: 1380px;
+  margin: 16px auto 32px;
+  padding: 0 24px;
+  width: 100%;
+  flex: 1;
 }
 
-.badge-full {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-}
-
-.badge-low {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-}
-.badge-mod {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-}
-.badge-high {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-}
-.badge-crit {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-}
-
-/* ==============================================================================
-   STEP 2: SIMULATED VERIFICATION CARD
-   ============================================================================== */
-.verification-box {
-  background: rgba(13, 22, 39, 0.7);
-  border: 1px dashed var(--border-accent);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-
-.consent-check-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.consent-check-group input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--accent-cyan);
-  cursor: pointer;
-  margin-top: 0.2rem;
-}
-
-.consent-check-group label {
-  font-size: 0.88rem;
-  color: #e2e8f0;
-  cursor: pointer;
-  line-height: 1.4;
-}
-
-/* ==============================================================================
-   STEP 3: BOOTH CARDS & MAP
-   ============================================================================== */
-.booth-selection-grid {
+.hero-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 460px 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
-@media (max-width: 900px) {
-  .booth-selection-grid {
+@media (max-width: 1080px) {
+  .hero-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.booth-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-height: 520px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
+/* Standard IRCTC Card Architecture */
+.irctc-card {
+  background: var(--irctc-surface-white);
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 18px;
 }
 
-.booth-card {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
+.irctc-card-header {
+  background: var(--irctc-navy-primary);
+  color: #ffffff;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.irctc-card-header.secondary-header {
+  background: var(--irctc-navy-dark);
+}
+
+.irctc-card-header .header-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #d6e2f5;
+  text-transform: none;
+}
+
+.irctc-card-body {
+  padding: 18px;
+}
+
+/* IRCTC Card Tab Headers (Book Slot vs Verify) */
+.card-nav-tabs {
+  display: flex;
+  background: var(--irctc-navy-primary);
+  border-bottom: 2px solid var(--irctc-navy-dark);
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #c5d2e8;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 12px 14px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 3.5px solid var(--irctc-orange-primary);
+}
+
+/* ==========================================================================
+   FORM INPUTS & BUTTONS (IRCTC OFFICIAL STYLING)
+   ========================================================================== */
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+}
+
+.form-control,
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-xs);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus,
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--irctc-navy-primary);
+  box-shadow: 0 0 0 2px rgba(33, 61, 119, 0.18);
+  outline: none;
+}
+
+.form-control[readonly] {
+  background-color: #f8fafc;
+  cursor: not-allowed;
+}
+
+/* Concession / Checkbox Styling */
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 10px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.form-check-input {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  accent-color: var(--irctc-orange-primary);
+  cursor: pointer;
+}
+
+/* Action Buttons */
+.btn-primary {
+  background: var(--irctc-orange-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(251, 121, 43, 0.28);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--irctc-orange-hover);
+  box-shadow: 0 3px 6px rgba(251, 121, 43, 0.38);
+}
+
+.btn-primary:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--irctc-navy-primary);
+  border: 1px solid var(--irctc-navy-primary);
+  border-radius: var(--radius-xs);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--irctc-navy-subtle);
+  border-color: var(--irctc-navy-dark);
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: var(--irctc-status-wl);
+  border: 1px solid var(--irctc-status-wl);
+  border-radius: var(--radius-xs);
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-outline-danger:hover {
+  background: var(--irctc-status-wl);
+  color: #ffffff;
+}
+
+/* Voter Profile Summary Card */
+.profile-card {
+  background: #f8fafc;
+  border: 1px solid var(--irctc-border-grey);
+  border-left: 4px solid var(--irctc-navy-primary);
+  border-radius: var(--radius-xs);
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+
+.profile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--irctc-navy-primary);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.profile-item-label {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.profile-item-val {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   IRCTC STATUS PILLS & BADGES
+   ========================================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-family: var(--font-mono);
+}
+
+.badge-open {
+  background: var(--irctc-status-avl-bg);
+  color: var(--irctc-status-avl);
+  border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+.badge-partial {
+  background: var(--irctc-status-rac-bg);
+  color: var(--irctc-status-rac);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.badge-full {
+  background: var(--irctc-status-wl-bg);
+  color: var(--irctc-status-wl);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.jurisdiction-tag {
+  background: #eef4fc;
+  border: 1px solid #c5d2e8;
+  color: var(--irctc-navy-primary);
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   GEOSPATIAL MAP & LIVE OS PCB PIPELINE
+   ========================================================================== */
+
+#boothMap {
+  height: 380px;
+  width: 100%;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: #e2e8f0;
+}
+
+/* Hardware/Transaction OS PCB Pipeline */
+.pcb-pipeline {
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-top: 14px;
+}
+
+.pcb-pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.pcb-pipeline-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--irctc-navy-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pcb-nodes-track {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
   position: relative;
 }
 
+.pcb-node {
+  background: #f8fafc;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-xs);
+  padding: 8px 6px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.pcb-node-title {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.pcb-node-desc {
+  font-size: 9.5px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.pcb-node.active {
+  background: #eef4fc;
+  border-color: var(--irctc-orange-primary);
+  box-shadow: 0 0 0 1px var(--irctc-orange-primary);
+}
+
+.pcb-node.active .pcb-node-title {
+  color: var(--irctc-orange-primary);
+}
+
+.pcb-node.completed {
+  background: #f0fdf4;
+  border-color: var(--irctc-status-avl);
+}
+
+.pcb-node.completed .pcb-node-title {
+  color: var(--irctc-status-avl);
+}
+
+/* ==========================================================================
+   IRCTC TRAIN-LIST STYLE POLLING BOOTH & TIME-SLOT CARDS
+   ========================================================================== */
+
+/* Booth Search Result Card */
+.booth-card {
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
 .booth-card:hover {
-  border-color: var(--border-accent);
-  background: var(--bg-surface-hover);
-  transform: translateY(-2px);
+  border-color: var(--irctc-navy-light);
+  box-shadow: var(--shadow-md);
 }
 
 .booth-card.selected {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 2px var(--accent-cyan);
+  border: 2px solid var(--irctc-orange-primary);
 }
 
 .booth-card-header {
+  background: var(--irctc-navy-subtle);
+  border-bottom: 1px solid #c5d2e8;
+  padding: 10px 16px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+  align-items: center;
 }
 
 .booth-card-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--irctc-navy-primary);
 }
 
 .booth-distance-tag {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
+  background: var(--irctc-navy-primary);
+  color: #ffffff;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--accent-cyan);
-  background: rgba(6, 182, 212, 0.15);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+}
+
+.booth-card-body {
+  padding: 12px 16px;
 }
 
 .booth-jurisdiction-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.6rem 0;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.jurisdiction-tag {
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-}
-
-/* Leaflet Map Canvas Container */
-.map-canvas-container {
-  height: 520px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
-  position: relative;
-  background: #0d1627;
-}
-
-#boothMap {
-  width: 100%;
-  height: 100%;
-}
-
-.map-offline-fallback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  background: rgba(13, 22, 39, 0.95);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-/* ==============================================================================
-   STEP 4: TIME-SLOT CARDS & AI RECOMMENDATION
-   ============================================================================== */
-.slots-grid {
+/* Slot Availability Grid (IRCTC Class Availability Boxes: SL, 3A, 2A, 1A) */
+.slots-container-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin: 1.5rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .slot-card {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-sm);
+  padding: 12px;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all 0.18s ease;
   position: relative;
-  overflow: hidden;
 }
 
 .slot-card:hover {
-  border-color: var(--border-accent);
-  transform: translateY(-2px);
+  border-color: var(--irctc-navy-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .slot-card.selected {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 2px var(--accent-cyan), var(--shadow-glow-cyan);
+  border: 2.5px solid var(--irctc-orange-primary);
+  background: #fffcf8;
 }
 
 .slot-card.recommended {
-  border-color: var(--accent-emerald);
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.04));
+  border-top: 3.5px solid var(--irctc-orange-primary);
 }
 
 .recommended-ribbon {
   position: absolute;
-  top: 0;
-  right: 0;
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  color: #070d18;
-  font-size: 0.65rem;
+  top: -9px;
+  right: 10px;
+  background: var(--irctc-orange-primary);
+  color: #ffffff;
+  font-size: 9.5px;
   font-weight: 800;
-  padding: 0.2rem 0.8rem;
-  border-bottom-left-radius: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
-}
-
-.slot-time-range {
-  font-size: 1.15rem;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  margin-bottom: 0.4rem;
-}
-
-.slot-capacity-bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-  margin: 0.75rem 0;
-}
-
-.slot-capacity-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-.ai-reason-box {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem;
-  font-size: 0.82rem;
-  color: #a7f3d0;
-  margin-top: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-/* ==============================================================================
-   OS PCB PIPELINE VISUALIZATION
-   ============================================================================== */
-.pcb-pipeline-container {
-  background: rgba(10, 16, 30, 0.95);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-
-.pcb-pipeline-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent-cyan);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.pcb-nodes-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  margin: 1rem 0;
-}
-
-.pcb-nodes-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--border-subtle);
-  transform: translateY(-50%);
-  z-index: 1;
-}
-
-.pcb-node {
-  position: relative;
-  z-index: 2;
-  background: var(--bg-secondary);
-  border: 2px solid var(--text-muted);
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.8rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  transition: all var(--transition-normal);
-}
-
-.pcb-node.active {
-  background: var(--accent-cyan);
-  border-color: #ffffff;
-  color: #070d18;
-  box-shadow: 0 0 16px var(--accent-cyan);
-  animation: pulse-node 1.5s infinite;
-}
-
-.pcb-node.completed {
-  background: var(--accent-emerald);
-  border-color: #34d399;
-  color: #070d18;
-}
-
-@keyframes pulse-node {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-
-/* ==============================================================================
-   OFFICIAL DIGITAL VOTER APPOINTMENT SLIP
-   ============================================================================== */
-.appointment-slip {
-  background: #ffffff;
-  color: #0f172a;
-  border-radius: var(--radius-md);
-  padding: 2.2rem;
-  margin: 2rem auto;
-  max-width: 680px;
-  box-shadow: var(--shadow-lg), 0 0 35px rgba(255, 255, 255, 0.15);
-  position: relative;
-  border: 2px solid #cbd5e1;
-}
-
-.slip-header-tricolor {
-  height: 6px;
-  background: linear-gradient(to right, #ff9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  border-top-left-radius: var(--radius-md);
-  border-top-right-radius: var(--radius-md);
-}
-
-.slip-emblem-row {
-  text-align: center;
-  margin-bottom: 1.25rem;
-  border-bottom: 2px solid #0f172a;
-  padding-bottom: 0.85rem;
-}
-
-.slip-emblem-row h3 {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #0f172a;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.slip-emblem-row p {
-  font-size: 0.8rem;
-  color: #475569;
-  font-weight: 600;
-}
-
-.slip-body-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  margin: 1.25rem 0;
-}
-
-.slip-field {
-  margin-bottom: 0.8rem;
-}
-
-.slip-field-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #64748b;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.slip-field-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.slip-token-box {
-  background: #f1f5f9;
-  border: 2px dashed #94a3b8;
-  border-radius: var(--radius-sm);
-  padding: 1rem;
-  text-align: center;
+.slot-header-row {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 6px;
 }
 
-.slip-queue-number {
-  font-size: 2.4rem;
-  font-weight: 900;
+.slot-time-range {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--irctc-navy-primary);
   font-family: var(--font-mono);
-  color: #0f172a;
-  line-height: 1;
 }
 
-.slip-token-code {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  word-break: break-all;
-  margin-top: 0.5rem;
-  background: #ffffff;
-  padding: 0.25rem 0.4rem;
-  border-radius: 4px;
-  border: 1px solid #cbd5e1;
-}
-
-.slip-footer-disclaimer {
-  font-size: 0.72rem;
-  color: #64748b;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 0.75rem;
-  margin-top: 1rem;
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* ==============================================================================
-   ADMIN DASHBOARD SPECIFIC STYLES
-   ============================================================================== */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.kpi-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.kpi-card-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.kpi-card-value {
-  font-size: 1.85rem;
+.slot-status-line {
+  font-size: 14px;
   font-weight: 800;
   font-family: var(--font-mono);
-  margin: 0.35rem 0;
-  color: var(--text-primary);
+  margin: 6px 0;
 }
 
-.kpi-card-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+.slot-status-avl {
+  color: var(--irctc-status-avl);
 }
 
-/* Simulator Visual Race Board */
-.race-board-container {
-  background: rgba(13, 22, 39, 0.9);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  margin: 2rem 0;
+.slot-status-rac {
+  color: var(--irctc-status-rac);
 }
 
-.race-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1.25rem;
+.slot-status-wl {
+  color: var(--irctc-status-wl);
 }
 
-.race-thread-card {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  transition: all var(--transition-normal);
+.slot-telemetry-line {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--irctc-border-subtle);
+  padding-top: 6px;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.race-thread-card.winner {
-  border-color: var(--accent-emerald);
-  background: rgba(16, 185, 129, 0.15);
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
-}
-
-.race-thread-card.blocked {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.08);
-}
-
-/* ==============================================================================
-   DATA TABLES
-   ============================================================================== */
-.table-responsive {
+.slot-book-btn {
   width: 100%;
+  margin-top: 8px;
+  padding: 6px 0;
+  font-size: 11.5px;
+}
+
+/* ==========================================================================
+   IRCTC ELECTRONIC RESERVATION SLIP (ERS) PASS
+   ========================================================================== */
+
+.appointment-slip {
+  background: #ffffff;
+  border: 2px solid var(--irctc-navy-primary);
+  border-radius: var(--radius-xs);
+  padding: 24px;
+  margin-top: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.ers-header-band {
+  background: var(--irctc-navy-primary);
+  color: #ffffff;
+  padding: 12px 18px;
+  margin: -24px -24px 20px -24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ers-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ers-watermark-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d6e2f5;
+}
+
+.ers-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.ers-table th,
+.ers-table td {
+  border: 1px solid var(--irctc-border-grey);
+  padding: 8px 12px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.ers-table th {
+  background: #f8fafc;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  width: 25%;
+}
+
+.ers-table td {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ers-table td.highlight-navy {
+  color: var(--irctc-navy-primary);
+  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.ers-table td.highlight-cnf {
+  color: var(--irctc-status-avl);
+  font-weight: 800;
+}
+
+.ers-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* ==========================================================================
+   ADMIN CRIS / CONTROL ROOM STYLING
+   ========================================================================== */
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cris-kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-top: 4px solid var(--irctc-navy-primary);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cris-kpi-card.accent-orange {
+  border-top-color: var(--irctc-orange-primary);
+}
+
+.cris-kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cris-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--irctc-navy-primary);
+  font-family: var(--font-mono);
+  margin: 6px 0;
+}
+
+.cris-kpi-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Data Table Architecture */
+.data-table-container {
   overflow-x: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-xs);
+  background: #ffffff;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
-  text-align: left;
+  font-size: 12px;
 }
 
 .data-table th {
-  background: rgba(27, 43, 74, 0.9);
-  padding: 0.75rem 1rem;
+  background: var(--irctc-navy-primary);
+  color: #ffffff;
   font-weight: 700;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-subtle);
-  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 11px;
+  padding: 9px 12px;
+  text-align: left;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .data-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--irctc-border-grey);
+  border-right: 1px solid var(--irctc-border-grey);
   color: var(--text-primary);
 }
 
-.data-table tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
+.data-table tr:hover {
+  background-color: #f8fafc;
 }
 
-/* ==============================================================================
+/* 10-Thread OS Contention Simulator Grid */
+.race-thread-card {
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.race-thread-card.winner {
+  border: 2px solid var(--irctc-status-avl);
+  background: var(--irctc-status-avl-bg);
+}
+
+.race-thread-card.blocked {
+  border-left: 3px solid var(--irctc-status-wl);
+}
+
+/* ==========================================================================
    TOAST NOTIFICATIONS
-   ============================================================================== */
+   ========================================================================== */
+
 #toastContainer {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  pointer-events: none;
+  gap: 10px;
 }
 
 .toast {
-  pointer-events: auto;
-  padding: 0.85rem 1.25rem;
-  border-radius: var(--radius-sm);
-  background: #1e293b;
-  color: #f8fafc;
-  font-size: 0.88rem;
-  font-weight: 500;
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey);
+  border-left: 4px solid var(--irctc-navy-primary);
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-subtle);
+  padding: 12px 18px;
+  border-radius: var(--radius-xs);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 280px;
+  max-width: 420px;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  animation: slide-toast 0.25s ease-out;
-  max-width: 420px;
+  gap: 10px;
 }
 
-.toast.toast-success {
-  border-left: 4px solid var(--accent-emerald);
+.toast-success {
+  border-left-color: var(--irctc-status-avl);
 }
 
-.toast.toast-error {
-  border-left: 4px solid var(--accent-crimson);
+.toast-warning {
+  border-left-color: var(--irctc-status-rac);
 }
 
-.toast.toast-warning {
-  border-left: 4px solid var(--accent-amber);
+.toast-error {
+  border-left-color: var(--irctc-status-wl);
 }
 
-@keyframes slide-toast {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+/* ==========================================================================
+   HIGH-CONTRAST ACCESSIBILITY MODE (.high-contrast-mode)
+   ========================================================================== */
+
+body.high-contrast-mode {
+  background: #000000 !important;
+  color: #ffff00 !important;
 }
 
-/* ==============================================================================
-   PRINT STYLES FOR APPOINTMENT SLIP
-   ============================================================================== */
+body.high-contrast-mode .top-utility-bar,
+body.high-contrast-mode .main-header,
+body.high-contrast-mode .irctc-card-header,
+body.high-contrast-mode .ers-header-band,
+body.high-contrast-mode .data-table th {
+  background: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+body.high-contrast-mode .irctc-card,
+body.high-contrast-mode .booth-card,
+body.high-contrast-mode .slot-card,
+body.high-contrast-mode .appointment-slip,
+body.high-contrast-mode .cris-kpi-card,
+body.high-contrast-mode .stepper-track,
+body.high-contrast-mode .step-item {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+body.high-contrast-mode .form-control,
+body.high-contrast-mode .form-input,
+body.high-contrast-mode .form-select {
+  background: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+body.high-contrast-mode .btn-primary {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+body.high-contrast-mode .badge {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   PRINT MEDIA QUERY (Clean ERS Pass Output)
+   ========================================================================== */
+
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-  .top-nav, .legal-banner, .stepper-container, .btn-primary, .btn-secondary,
-  .btn-danger, .form-grid, .booth-selection-grid, .slots-grid, #toastContainer {
+  .top-utility-bar,
+  .main-header,
+  .advisory-ticker,
+  .stepper-container,
+  .hero-grid > div:first-child,
+  .ers-actions,
+  #toastContainer,
+  #boothMap {
     display: none !important;
   }
-  .appointment-slip {
-    box-shadow: none !important;
-    border: 2px solid #000000 !important;
-    max-width: 100% !important;
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .main-content {
     margin: 0 !important;
-    padding: 1.5rem !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .appointment-slip {
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    padding: 16px !important;
+  }
+
+  .ers-header-band {
+    background: #000000 !important;
+    color: #ffffff !important;
+    margin: -16px -16px 16px -16px !important;
   }
 }

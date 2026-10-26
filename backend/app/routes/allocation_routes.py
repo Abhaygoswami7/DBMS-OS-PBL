@@ -71,6 +71,7 @@ def create_allocation():
             "booking_reference_token": alloc_res["booking_reference_token"],
             "queue_number": alloc_res["queue_token_no"],
             "queue_token_no": alloc_res["queue_token_no"],
+            "appointment_slip": alloc_res.get("appointment_slip"),
             "pcb_telemetry": alloc_res.get("pcb_telemetry", {})
         }), 201
 
@@ -85,7 +86,7 @@ def create_allocation():
             "pcb_telemetry": alloc_res.get("pcb_telemetry", {})
         }), 409
 
-    if status_code == "SLOT_FULL_CAPACITY_EXCEEDED":
+    if status_code in ("SLOT_FULL_CAPACITY_EXCEEDED", "SLOT_CAPACITY_EXCEEDED", "PRIORITY_CAPACITY_EXCEEDED"):
         return jsonify({
             "error": "CONFLICT",
             "status_code": status_code,
