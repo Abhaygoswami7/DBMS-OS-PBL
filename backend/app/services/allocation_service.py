@@ -166,12 +166,24 @@ class AllocationService:
         4. Calls stored procedure sp_allocate_slot_atomic (ACID row-level X-lock).
         5. Records complete OS telemetry in the response.
         """
-        # Step A: Fetch voter's priority category for PCB initialization
+        # Step A: Fetch voter's details and pre-validate booth jurisdiction
         voter_category = "GENERAL"
         with db_pool.get_cursor() as (conn, cursor):
-            cursor.execute("SELECT special_category FROM voters WHERE voter_id = %s;", (voter_id,))
+            cursor.execute("SELECT assigned_booth_id, special_category FROM voters WHERE voter_id = %s;", (voter_id,))
             v_row = cursor.fetchone()
-            if v_row and v_row.get("special_category"):
+            if not v_row:
+                return {
+                    "success": False,
+                    "status_code": "VOTER_NOT_FOUND",
+                    "message": f"Voter ID {voter_id} not found in electoral roll registry."
+                }
+            if v_row.get("assigned_booth_id") != booth_id:
+                return {
+                    "success": False,
+                    "status_code": "INVALID_BOOTH_JURISDICTION",
+                    "message": f"Voter is assigned to Polling Booth {v_row.get('assigned_booth_id')}, cannot book Booth {booth_id}."
+                }
+            if v_row.get("special_category"):
                 voter_category = v_row["special_category"]
 
         # Step B: OS Process Creation

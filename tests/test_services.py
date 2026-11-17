@@ -14,6 +14,7 @@ from backend.app.services.auth_service import auth_service
 from backend.app.services.voter_service import voter_service
 from backend.app.services.booth_service import booth_service
 from backend.app.services.allocation_service import allocation_service
+from database.db_pool import db_pool
 
 def test_admin_jwt_authentication():
     """Verify admin login returns signed JWT and decodes with correct role."""
@@ -37,9 +38,9 @@ def test_voter_retrieval_and_jurisdiction():
     assert voter["assigned_booth_id"] == 1
     assert voter["special_category"] == "SENIOR_CITIZEN"
     assert voter["priority_level"] == 1
-    assert voter["station_name"] == "Government Inter College Garhi Cantt"
-    assert voter["parliamentary_constituency"] == "Tehri Garhwal Parliamentary Constituency"
-    assert voter["assembly_constituency"] == "Dehradun Cantt Assembly Constituency"
+    assert voter["station_name"] == "Graphic Era Hill University, Bhimtal Campus"
+    assert voter["parliamentary_constituency"] == "Nainital-Udhamsingh Nagar Parliamentary Constituency"
+    assert voter["assembly_constituency"] == "Bhimtal Assembly Constituency"
 
 def test_simulated_voter_verification():
     """Verify simulated OTP authentication logs entry into simulated_verifications."""
@@ -69,6 +70,11 @@ def test_atomic_allocation_flow():
     voter_id = 8
     booth_id = 1
     slot_id = 4  # Evening Slot
+
+    # Clean up lingering booking from prior test run if any to ensure idempotency
+    with db_pool.get_cursor() as (conn, cursor):
+        cursor.execute("UPDATE slot_allocations SET status = 'CANCELLED' WHERE voter_id = %s AND status = 'CONFIRMED'", (voter_id,))
+        conn.commit()
 
     # Step 1: Allocate Slot
     alloc_res = allocation_service.allocate_voter_slot(
@@ -101,7 +107,7 @@ def test_atomic_allocation_flow():
     assert slip["demo_epic_no"] == "DEM-UK-2026-0008"
     assert slip["booking_reference_token"] == token
     assert slip["booth_number"] == "BOOTH-01"
-    assert slip["station_name"] == "Government Inter College Garhi Cantt"
+    assert slip["station_name"] == "Graphic Era Hill University, Bhimtal Campus"
 
     # Step 4: Cancel Slot Allocation
     cancel_res = allocation_service.cancel_slot_allocation(booking_reference_token=token)

@@ -219,6 +219,13 @@ class ApiClient {
     });
   }
 
+  // 2b. GET /api/voters (Authoritative electoral seed list for UI dropdowns)
+  async getVoters(limit = 60) {
+    return await this.request(`/api/voters?limit=${limit}`, {
+      method: "GET"
+    });
+  }
+
   // 3. POST /api/verification/mock
   async verifyMock(voterId, boothId, consentGiven = true, method = "SIMULATED_OTP", mockInput = null) {
     return await this.request("/api/verification/mock", {
@@ -234,10 +241,13 @@ class ApiClient {
   }
 
   // 4. GET /api/booths/nearby
-  async getNearbyBooths(lat = 29.3444, lon = 79.5632, constituencyId = null, accessibilityNeeded = false) {
+  async getNearbyBooths(lat = 30.34215, lon = 78.02148, constituencyId = null, accessibilityNeeded = false, voterId = null, pcId = null, acId = null) {
     const params = new URLSearchParams({ lat, lon });
     if (constituencyId) params.append("constituency_id", constituencyId);
     if (accessibilityNeeded) params.append("accessibility_needed", "true");
+    if (voterId) params.append("voter_id", voterId);
+    if (pcId) params.append("pc_id", pcId);
+    if (acId) params.append("ac_id", acId);
 
     return await this.request(`/api/booths/nearby?${params.toString()}`, {
       method: "GET"
@@ -245,9 +255,11 @@ class ApiClient {
   }
 
   // 5. GET /api/slots/available
-  async getAvailableSlots(boothId, voterId = null, eventId = 1) {
+  async getAvailableSlots(boothId, voterId = null, eventId = 1, lat = null, lon = null) {
     const params = new URLSearchParams({ booth_id: boothId, event_id: eventId });
     if (voterId) params.append("voter_id", voterId);
+    if (lat !== null && lat !== undefined) params.append("lat", lat);
+    if (lon !== null && lon !== undefined) params.append("lon", lon);
 
     return await this.request(`/api/slots/available?${params.toString()}`, {
       method: "GET"
@@ -376,10 +388,10 @@ class ApiClient {
     container.appendChild(toast);
 
     setTimeout(() => {
+      toast.style.transition = "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1)";
       toast.style.opacity = "0";
-      toast.style.transform = "translateX(100%)";
-      toast.style.transition = "all 0.3s ease";
-      setTimeout(() => toast.remove(), 300);
+      toast.style.transform = "translateY(12px) scale(0.96)";
+      setTimeout(() => toast.remove(), 280);
     }, 4500);
   }
 }

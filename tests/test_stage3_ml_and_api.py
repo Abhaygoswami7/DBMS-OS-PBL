@@ -304,17 +304,17 @@ def test_endpoint_3_verification_mock(client):
 # Endpoint 4: GET /api/booths/nearby
 def test_endpoint_4_booths_nearby(client):
     """Test GET /api/booths/nearby with geospatial ranking and accessibility filtering."""
-    # 1. Valid query with Dehradun GPS coordinates (200 OK)
-    res = client.get("/api/booths/nearby?lat=30.34215&lon=78.02148")
+    # 1. Valid query with Bhimtal GPS coordinates (200 OK)
+    res = client.get("/api/booths/nearby?lat=29.3751&lon=79.5313")
     assert res.status_code == 200
     data = res.get_json()
     assert data["success"] is True
     assert data["total_booths_found"] >= 8
-    # Nearest booth should be booth 1 or 2 (Garhi Cantt)
+    # Nearest booth should be booth 1 or 2 (GEHU Bhimtal)
     assert data["booths"][0]["distance_km"] < 0.1
 
     # 2. Filter by wheelchair accessibility
-    res_access = client.get("/api/booths/nearby?lat=30.34215&lon=78.02148&accessibility_needed=true")
+    res_access = client.get("/api/booths/nearby?lat=29.3751&lon=79.5313&accessibility_needed=true")
     assert res_access.status_code == 200
     for b in res_access.get_json()["booths"]:
         assert b["has_wheelchair_ramp"] is True

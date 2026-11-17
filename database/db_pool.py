@@ -24,15 +24,23 @@ except ImportError:
 logger = logging.getLogger("db_pool")
 
 class DatabasePoolManager:
-    """Singleton connection pool manager for MySQL InnoDB engine."""
+    """Singleton connection pool manager for MySQL InnoDB engine with lazy pool creation."""
     _instance = None
     _pool = None
+    _driver = None
+    _config = None
+    _initialized = False
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(DatabasePoolManager, cls).__new__(cls)
-            cls._instance._init_pool()
+            cls._instance._initialized = False
         return cls._instance
+
+    def _ensure_pool(self):
+        if not getattr(self, "_initialized", False):
+            self._init_pool()
+            self._initialized = True
 
     def _init_pool(self):
         host = os.getenv("DB_HOST", "127.0.0.1")
@@ -57,8 +65,8 @@ class DatabasePoolManager:
             )
             logger.info("Initialized MySQLConnectionPool with %d connections.", pool_size)
             self._driver = "mysql-connector"
-        except ImportError:
-            logger.warning("mysql-connector-python not found. Falling back to dynamic PyMySQL connections.")
+        except Exception as e:
+            logger.warning("mysql-connector pool initialization deferred/fallback (%s).", e)
             self._driver = "pymysql"
             self._config = {
                 "host": host,
@@ -72,9 +80,10 @@ class DatabasePoolManager:
     @contextmanager
     def get_connection(self):
         """Context manager yielding a database connection from the pool."""
+        self._ensure_pool()
         conn = None
         try:
-            if self._driver == "mysql-connector":
+            if self._driver == "mysql-connector" and self._pool:
                 conn = self._pool.get_connection()
             else:
                 import pymysql

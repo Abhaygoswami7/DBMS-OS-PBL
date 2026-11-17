@@ -10,9 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
-  <!-- Leaflet CSS for Map -->
+  <!-- Leaflet CSS & JS for Map (Primary: unpkg, Fallback: cdnjs) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" onerror="window.leafletFailed=true"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    if (typeof L === 'undefined') {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+      document.head.appendChild(link);
+      const scr = document.createElement('script');
+      scr.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+      scr.onerror = function() { window.leafletFailed = true; };
+      document.head.appendChild(scr);
+    }
+  </script>
 
   <!-- Core IRCTC Next-Gen Stylesheet -->
   <link rel="stylesheet" href="/css/styles.css">
@@ -141,12 +153,28 @@
                 <label class="form-label" for="seededVoterSelect">Select Seeded Demo Voter</label>
                 <select class="form-select" id="seededVoterSelect">
                   <option value="">-- Choose Seeded Demo Voter --</option>
-                  <option value="DEM-UK-2026-0001">Aarav Sharma (General - DEM-UK-2026-0001)</option>
-                  <option value="DEM-UK-2026-0002">Priya Negi (PwD Assistive Priority - DEM-UK-2026-0002)</option>
-                  <option value="DEM-UK-2026-0003">Vikramaditya Rawat (Senior Citizen Priority - DEM-UK-2026-0003)</option>
-                  <option value="DEM-UK-2026-0004">Ananya Joshi (General - DEM-UK-2026-0004)</option>
-                  <option value="DEM-UK-2026-0005">Ramesh Chandra Pant (Essential Service - DEM-UK-2026-0005)</option>
-                  <option value="DEM-UK-2026-0006">Sunita Devi (Pregnant Women Priority - DEM-UK-2026-0006)</option>
+                  <optgroup label="Available to Book (No Active Pass)">
+                    <option value="DEM-UK-2026-0007">Vikram Pant (General - Booth 1 GEHU Academic Wing - DEM-UK-2026-0007) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0008">Neelam Chauhan (General - Booth 1 GEHU Academic Wing - DEM-UK-2026-0008) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0010">Kamla Devi Khanduri (Senior Citizen - Booth 2 GEHU Conference Block - DEM-UK-2026-0010) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0012">Anjali Gurung (General - Booth 2 GEHU Conference Block - DEM-UK-2026-0012) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0020">Rachna Dobhal (General - Booth 3 Woodbridge Main Campus - DEM-UK-2026-0020) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0025">Trilok Chand Dabral (Senior Citizen - Booth 4 Woodbridge Senior Wing - DEM-UK-2026-0025) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0034">Shweta Maithani (Pregnant Women Quota - Booth 5 Vikas Bhawan Hall - DEM-UK-2026-0034) [AVAILABLE TO BOOK]</option>
+                    <option value="DEM-UK-2026-0051">Ravi Kant Tyagi (General - Booth 7 Nagar Palika Town Hall - DEM-UK-2026-0051) [AVAILABLE TO BOOK]</option>
+                  </optgroup>
+                  <optgroup label="Seeded Voters with Active Confirmed Bookings (Use PNR/Reschedule)">
+                    <option value="DEM-UK-2026-0001">Ramesh Chandra Sharma (Senior Citizen - Booth 1 GEHU Academic Wing - DEM-UK-2026-0001) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0002">Sunita Devi Rawat (Senior Citizen - Booth 1 GEHU Academic Wing - DEM-UK-2026-0002) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0003">Arvind Singh Negi (Divyaangjan / PwD - Booth 1 GEHU Academic Wing - DEM-UK-2026-0003) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0004">Deepa Joshi (Pregnant Women Quota - Booth 1 GEHU Academic Wing - DEM-UK-2026-0004) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0005">Manmohan Singh Bisht (General Quota - Booth 1 GEHU Academic Wing - DEM-UK-2026-0005) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0006">Pooja Bhatt (General Quota - Booth 1 GEHU Academic Wing - DEM-UK-2026-0006) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0009">Bhagwati Prasad Uniyal (Senior Citizen - Booth 2 GEHU Conference Block - DEM-UK-2026-0009) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0017">Dharam Singh Rana (Senior Citizen - Booth 3 Woodbridge Main Campus - DEM-UK-2026-0017) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0031">Jagdish Prasad Bahuguna (Senior Citizen - Booth 5 Vikas Bhawan Hall - DEM-UK-2026-0031) [CONFIRMED PASS]</option>
+                    <option value="DEM-UK-2026-0045">Bishambhar Dutt Joshi (Senior Citizen - Booth 7 Nagar Palika Town Hall - DEM-UK-2026-0045) [CONFIRMED PASS]</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -226,6 +254,18 @@
                   <div class="profile-item-val" id="profVerifStatus"><span class="badge badge-partial">UNVERIFIED</span></div>
                 </div>
               </div>
+
+              <!-- Active Booking Alert -->
+              <div id="profActiveBookingAlert" style="display: none; background: #e6f4ea; border: 1px solid #34a853; border-radius: var(--radius-xs); padding: 10px 12px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                  <div>
+                    <div style="font-weight: 700; color: #1e7e34; font-size: 11px; text-transform: uppercase;">Active Confirmed Pass Found</div>
+                    <div id="profActiveBookingDetails" style="font-size: 10.5px; color: var(--text-primary); margin-top: 2px;"></div>
+                  </div>
+                  <button type="button" class="btn-primary" id="btnProfileViewPass" style="font-size: 10.5px; padding: 4px 10px; white-space: nowrap;">View ERS Pass</button>
+                </div>
+              </div>
+
               <button type="button" class="btn-primary" id="btnProceedToStep2" style="width: 100%; margin-top: 12px;">Proceed to ECI Verification</button>
             </div>
           </div>
@@ -266,13 +306,14 @@
               <button type="button" class="btn-primary" id="btnExecuteVerification" style="flex: 1;">Execute Simulated Verification</button>
             </div>
 
-            <div id="verifResultCard" style="margin-top: 14px; padding: 10px 14px; background: #f8fafc; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-xs);">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary);">CRYPTOGRAPHIC STATUS:</span>
-                <span class="badge badge-partial" id="verifBadgeState">PENDING VERIFICATION</span>
+            <!-- Simplified ECI Verification Success Indicator -->
+            <div id="verifSuccessNotice" class="verif-success-banner" style="display: none;">
+              <div class="verif-title">
+                <span class="verif-check">&#10003;</span>
+                <span>Identity Verification Successful</span>
               </div>
-              <div style="font-family: var(--font-mono); font-size: 11px; color: var(--irctc-navy-primary); margin-top: 6px; word-break: break-all;" id="verifResultToken">
-                No active token
+              <div class="verif-status">
+                Status: <span class="badge badge-open">VERIFIED</span>
               </div>
             </div>
 
@@ -291,12 +332,12 @@
           </div>
           <div class="irctc-card-body">
             <div class="form-group">
-              <label class="form-label">GPS Coordinate Presets (Bhimtal & Kumaon Region)</label>
+              <label class="form-label">Demonstration Station Coordinates & Presets</label>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <button type="button" class="btn-secondary" id="presetBhimtalCampus" style="font-size: 11px;">Bhimtal Campus - GEHU (29.344, 79.563)</button>
-                <button type="button" class="btn-secondary" id="presetSattal" style="font-size: 11px;">Sattal Lake View (29.349, 79.532)</button>
-                <button type="button" class="btn-secondary" id="presetBhowali" style="font-size: 11px;">Bhowali Market (29.382, 79.520)</button>
-                <button type="button" class="btn-secondary" id="presetKathgodam" style="font-size: 11px;">Kathgodam Hub (29.268, 79.545)</button>
+                <button type="button" class="btn-secondary" id="presetGehuBhimtal" style="font-size: 11px;">GEHU, Bhimtal (29.375, 79.531)</button>
+                <button type="button" class="btn-secondary" id="presetWoodbridge" style="font-size: 11px;">Woodbridge, Nagri Gaon (29.369, 79.522)</button>
+                <button type="button" class="btn-secondary" id="presetVikasBhawan" style="font-size: 11px;">Vikas Bhawan, Bhimtal (29.360, 79.554)</button>
+                <button type="button" class="btn-secondary" id="presetNagarPalika" style="font-size: 11px;">Nagar Palika, Bhimtal (29.345, 79.563)</button>
               </div>
             </div>
 
@@ -340,6 +381,20 @@
               </div>
             </div>
 
+            <!-- Active Booking Notice Banner -->
+            <div id="activeBookingWarningBanner" style="display: none; background: #fff8e6; border: 1px solid #f5d488; border-radius: var(--radius-xs); padding: 10px 14px; margin-bottom: 14px; font-size: 11.5px; color: #855200;">
+              <strong>Active Booking Notice:</strong>
+              <div id="activeBookingWarningText" style="margin-top: 3px;">
+                You already hold a confirmed booking for this election. To select a different arrival time, use the PNR / Reschedule tab or cancel your active booking.
+              </div>
+            </div>
+
+            <!-- Slot Selection vs AI Recommendation Status Banner -->
+            <div id="slotSelectionStatusBanner" class="slot-selection-status-banner" style="display: none;">
+              <div id="slotSelectionStatusText"></div>
+              <div id="slotSelectionStatusBadge"></div>
+            </div>
+
             <!-- Slots Grid -->
             <div id="slotsGridContainer" class="slots-container-grid">
               <!-- Dynamically populated by voter_portal.js -->
@@ -367,6 +422,14 @@
           <div class="irctc-card-header">
             <span>POLLING STATION GEO-LOCATOR & ROUTE MAP</span>
             <span class="header-sub">Live Leaflet.js Cartography</span>
+          </div>
+          <!-- Selected Polling Station Indicator -->
+          <div id="selectedStationIndicator" class="selected-station-indicator" style="display: none;">
+            <div class="indicator-dot"></div>
+            <div class="indicator-text">
+              <strong>Selected Polling Station:</strong> <span id="indicatorStationName">--</span>
+            </div>
+            <button type="button" class="btn-indicator-reset" id="btnResetMapView" title="Fit all 4 stations">Fit All Stations</button>
           </div>
           <div id="boothMap"></div>
           <div id="mapOfflineFallback" style="display: none; height: 380px; align-items: center; justify-content: center; flex-direction: column; background: #f8fafc; color: var(--text-muted); font-size: 12px;">

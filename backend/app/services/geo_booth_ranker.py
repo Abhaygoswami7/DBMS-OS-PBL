@@ -51,8 +51,8 @@ class GeoBoothRanker:
     """
 
     def __init__(self):
-        self.default_ref_lat = 29.3444
-        self.default_ref_lon = 79.5632
+        self.default_ref_lat = 29.3650
+        self.default_ref_lon = 79.5328
 
     def get_live_slot_availability_ratios(self, event_id: int = 1) -> Dict[int, Dict[str, Any]]:
         """
@@ -99,17 +99,39 @@ class GeoBoothRanker:
         requires_wheelchair_accessibility: bool = False,
         pc_id: Optional[int] = None,
         ac_id: Optional[int] = None,
-        event_id: int = 1
+        event_id: int = 1,
+        voter_id: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
         Ranks candidate polling booths using Haversine distance and multi-criteria scoring:
         1. Filters by operational status (is_active = 1).
-        2. Filters by simultaneous PC and AC jurisdiction match (constituency_id, pc_id, ac_id).
+        2. Filters by simultaneous PC and AC jurisdiction match (constituency_id, pc_id, ac_id, or voter's jurisdiction).
         3. Filters by wheelchair accessibility ramp when requires_wheelchair_accessibility=True.
         4. Calculates exact Haversine distance in km from voter coordinates to polling station.
         5. Computes composite score: (distance_km * 2.0) - (availability_ratio * 0.5)
            Lower score indicates higher priority (closer proximity + higher slot availability).
+           Voter's registered booth is anchored with Rank #1.
         """
+        assigned_booth_id = None
+        if voter_id is not None:
+            try:
+                from backend.app.services.voter_service import voter_service
+                voter = voter_service.get_voter_by_id(voter_id)
+                if voter:
+                    assigned_booth_id = voter.get("assigned_booth_id")
+                    if pc_id is None and voter.get("pc_id") is not None:
+                        pc_id = voter["pc_id"]
+                    if ac_id is None and voter.get("ac_id") is not None:
+                        ac_id = voter["ac_id"]
+                    if voter.get("latitude") is not None and voter.get("longitude") is not None:
+                        if (abs(user_lat - self.default_ref_lat) < 0.001 and abs(user_lon - self.default_ref_lon) < 0.001) or \
+                           (abs(user_lat - 30.34215) < 0.001 and abs(user_lon - 78.02148) < 0.001) or \
+                           (abs(user_lat - 29.3444) < 0.001 and abs(user_lon - 79.5632) < 0.001):
+                            user_lat = float(voter["latitude"])
+                            user_lon = float(voter["longitude"])
+            except Exception as e:
+                logger.warning("Error fetching voter %s for booth ranking: %s", voter_id, e)
+
         # Fetch candidate active polling booths joined with station and constituency details
         query = """
         SELECT
@@ -186,9 +208,16 @@ class GeoBoothRanker:
             })
             avail_ratio = cap_info["availability_ratio"]
 
+            is_assigned = (assigned_booth_id is not None and b["booth_id"] == assigned_booth_id)
+
             # 6. Multi-criteria composite ranking score
             # Proximity is prioritized (dist_km * 2.0) while higher availability provides a bonus discount (-avail_ratio * 0.5)
-            composite_score = round(dist_km * 2.0 - (avail_ratio * 0.5), 3)
+            # Registered booth is given highest priority (-999.0)
+            if is_assigned:
+                dist_km = 0.0
+                composite_score = -999.0
+            else:
+                composite_score = round(dist_km * 2.0 - (avail_ratio * 0.5), 3)
 
             ranked_booths.append({
                 "booth_id": b["booth_id"],
@@ -202,6 +231,8 @@ class GeoBoothRanker:
                 "station_name": b["station_name"],
                 "station_address": b["station_address"],
                 "station_pincode": b["station_pincode"],
+                "latitude": float(b["latitude"]) if b.get("latitude") is not None else self.default_ref_lat,
+                "longitude": float(b["longitude"]) if b.get("longitude") is not None else self.default_ref_lon,
                 "has_wheelchair_ramp": has_ramp,
                 "has_separate_entry_exit": bool(b.get("has_separate_entry_exit", 0)),
                 "parliamentary_constituency": b["parliamentary_constituency"],
@@ -211,11 +242,13 @@ class GeoBoothRanker:
                 "distance_km": dist_km,
                 "availability_ratio": avail_ratio,
                 "total_available_capacity": cap_info["total_available_capacity"],
-                "composite_score": composite_score
+                "composite_score": composite_score,
+                "is_registered_booth": is_assigned,
+                "is_eligible": True
             })
 
-        # Sort ascending by composite score (closest + highest availability ratio first)
-        ranked_booths.sort(key=lambda x: x["composite_score"])
+        # Sort: registered booth first, then ascending by composite score
+        ranked_booths.sort(key=lambda x: (not x.get("is_registered_booth", False), x["composite_score"]))
         return ranked_booths
 
 # Singleton instance

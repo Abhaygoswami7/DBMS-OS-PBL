@@ -10,6 +10,7 @@ Endpoints:
 
 from flask import Blueprint, request, jsonify
 from backend.app.services.booth_service import booth_service
+from backend.app.services.voter_service import voter_service
 from backend.app.services.crowd_prediction_service import (
     crowd_prediction_service,
     haversine_distance_km,
@@ -31,6 +32,7 @@ def get_nearby_booths():
       - pc_id: optional int (filter by Parliamentary Constituency)
       - ac_id: optional int (filter by Assembly Constituency)
       - requires_wheelchair_accessibility / accessibility_needed: optional bool ('true'/'1' requires ramp)
+      - voter_id: optional int (filter and anchor to authenticated voter's jurisdiction)
     Calculates Haversine distance and ranks booths by composite accessibility, proximity, and live capacity score.
     """
     lat_param = request.args.get("lat")
@@ -38,6 +40,7 @@ def get_nearby_booths():
     constituency_param = request.args.get("constituency_id")
     pc_param = request.args.get("pc_id")
     ac_param = request.args.get("ac_id")
+    voter_id_param = request.args.get("voter_id")
     
     # Check both requires_wheelchair_accessibility and accessibility_needed query flags
     req_access_param = request.args.get("requires_wheelchair_accessibility")
@@ -48,10 +51,10 @@ def get_nearby_booths():
     elif legacy_access_param is not None:
         accessibility_flag = legacy_access_param.lower() in ("true", "1", "yes")
 
-    # Validate coordinates if provided (default to Bhimtal academic reference)
+    # Validate coordinates if provided (default to primary Bhimtal / Nagri Gaon reference)
     try:
-        user_lat = float(lat_param) if lat_param is not None else 29.3444
-        user_lon = float(lon_param) if lon_param is not None else 79.5632
+        user_lat = float(lat_param) if lat_param is not None else 29.3650
+        user_lon = float(lon_param) if lon_param is not None else 79.5328
     except (ValueError, TypeError):
         return jsonify({
             "error": "BAD_REQUEST",
@@ -92,6 +95,17 @@ def get_nearby_booths():
                 "status_code": 400
             }), 400
 
+    voter_id = None
+    if voter_id_param is not None:
+        try:
+            voter_id = int(voter_id_param)
+        except ValueError:
+            return jsonify({
+                "error": "BAD_REQUEST",
+                "message": "Invalid voter_id parameter. Must be an integer.",
+                "status_code": 400
+            }), 400
+
     # Delegate to GeoBoothRanker for Haversine distance and multi-criteria composite ranking
     ranked_booths = geo_booth_ranker.rank_booths(
         user_lat=user_lat,
@@ -99,7 +113,8 @@ def get_nearby_booths():
         constituency_id=constituency_id,
         requires_wheelchair_accessibility=accessibility_flag,
         pc_id=pc_id,
-        ac_id=ac_id
+        ac_id=ac_id,
+        voter_id=voter_id
     )
 
     return jsonify({
@@ -110,6 +125,7 @@ def get_nearby_booths():
             "constituency_id": constituency_id,
             "pc_id": pc_id,
             "ac_id": ac_id,
+            "voter_id": voter_id,
             "requires_wheelchair_accessibility": accessibility_flag,
             "accessibility_needed": accessibility_flag
         },
@@ -132,6 +148,16 @@ def get_available_slots():
     booth_id_param = request.args.get("booth_id")
     event_id_param = request.args.get("event_id", "1")
     voter_id_param = request.args.get("voter_id")
+    lat_param = request.args.get("lat")
+    lon_param = request.args.get("lon")
+    user_lat = None
+    user_lon = None
+    if lat_param and lon_param:
+        try:
+            user_lat = float(lat_param)
+            user_lon = float(lon_param)
+        except ValueError:
+            pass
 
     if not booth_id_param:
         return jsonify({
@@ -161,12 +187,29 @@ def get_available_slots():
             "status_code": 404
         }), 404
 
+    # Verify voter booth jurisdiction upfront if voter_id provided
+    if voter_id:
+        voter = voter_service.get_voter_by_id(voter_id)
+        if voter:
+            assigned_booth = voter.get("assigned_booth_id")
+            if assigned_booth is not None and assigned_booth != booth_id:
+                return jsonify({
+                    "error": "INVALID_BOOTH_JURISDICTION",
+                    "status_code": 403,
+                    "message": f"Voter {voter.get('full_name')} is registered at Polling Booth {assigned_booth} ({voter.get('booth_name')}), not Booth {booth_id}.",
+                    "assigned_booth_id": assigned_booth,
+                    "assigned_booth_name": voter.get("booth_name")
+                }), 403
+
     # Fetch slots for this booth
     slots = booth_service.get_time_slots_for_booth(booth_id=booth_id, event_id=event_id)
 
-    # Compute optimal slot recommendation for this voter/booth
+    # Compute optimal slot recommendation for this specific voter and booth
     recommendation = crowd_prediction_service.recommend_optimal_slot(
-        voter_id=voter_id
+        voter_id=voter_id,
+        target_booth_id=booth_id,
+        lat=user_lat,
+        lon=user_lon
     )
     recommended_slot_id = recommendation.get("recommended_slot_id")
 

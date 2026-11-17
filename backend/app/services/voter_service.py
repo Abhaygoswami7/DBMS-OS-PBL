@@ -21,6 +21,55 @@ class VoterService:
     # Strict synthetic identifier regex: DEM-UK-2026-XXXX
     SYNTHETIC_EPIC_PATTERN = re.compile(r"^DEM-UK-2026-\d{4}$")
 
+    def _attach_active_booking(self, cursor, voter: Dict[str, Any]) -> Dict[str, Any]:
+        """Queries and attaches active confirmed booking details if one exists for the voter."""
+        if not voter or not voter.get("voter_id"):
+            return voter
+        alloc_query = """
+        SELECT
+            sa.allocation_id,
+            sa.booking_reference_token,
+            sa.booth_id,
+            sa.slot_id,
+            sa.status,
+            sa.queue_token_no,
+            sa.booked_at,
+            ts.start_time,
+            ts.end_time,
+            ts.slot_date,
+            b.booth_name,
+            ps.station_name
+        FROM slot_allocations sa
+        JOIN time_slots ts ON sa.slot_id = ts.slot_id
+        JOIN polling_booths b ON sa.booth_id = b.booth_id
+        JOIN polling_stations ps ON b.station_id = ps.station_id
+        WHERE sa.voter_id = %s AND sa.status IN ('CONFIRMED', 'CHECKED_IN')
+        ORDER BY sa.allocation_id DESC
+        LIMIT 1;
+        """
+        cursor.execute(alloc_query, (voter["voter_id"],))
+        alloc = cursor.fetchone()
+        if alloc:
+            voter["has_active_booking"] = True
+            voter["active_booking"] = {
+                "allocation_id": alloc["allocation_id"],
+                "booking_reference_token": alloc["booking_reference_token"],
+                "booth_id": alloc["booth_id"],
+                "booth_name": alloc["booth_name"],
+                "station_name": alloc["station_name"],
+                "slot_id": alloc["slot_id"],
+                "start_time": str(alloc["start_time"]),
+                "end_time": str(alloc["end_time"]),
+                "slot_date": str(alloc["slot_date"]),
+                "queue_token_no": alloc.get("queue_token_no", 1),
+                "status": alloc["status"],
+                "booked_at": str(alloc["booked_at"])
+            }
+        else:
+            voter["has_active_booking"] = False
+            voter["active_booking"] = None
+        return voter
+
     def get_voter_by_demo_epic(self, demo_epic_no: str) -> Optional[Dict[str, Any]]:
         """Retrieves synthetic voter details with full jurisdictional booth mapping."""
         clean_epic = demo_epic_no.strip().upper()
@@ -44,11 +93,15 @@ class VoterService:
             b.booth_number,
             b.booth_name,
             b.room_number,
+            b.pc_id,
+            b.ac_id,
             ps.station_id,
             ps.station_code,
             ps.station_name,
             ps.address AS station_address,
             ps.pincode AS station_pincode,
+            ps.latitude,
+            ps.longitude,
             ps.has_wheelchair_ramp,
             pc.constituency_code AS pc_code,
             pc.constituency_name AS parliamentary_constituency,
@@ -65,13 +118,17 @@ class VoterService:
             cursor.execute(query, (clean_epic,))
             voter = cursor.fetchone()
             if voter:
-                # Format dates and serializable values
                 if voter.get("dob"):
                     voter["dob"] = str(voter["dob"])
+                if voter.get("latitude") is not None:
+                    voter["latitude"] = float(voter["latitude"])
+                if voter.get("longitude") is not None:
+                    voter["longitude"] = float(voter["longitude"])
+                self._attach_active_booking(cursor, voter)
             return voter
 
     def get_voter_by_id(self, voter_id: int) -> Optional[Dict[str, Any]]:
-        """Retrieves voter details by voter_id."""
+        """Retrieves voter details by voter_id with complete jurisdictional mapping."""
         query = """
         SELECT
             v.voter_id,
@@ -88,8 +145,19 @@ class VoterService:
             b.booth_number,
             b.booth_name,
             b.room_number,
+            b.pc_id,
+            b.ac_id,
+            ps.station_id,
+            ps.station_code,
             ps.station_name,
+            ps.address AS station_address,
+            ps.pincode AS station_pincode,
+            ps.latitude,
+            ps.longitude,
+            ps.has_wheelchair_ramp,
+            pc.constituency_code AS pc_code,
             pc.constituency_name AS parliamentary_constituency,
+            ac.constituency_code AS ac_code,
             ac.constituency_name AS assembly_constituency
         FROM voters v
         JOIN polling_booths b ON v.assigned_booth_id = b.booth_id
@@ -101,8 +169,14 @@ class VoterService:
         with db_pool.get_cursor() as (conn, cursor):
             cursor.execute(query, (voter_id,))
             voter = cursor.fetchone()
-            if voter and voter.get("dob"):
-                voter["dob"] = str(voter["dob"])
+            if voter:
+                if voter.get("dob"):
+                    voter["dob"] = str(voter["dob"])
+                if voter.get("latitude") is not None:
+                    voter["latitude"] = float(voter["latitude"])
+                if voter.get("longitude") is not None:
+                    voter["longitude"] = float(voter["longitude"])
+                self._attach_active_booking(cursor, voter)
             return voter
 
     def list_voters(
@@ -113,7 +187,7 @@ class VoterService:
         limit: int = 50,
         offset: int = 0
     ) -> Tuple[List[Dict[str, Any]], int]:
-        """Lists voters with filtering and total count."""
+        """Lists voters with filtering, total count, complete station coordinates and active booking flags."""
         where_clauses = []
         params = []
 
@@ -144,9 +218,18 @@ class VoterService:
             v.simulated_verification_status,
             v.assigned_booth_id,
             b.booth_name,
-            b.booth_number
+            b.booth_number,
+            b.pc_id,
+            b.ac_id,
+            ps.station_id,
+            ps.station_name,
+            ps.latitude,
+            ps.longitude,
+            (SELECT COUNT(*) FROM slot_allocations sa WHERE sa.voter_id = v.voter_id AND sa.status IN ('CONFIRMED', 'CHECKED_IN')) AS has_active_booking,
+            (SELECT sa.booking_reference_token FROM slot_allocations sa WHERE sa.voter_id = v.voter_id AND sa.status IN ('CONFIRMED', 'CHECKED_IN') ORDER BY sa.allocation_id DESC LIMIT 1) AS active_token
         FROM voters v
         JOIN polling_booths b ON v.assigned_booth_id = b.booth_id
+        JOIN polling_stations ps ON b.station_id = ps.station_id
         {where_sql}
         ORDER BY v.voter_id ASC
         LIMIT %s OFFSET %s;
@@ -162,6 +245,11 @@ class VoterService:
             for r in rows:
                 if r.get("dob"):
                     r["dob"] = str(r["dob"])
+                if r.get("latitude") is not None:
+                    r["latitude"] = float(r["latitude"])
+                if r.get("longitude") is not None:
+                    r["longitude"] = float(r["longitude"])
+                r["has_active_booking"] = bool(r.get("has_active_booking", 0))
 
             return rows, total
 

@@ -13,7 +13,7 @@
   <!-- Core IRCTC Stylesheet -->
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
+<body class="login-page">
 
   <!-- Tier 1: Top Utility Bar -->
   <div class="top-utility-bar">
@@ -52,8 +52,8 @@
   </div>
 
   <!-- Central IRCTC Authentication Card -->
-  <main class="main-content" style="max-width: 100%; padding: 0 16px;">
-    <div id="authCard" style="max-width: 460px; margin: 60px auto; background: #ffffff; border: 1px solid #d6dce5; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden;">
+  <main class="main-content" style="max-width: 100%; padding: 24px 16px; flex: 1; display: flex; align-items: center; justify-content: center;">
+    <div id="authCard" style="width: 100%; max-width: 460px; margin: 0 auto; overflow: hidden; position: relative; z-index: 10;">
       
       <!-- Card Header Tab Switcher (background: #e9eff8; border-bottom: 1px solid #c5d2e8; display: flex) -->
       <div class="card-header-tabs" id="authTabSwitcher" style="background: #e9eff8; border-bottom: 1px solid #c5d2e8; display: flex;">
@@ -195,11 +195,6 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             AUTHENTICATE ADMIN SESSION
           </button>
-        </div>
-
-        <!-- Privacy & Statutory Footer Notice -->
-        <div style="background: #f8fafc; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-xs); padding: 10px 12px; font-size: 10.5px; color: var(--text-secondary); margin-top: 18px; line-height: 1.45;">
-          <strong>Official Security Notice:</strong> Raw identity numbers and biometric markers are never stored in plain text. Irreversible cryptographic hashes are utilized exclusively. Polling arrival time-slot reservations are advisory to eliminate physical queue congestion.
         </div>
 
       </div>

@@ -212,7 +212,8 @@ class CrowdPredictionService:
         voter_id: Optional[int] = None,
         lat: Optional[float] = None,
         lon: Optional[float] = None,
-        accessibility_needed: bool = False
+        accessibility_needed: bool = False,
+        target_booth_id: Optional[int] = None
     ) -> Dict[str, Any]:
         """
         Recommends the best booth and time slot by evaluating:
@@ -222,34 +223,59 @@ class CrowdPredictionService:
         - AI-predicted congestion and wait times
         """
         # Determine voter details and assigned booth if voter_id provided
-        target_booth_id = None
         voter_name = "Voter"
+        is_device_gps = False
         if voter_id:
             voter = voter_service.get_voter_by_id(voter_id)
             if voter:
-                target_booth_id = voter.get("assigned_booth_id")
+                if target_booth_id is None:
+                    target_booth_id = voter.get("assigned_booth_id")
                 voter_name = voter.get("full_name", "Voter")
                 if voter.get("special_category") in ("PERSON_WITH_DISABILITY", "SENIOR_CITIZEN"):
                     accessibility_needed = True
+                
+                voter_stn_lat = float(voter["latitude"]) if voter.get("latitude") is not None else None
+                voter_stn_lon = float(voter["longitude"]) if voter.get("longitude") is not None else None
 
-        stations = booth_service.get_polling_stations()
+                # Check if caller passed distinct actual device GPS
+                if lat is not None and lon is not None and voter_stn_lat is not None and voter_stn_lon is not None:
+                    if (abs(lat - voter_stn_lat) > 0.0005 or abs(lon - voter_stn_lon) > 0.0005):
+                        # Verify it is not the legacy fallback
+                        if abs(lat - 29.3444) > 0.001 or abs(lon - 79.5632) > 0.001:
+                            is_device_gps = True
+                        else:
+                            lat = voter_stn_lat
+                            lon = voter_stn_lon
+                    else:
+                        lat = voter_stn_lat
+                        lon = voter_stn_lon
+                elif voter_stn_lat is not None:
+                    lat = voter_stn_lat
+                    lon = voter_stn_lon
+
         candidate_booths = []
+        booths = booth_service.get_polling_booths()
 
-        # If voter has assigned booth, prioritize that booth
+        # If target booth specified, evaluate only that booth
         if target_booth_id:
-            booths = booth_service.get_polling_booths()
             candidate_booths = [b for b in booths if b["booth_id"] == target_booth_id]
+        else:
+            candidate_booths = booths
 
         if not candidate_booths:
-            candidate_booths = booth_service.get_polling_booths()
+            return {
+                "recommendation_found": False,
+                "message": f"No candidate polling booth available for ID {target_booth_id}.",
+                "legal_guardrail": LEGAL_GUARDRAIL_ADVISORY
+            }
 
         evaluated_slots = []
 
         for b in candidate_booths:
             booth_id = b["booth_id"]
-            # Station coordinates and distance (fallback to Bhimtal academic reference)
-            stn_lat = float(b.get("latitude") or 29.3444)
-            stn_lon = float(b.get("longitude") or 79.5632)
+            # Station coordinates and distance (fallback to Bhimtal / Nagri Gaon reference)
+            stn_lat = float(b.get("latitude") or 29.3650)
+            stn_lon = float(b.get("longitude") or 79.5328)
             # Find station wheelchair ramp flag
             has_ramp = bool(b.get("has_wheelchair_ramp", 1))
 
@@ -305,13 +331,17 @@ class CrowdPredictionService:
         evaluated_slots.sort(key=lambda x: x["composite_score"])
         best_candidate = evaluated_slots[0]
 
+        if is_device_gps and best_candidate["distance_km"] >= 0.05:
+            dist_str = f"({best_candidate['distance_km']} km from your current GPS location)"
+        else:
+            dist_str = "at the registered polling station (measured from registered station reference)"
+
         reason = (
             f"Recommended for {voter_name}: {best_candidate['station_name']} ({best_candidate['booth_name']}), "
             f"Slot {best_candidate['start_time']} - {best_candidate['end_time']} on {best_candidate['slot_date']}. "
             f"Has {best_candidate['available_capacity']} seats available with {best_candidate['forecast']['congestion_level']} "
             f"predicted crowd load ({best_candidate['forecast']['predicted_load_pct']}% utilization, "
-            f"~{best_candidate['forecast']['estimated_wait_minutes']}m estimated wait) "
-            f"located {best_candidate['distance_km']} km away."
+            f"~{best_candidate['forecast']['estimated_wait_minutes']}m estimated wait) {dist_str}."
         )
 
         return {

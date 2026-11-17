@@ -20,6 +20,22 @@ voter_bp = Blueprint("voter_bp", __name__)
 
 FORBIDDEN_REAL_KEYWORDS = ["aadhaar", "pan", "passport", "fingerprint", "iris", "biometric_raw"]
 
+@voter_bp.route("/voters", methods=["GET"])
+def get_voters():
+    """
+    GET /api/voters
+    Returns authoritative list of seeded voters from the database for UI dropdowns.
+    """
+    limit = int(request.args.get("limit", 60))
+    offset = int(request.args.get("offset", 0))
+    voters, total = voter_service.list_voters(limit=limit, offset=offset)
+    return jsonify({
+        "success": True,
+        "total": total,
+        "count": len(voters),
+        "voters": voters
+    }), 200
+
 @voter_bp.route("/voters/register", methods=["POST"])
 def register_or_lookup_voter():
     """
