@@ -89,6 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     await refreshDashboardData();
+    await loadPrioritySchedulerSummary();
+    await loadOsSubsystemTelemetry();
     await loadCrowdPredictionsChart();
     await loadRecentBookings(0);
     if (recentBookingsAutoRefreshTimer) clearInterval(recentBookingsAutoRefreshTimer);
@@ -694,7 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `${b.slot_date} ${formatTimeStr(b.start_time)}-${formatTimeStr(b.end_time)}`
         : "--";
       const categoryLabel = (b.special_category || "--").replace(/_/g, " ");
-      const priorityLabel = b.priority_level === 1 ? "P1" : b.priority_level === 2 ? "P2" : "P3";
+      const priorityLabel = b.priority_level === 1 ? "P1" : b.priority_level === 2 ? "P2" : b.priority_level === 3 ? "P3" : "P4";
 
       tr.innerHTML = `
         <td style="font-family:var(--font-mono);font-size:11px;" title="${b.booking_reference_token || ""}">${shortRef}</td>
@@ -764,9 +766,311 @@ document.addEventListener("DOMContentLoaded", () => {
     loadRecentBookings(recentBookingsPage + 1);
   });
 
+  // ---------------------------------------------------------------------------
+  // Priority-Based Polling Scheduler & OS CPU Engine
+  // ---------------------------------------------------------------------------
+  async function loadPrioritySchedulerSummary() {
+    try {
+      const res = await window.apiClient.getPrioritySchedulerSummary();
+      if (!res.ok) return;
+
+      const priorities = res.priorities || [];
+      const tsEl = document.getElementById("prioritySchedulerTimestamp");
+      if (tsEl) {
+        const now = new Date();
+        tsEl.textContent = `Live Priority Roll: ${now.toLocaleTimeString("en-IN", { hour12: false })}`;
+      }
+
+      priorities.forEach(p => {
+        const pLevel = p.priority_level;
+        const regEl = document.getElementById(`p${pLevel}RegCount`);
+        const confEl = document.getElementById(`p${pLevel}ConfCount`);
+        const pendEl = document.getElementById(`p${pLevel}PendCount`);
+
+        if (regEl) regEl.textContent = p.registered;
+        if (confEl) confEl.textContent = p.confirmed;
+        if (pendEl) pendEl.textContent = p.pending;
+      });
+    } catch (err) {
+      console.warn("Priority summary update deferred:", err);
+    }
+  }
+
+  async function runPrioritySimulation() {
+    const algoSelect = document.getElementById("selectPriorityAlgorithm");
+    const quantumInput = document.getElementById("inputTimeQuantum");
+    const runBtn = document.getElementById("btnRunPrioritySimulation");
+
+    const algorithm = algoSelect ? algoSelect.value : "PRIORITY_AGING";
+    const quantum = quantumInput ? parseFloat(quantumInput.value) || 20.0 : 20.0;
+
+    if (runBtn) {
+      runBtn.disabled = true;
+      runBtn.textContent = "Simulating...";
+    }
+
+    try {
+      const res = await window.apiClient.simulatePriorityScheduler(algorithm, quantum, false);
+      if (!res.ok) {
+        window.apiClient.showToast("Simulation failed: " + (res.message || "Unknown error"), "warning");
+        return;
+      }
+
+      // 1. Render Gantt Chart Timeline
+      const ganttWrapper = document.getElementById("priorityGanttWrapper");
+      const ganttTimeline = document.getElementById("priorityGanttTimeline");
+      const durationEl = document.getElementById("ganttTimelineDuration");
+
+      if (ganttWrapper) ganttWrapper.style.display = "block";
+      if (durationEl) {
+        durationEl.textContent = `Total Burst Duration: ${res.metrics?.total_execution_time_ms || 0}ms · Quantum: ${quantum}ms`;
+      }
+
+      if (ganttTimeline) {
+        ganttTimeline.innerHTML = "";
+        const timeline = res.timeline || [];
+        const categoryColorMap = {
+          "PREGNANT_WOMEN": "#1d4ed8",
+          "PERSON_WITH_DISABILITY": "#15803d",
+          "SENIOR_CITIZEN": "#b45309",
+          "GENERAL": "#475569"
+        };
+
+        timeline.forEach(slice => {
+          const block = document.createElement("div");
+          const duration = Math.max(1, slice.duration_ms || (slice.end_time - slice.start_time));
+          const color = categoryColorMap[slice.category] || "#3b82f6";
+
+          block.style.cssText = `
+            flex: ${duration} 0 auto;
+            background: ${color};
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 8px 6px;
+            border-radius: var(--radius-xs);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            min-width: 48px;
+            cursor: default;
+          `;
+          block.title = `${slice.task_id} (${slice.voter_name || ""}) | Slice: ${slice.start_time}-${slice.end_time}ms | Category: ${slice.category || ""}`;
+          block.innerHTML = `<div>${slice.task_id}</div><div style="font-size:9px;opacity:0.85;font-family:var(--font-mono);">${slice.start_time}-${slice.end_time}m</div>`;
+          ganttTimeline.appendChild(block);
+        });
+      }
+
+      // 2. Render Task Breakdown Table
+      const tasksWrapper = document.getElementById("priorityTaskBreakdownWrapper");
+      const tasksTbody = document.getElementById("priorityTasksTbody");
+      const activeAlgoLabel = document.getElementById("priorityActiveAlgorithmLabel");
+
+      if (tasksWrapper) tasksWrapper.style.display = "block";
+      if (activeAlgoLabel) activeAlgoLabel.textContent = `${algorithm} (Avg Wait: ${res.metrics?.average_waiting_time_ms}ms, Turnaround: ${res.metrics?.average_turnaround_time_ms}ms)`;
+
+      if (tasksTbody) {
+        tasksTbody.innerHTML = "";
+        const tasks = res.tasks || [];
+        tasks.forEach(t => {
+          const tr = document.createElement("tr");
+          const prioCode = t.voter_priority_level === 1 ? "P1" : t.voter_priority_level === 2 ? "P2" : t.voter_priority_level === 3 ? "P3" : "P4";
+          tr.innerHTML = `
+            <td style="font-family:var(--font-mono);font-size:11px;"><strong>${t.task_id}</strong></td>
+            <td><strong>${t.voter_name}</strong></td>
+            <td><span class="jurisdiction-tag" style="font-size:10px;">${(t.category || "").replace(/_/g, " ")} &middot; ${prioCode}</span></td>
+            <td style="font-family:var(--font-mono);">${t.arrival_time_ms}ms</td>
+            <td style="font-family:var(--font-mono);">${t.burst_time_ms}ms</td>
+            <td style="font-family:var(--font-mono);">${t.completion_time_ms}ms</td>
+            <td style="font-family:var(--font-mono);color:var(--irctc-orange-primary);font-weight:700;">${t.waiting_time_ms}ms</td>
+            <td style="font-family:var(--font-mono);">${t.turnaround_time_ms}ms</td>
+            <td style="font-family:var(--font-mono);">${t.response_time_ms}ms</td>
+          `;
+          tasksTbody.appendChild(tr);
+        });
+      }
+
+      window.apiClient.showToast(`Simulation complete: ${algorithm} executed across ${res.metrics?.total_tasks || 6} tasks.`, "info");
+    } catch (err) {
+      window.apiClient.showToast("Simulation request error: " + err.message, "danger");
+    } finally {
+      if (runBtn) {
+        runBtn.disabled = false;
+        runBtn.textContent = "Simulate Algorithm";
+      }
+    }
+  }
+
+  async function compareAllPriorityAlgorithms() {
+    const compareBtn = document.getElementById("btnCompareAllAlgorithms");
+    const quantumInput = document.getElementById("inputTimeQuantum");
+    const quantum = quantumInput ? parseFloat(quantumInput.value) || 20.0 : 20.0;
+
+    if (compareBtn) {
+      compareBtn.disabled = true;
+      compareBtn.textContent = "Comparing...";
+    }
+
+    try {
+      const res = await window.apiClient.simulatePriorityScheduler("ALL", quantum, true);
+      if (!res.ok) {
+        window.apiClient.showToast("Comparison failed: " + (res.message || "Unknown error"), "warning");
+        return;
+      }
+
+      const comparisonWrapper = document.getElementById("priorityComparisonWrapper");
+      const comparisonTbody = document.getElementById("priorityComparisonTbody");
+
+      if (comparisonWrapper) comparisonWrapper.style.display = "block";
+      if (comparisonTbody) {
+        comparisonTbody.innerHTML = "";
+        const algorithms = res.results?.algorithms || {};
+
+        const algoDescriptions = {
+          "FCFS": { name: "First-Come, First-Served (FCFS)", starvation: "No (Guaranteed by FIFO)", note: "Convoy effect occurs if large tasks arrive early." },
+          "SJF": { name: "Shortest Job First (SJF)", starvation: "Possible for long tasks under high load", note: "Provably minimum average waiting time." },
+          "PRIORITY_AGING": { name: "Priority with Aging (Starvation-Free)", starvation: "Guaranteed Starvation Freedom", note: "P1/P2 assistive priority with aging boost for general voters." },
+          "ROUND_ROBIN": { name: `Round Robin (Quantum = ${quantum}ms)`, starvation: "Guaranteed Starvation Freedom", note: "Preemptive time slicing with bounded response latency." }
+        };
+
+        const optWaiting = res.results?.optimum_for_waiting_time || "SJF";
+
+        for (const [key, data] of Object.entries(algorithms)) {
+          const meta = algoDescriptions[key] || { name: key, starvation: "Guaranteed", note: "" };
+          const metrics = data.metrics || {};
+          const isOptimal = (key === optWaiting);
+
+          const tr = document.createElement("tr");
+          if (isOptimal) {
+            tr.style.background = "#f0fdf4";
+          }
+
+          tr.innerHTML = `
+            <td>
+              <strong>${meta.name}</strong>
+              ${isOptimal ? ' <span class="badge badge-open" style="font-size:9px;margin-left:4px;">OPTIMUM WAITING</span>' : ''}
+            </td>
+            <td style="font-family:var(--font-mono);font-weight:700;color:${isOptimal ? '#15803d' : 'var(--text-primary)'};">${metrics.average_waiting_time_ms} ms</td>
+            <td style="font-family:var(--font-mono);">${metrics.average_turnaround_time_ms} ms</td>
+            <td style="font-family:var(--font-mono);">${metrics.average_response_time_ms} ms</td>
+            <td style="font-family:var(--font-mono);">${metrics.total_execution_time_ms} ms</td>
+            <td style="font-size:11px;">${meta.starvation}</td>
+            <td style="font-size:11px;color:var(--text-muted);">${meta.note}</td>
+          `;
+          comparisonTbody.appendChild(tr);
+        }
+      }
+
+      window.apiClient.showToast("All 4 OS scheduling algorithms benchmarked successfully.", "success");
+    } catch (err) {
+      window.apiClient.showToast("Algorithm comparison error: " + err.message, "danger");
+    } finally {
+      if (compareBtn) {
+        compareBtn.disabled = false;
+        compareBtn.textContent = "Compare All (FCFS/SJF/Priority/RR)";
+      }
+    }
+  }
+
+  async function runPriorityBatchAllocation() {
+    const batchBtn = document.getElementById("btnRunPriorityBatchAllocation");
+    const feedbackArea = document.getElementById("priorityBatchFeedback");
+
+    if (batchBtn) {
+      batchBtn.disabled = true;
+      batchBtn.textContent = "Allocating Batch...";
+    }
+
+    try {
+      const res = await window.apiClient.allocatePriorityBatch(20);
+      if (!res.ok) {
+        window.apiClient.showToast("Batch allocation failed: " + (res.message || "Unknown error"), "danger");
+        return;
+      }
+
+      if (feedbackArea) {
+        feedbackArea.style.display = "block";
+        if (res.allocated_count > 0) {
+          feedbackArea.style.background = "#f0fdf4";
+          feedbackArea.style.border = "1px solid #bbf7d0";
+          feedbackArea.style.color = "#166534";
+          feedbackArea.innerHTML = `<strong>Priority Batch Completed:</strong> Allocated <strong>${res.allocated_count}</strong> pending voters in priority sequence (P1 Pregnant Women &gt; P2 PwD &gt; P3 Senior Citizens &gt; P4 General). Skipped/Failed: ${res.failed_count}.`;
+        } else {
+          feedbackArea.style.background = "#eff6ff";
+          feedbackArea.style.border = "1px solid #bfdbfe";
+          feedbackArea.style.color = "#1e40af";
+          feedbackArea.innerHTML = `<strong>Priority Batch Status:</strong> ${res.message || "No pending voters require allocation."}`;
+        }
+      }
+
+      // Refresh priority summary and recent bookings to reflect new database allocations
+      await loadPrioritySchedulerSummary();
+      await loadRecentBookings(0);
+      window.apiClient.showToast(`Batch allocation complete. ${res.allocated_count} voters scheduled.`, "success");
+    } catch (err) {
+      window.apiClient.showToast("Batch allocation error: " + err.message, "danger");
+    } finally {
+      if (batchBtn) {
+        batchBtn.disabled = false;
+        batchBtn.textContent = "Run Priority Batch Allocation";
+      }
+    }
+  }
+
+  async function loadOsSubsystemTelemetry() {
+    try {
+      const res = await window.apiClient.getOsTelemetryFull();
+      if (!res.ok) return;
+
+      const ipc = res.ipc || {};
+      const cache = res.cache || {};
+
+      // IPC Subsystem Elements
+      const ipcWorkerState = document.getElementById("ipcWorkerState");
+      const ipcQueueDepth = document.getElementById("ipcQueueDepth");
+      const ipcTotalPublished = document.getElementById("ipcTotalPublished");
+      const ipcTotalProcessed = document.getElementById("ipcTotalProcessed");
+      const ipcOutboxPending = document.getElementById("ipcOutboxPending");
+
+      if (ipcWorkerState) ipcWorkerState.textContent = ipc.worker_state || "RUNNING";
+      if (ipcQueueDepth) ipcQueueDepth.textContent = `${ipc.queue_depth || 0} / ${ipc.max_queue_size || 100}`;
+      if (ipcTotalPublished) ipcTotalPublished.textContent = ipc.total_published || 0;
+      if (ipcTotalProcessed) ipcTotalProcessed.textContent = ipc.total_processed || 0;
+      if (ipcOutboxPending) {
+        ipcOutboxPending.textContent = ipc.outbox_pending_stranded || 0;
+        ipcOutboxPending.style.color = (ipc.outbox_pending_stranded > 0) ? "var(--irctc-orange-primary)" : "var(--irctc-status-avl)";
+      }
+
+      // LRU Cache Subsystem Elements
+      const lruCapacitySize = document.getElementById("lruCapacitySize");
+      const lruHitRatio = document.getElementById("lruHitRatio");
+      const lruHits = document.getElementById("lruHits");
+      const lruMisses = document.getElementById("lruMisses");
+      const lruEvictions = document.getElementById("lruEvictions");
+
+      if (lruCapacitySize) lruCapacitySize.textContent = `${cache.size || 0} / ${cache.capacity || 256}`;
+      if (lruHitRatio) lruHitRatio.textContent = `${cache.hit_ratio_pct || 0.0}%`;
+      if (lruHits) lruHits.textContent = cache.hits || 0;
+      if (lruMisses) lruMisses.textContent = cache.misses || 0;
+      if (lruEvictions) lruEvictions.textContent = cache.evictions || 0;
+    } catch (err) {
+      console.warn("OS subsystem telemetry fetch deferred:", err);
+    }
+  }
+
+  // Wire buttons
+  document.getElementById("btnRefreshPrioritySummary")?.addEventListener("click", loadPrioritySchedulerSummary);
+  document.getElementById("btnRunPrioritySimulation")?.addEventListener("click", runPrioritySimulation);
+  document.getElementById("btnCompareAllAlgorithms")?.addEventListener("click", compareAllPriorityAlgorithms);
+  document.getElementById("btnRunPriorityBatchAllocation")?.addEventListener("click", runPriorityBatchAllocation);
+
   // Kick off initial load and auto-refresh inside initializeDashboard via event
   document.addEventListener("adminDashboardReady", () => {
     loadRecentBookings(0);
+    loadPrioritySchedulerSummary();
+    loadOsSubsystemTelemetry();
     if (recentBookingsAutoRefreshTimer) clearInterval(recentBookingsAutoRefreshTimer);
     recentBookingsAutoRefreshTimer = setInterval(() => loadRecentBookings(recentBookingsPage), 30000);
   });

@@ -28,7 +28,7 @@ def test_process_lifecycle_transitions():
     pcb = RequestPCB(
         voter_id=1,
         operation_type="ALLOCATE",
-        priority_category="SENIOR_CITIZEN"
+        priority_category="PREGNANT_WOMEN"
     )
     assert pcb.state == ProcessState.NEW
     assert pcb.base_priority == 1.0

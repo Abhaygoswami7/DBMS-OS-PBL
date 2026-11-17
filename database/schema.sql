@@ -150,7 +150,7 @@ CREATE TABLE `voters` (
     `address_zone` VARCHAR(100) NOT NULL,
     `pincode` VARCHAR(10) NOT NULL,
     `special_category` ENUM('GENERAL', 'SENIOR_CITIZEN', 'PERSON_WITH_DISABILITY', 'PREGNANT_WOMEN') NOT NULL DEFAULT 'GENERAL',
-    `priority_level` TINYINT NOT NULL DEFAULT 3 COMMENT '1=Highest (Senior/PwD/Pregnant), 2=Elevated, 3=Normal General',
+    `priority_level` TINYINT NOT NULL DEFAULT 4 COMMENT '1=P1 Pregnant Women, 2=P2 Persons with Disabilities (PwD), 3=P3 Senior Citizens, 4=P4 General Voters',
     `simulated_verification_status` ENUM('UNVERIFIED', 'SIMULATED_VERIFIED', 'FLAGGED') NOT NULL DEFAULT 'UNVERIFIED',
     `assigned_booth_id` INT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -249,7 +249,8 @@ CREATE TABLE `slot_allocations` (
         UNIQUE (`voter_id`, `event_id`, (CASE WHEN `status` IN ('CONFIRMED', 'CHECKED_IN') THEN 1 ELSE NULL END)),
     INDEX `idx_alloc_slot_status` (`slot_id`, `status`),
     INDEX `idx_alloc_token` (`booking_reference_token`),
-    INDEX `idx_alloc_queue` (`slot_id`, `queue_token_no`)
+    INDEX `idx_alloc_queue` (`slot_id`, `queue_token_no`),
+    INDEX `idx_alloc_booked_at` (`booked_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Voter time slot reservations and verification tokens';
 
 -- ==============================================================================

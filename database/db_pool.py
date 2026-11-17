@@ -5,6 +5,7 @@ Provides thread-safe MySQL 8.0+ connection pooling using mysql-connector or PyMy
 """
 
 import os
+import time
 import logging
 from contextlib import contextmanager
 from pathlib import Path
@@ -79,12 +80,23 @@ class DatabasePoolManager:
 
     @contextmanager
     def get_connection(self):
-        """Context manager yielding a database connection from the pool."""
+        """Context manager yielding a database connection from the pool with wait-queue retry."""
         self._ensure_pool()
         conn = None
+        start_wait = time.time()
+        timeout = float(os.getenv("DB_CONNECTION_TIMEOUT_SECONDS", "10.0"))
         try:
             if self._driver == "mysql-connector" and self._pool:
-                conn = self._pool.get_connection()
+                while conn is None:
+                    try:
+                        conn = self._pool.get_connection()
+                    except Exception as err:
+                        if "pool exhausted" in str(err).lower():
+                            if time.time() - start_wait > timeout:
+                                raise TimeoutError(f"Database connection pool exhausted after waiting {timeout}s") from err
+                            time.sleep(0.005)
+                        else:
+                            raise
             else:
                 import pymysql
                 conn = pymysql.connect(**self._config)

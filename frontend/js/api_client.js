@@ -361,6 +361,49 @@ class ApiClient {
     });
   }
 
+  // 18. GET /api/admin/priority-scheduler/summary
+  async getPrioritySchedulerSummary() {
+    return await this.request("/api/admin/priority-scheduler/summary", {
+      method: "GET"
+    });
+  }
+
+  // 19. POST /api/admin/priority-scheduler/simulate
+  async simulatePriorityScheduler(algorithm = "PRIORITY_AGING", timeQuantumMs = 20.0, compareAll = false) {
+    return await this.request("/api/admin/priority-scheduler/simulate", {
+      method: "POST",
+      body: JSON.stringify({
+        algorithm: algorithm,
+        time_quantum_ms: timeQuantumMs,
+        compare_all: compareAll
+      })
+    });
+  }
+
+  // 20. POST /api/admin/priority-scheduler/allocate-batch
+  async allocatePriorityBatch(maxBatchSize = 20) {
+    return await this.request("/api/admin/priority-scheduler/allocate-batch", {
+      method: "POST",
+      body: JSON.stringify({
+        max_batch_size: maxBatchSize
+      })
+    });
+  }
+
+  // 21. GET /api/admin/os-telemetry-full
+  async getOsTelemetryFull() {
+    return await this.request("/api/admin/os-telemetry-full", {
+      method: "GET"
+    });
+  }
+
+  // 22. GET /api/admin/dbms-analytics
+  async getDbmsAnalytics() {
+    return await this.request("/api/admin/dbms-analytics", {
+      method: "GET"
+    });
+  }
+
   // Health check
   async checkHealth() {
     return await this.request("/api/health", {

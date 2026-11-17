@@ -18,6 +18,7 @@ from backend.app.os_engine.process_lifecycle import RequestPCB, ProcessState
 from backend.app.os_engine.request_scheduler import os_scheduler
 from backend.app.os_engine.synchronization import sync_manager
 from backend.app.os_engine.memory_and_logger import os_file_logger, os_lru_cache
+from backend.app.os_engine.ipc_event_queue import ipc_engine
 
 logger = logging.getLogger("allocation_service")
 
@@ -233,6 +234,19 @@ class AllocationService:
                     pcb_dict=dispatched_pcb.to_dict(),
                     message=f"Voter {voter_id} allocated slot {slot_id} (Token: {booking_token})"
                 )
+                # Asynchronously publish allocation event to IPC Producer-Consumer Queue
+                ipc_engine.publish_allocation_event(
+                    event_type="ALLOCATION_COMMITTED",
+                    aggregate_id=str(booking_token),
+                    payload={
+                        "voter_id": voter_id,
+                        "booth_id": booth_id,
+                        "slot_id": slot_id,
+                        "booking_reference_token": booking_token,
+                        "queue_token_no": queue_token,
+                        "voter_category": voter_category
+                    }
+                )
             else:
                 dispatched_pcb.transition_to(
                     ProcessState.TERMINATED,
@@ -296,6 +310,11 @@ class AllocationService:
                     event_type="CANCELLATION_COMMITTED",
                     pcb_dict=pcb.to_dict(),
                     message=f"Cancelled booking token {booking_reference_token}"
+                )
+                ipc_engine.publish_allocation_event(
+                    event_type="ALLOCATION_CANCELLED",
+                    aggregate_id=str(booking_reference_token),
+                    payload={"booking_reference_token": booking_reference_token}
                 )
             else:
                 pcb.transition_to(ProcessState.TERMINATED, f"Cancellation failed: {status_code}")
@@ -362,6 +381,17 @@ class AllocationService:
                             new_token = alloc_res[5]
                             new_queue_no = alloc_res[6]
                             os_lru_cache.invalidate()
+                            ipc_engine.publish_allocation_event(
+                                event_type="ALLOCATION_REALLOCATED",
+                                aggregate_id=str(new_token),
+                                payload={
+                                    "voter_id": voter_id,
+                                    "old_slot_id": old_slot_id,
+                                    "new_slot_id": new_slot_id,
+                                    "new_booking_reference_token": new_token,
+                                    "new_queue_token_no": new_queue_no
+                                }
+                            )
                         else:
                             # Revert cancellation if new allocation fails
                             conn.rollback()

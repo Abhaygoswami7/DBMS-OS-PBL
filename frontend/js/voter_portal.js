@@ -2021,6 +2021,53 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   });
 
+  document.getElementById("chipMyJurisdiction")?.addEventListener("click", () => {
+    const v = state.voter;
+    const b = state.assignedBooth;
+    const pLevel = v?.priority_level || 4;
+    const prioLabel = pLevel === 1 ? "P1 (Pregnant Women)" : pLevel === 2 ? "P2 (PwD)" : pLevel === 3 ? "P3 (Senior Citizen)" : "P4 (General)";
+    dishaResponseBox.innerHTML = `
+      <strong>Voter Jurisdiction &amp; Booth Assignment:</strong><br/>
+      • <strong>Voter Name:</strong> ${v?.full_name || "Synthetic Voter"}<br/>
+      • <strong>Category &amp; Priority:</strong> ${(v?.special_category || "GENERAL").replace(/_/g, " ")} &middot; <strong>${prioLabel}</strong><br/>
+      • <strong>Parliamentary Constituency (PC):</strong> Nainital-Udhamsingh Nagar (PC-04)<br/>
+      • <strong>Assembly Constituency (AC):</strong> Bhimtal (AC-58)<br/>
+      • <strong>Assigned Station:</strong> ${b?.station_name || "Graphic Era Hill University, Bhimtal Campus"}<br/>
+      • <strong>Assigned Booth:</strong> Booth ${b?.booth_number || "01"} (${b?.booth_name || "Room 101 Ground Floor"})<br/>
+      <em>All allocations strictly mapped to your designated polling counter.</em>
+    `;
+  });
+
+  document.getElementById("chipPriorityRules")?.addEventListener("click", () => {
+    dishaResponseBox.innerHTML = `
+      <strong>Assistive Priority Hierarchy (P1-P4):</strong><br/>
+      • <strong>P1 · Pregnant Women:</strong> Highest scheduling precedence and dedicated reserved slot quotas.<br/>
+      • <strong>P2 · Persons with Disabilities (PwD):</strong> Second precedence with wheelchair ramp-accessible booth routing.<br/>
+      • <strong>P3 · Senior Citizens:</strong> Third precedence with minimized queue waiting times.<br/>
+      • <strong>P4 · General Voters:</strong> Normal scheduling with OS Dynamic Aging elevation.<br/>
+      <em>Guardrail: Advisory arrival slot allocation only; constitutional voting rights are strictly equal.</em>
+    `;
+  });
+
+  document.getElementById("chipOverbookingPrevent")?.addEventListener("click", () => {
+    dishaResponseBox.innerHTML = `
+      <strong>Three-Tier Concurrency Overbooking Prevention:</strong><br/>
+      • <strong>Tier 1 (OS Bounded Semaphore):</strong> Regulates in-flight concurrent worker threads per time-slot window.<br/>
+      • <strong>Tier 2 (Process Mutex):</strong> Python re-entrant lock (RLock) serializes concurrent slot evaluation.<br/>
+      • <strong>Tier 3 (ACID Row-Level Lock):</strong> MySQL InnoDB <code>SELECT ... FOR UPDATE</code> holds an exclusive row lock on <code>time_slots</code>, guaranteeing zero overbooking (capacity invariant strictly enforced).
+    `;
+  });
+
+  document.getElementById("chipRescheduleHelp")?.addEventListener("click", () => {
+    dishaResponseBox.innerHTML = `
+      <strong>How to Reschedule or Cancel Your Slot:</strong><br/>
+      • <strong>Step 1:</strong> Locate your confirmed booking card displaying your PNR Reference Token.<br/>
+      • <strong>Step 2:</strong> Click <em>Cancel / Reschedule Booking</em>.<br/>
+      • <strong>Step 3:</strong> The ACID cancellation transaction frees your slot capacity and logs an audit event.<br/>
+      • <strong>Step 4:</strong> Re-select any available open slot across the 4 Bhimtal polling stations.
+    `;
+  });
+
   document.getElementById("chipExplainOs")?.addEventListener("click", () => {
     dishaResponseBox.innerHTML = `
       <strong>OS Concurrency &amp; Fairness Guardrails:</strong><br/>

@@ -104,7 +104,7 @@
         <div class="cris-kpi-card">
           <div class="cris-kpi-title">Monitored Polling Booths</div>
           <div class="cris-kpi-value" id="kpiBoothsCount">8</div>
-          <div class="cris-kpi-sub">Dehradun Cantt & Rajpur ACs</div>
+          <div class="cris-kpi-sub">Nainital-Udhamsingh Nagar PC · Bhimtal AC</div>
         </div>
         <div class="cris-kpi-card accent-orange">
           <div class="cris-kpi-title">Active Discretized Slots</div>
@@ -213,46 +213,228 @@
         </div>
       </section>
 
-      <!-- Interactive OS CPU Scheduler Policy Comparator -->
-      <section class="irctc-card">
+      <!-- PRIORITY-BASED POLLING SCHEDULER & OS CPU ENGINE -->
+      <section class="irctc-card" id="prioritySchedulerCard" style="margin-bottom: 16px;">
         <div class="irctc-card-header">
-          <span>OS CPU SCHEDULER POLICY COMPARATOR (FCFS VS. PRIORITY AGING)</span>
-          <span class="header-sub">Starvation Prevention & Dynamic Aging Verification</span>
+          <span>PRIORITY-BASED POLLING SCHEDULER</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="header-sub" id="prioritySchedulerTimestamp" style="font-size:11px;">Assistive Priority Hierarchy (P1-P4) &amp; OS CPU Dispatch Engine</span>
+            <button type="button" class="btn-secondary" id="btnRefreshPrioritySummary" style="font-size:11px;padding:4px 10px;">Refresh Summary</button>
+          </div>
         </div>
         <div class="irctc-card-body">
-          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
-            Simulate a batch of 6 voter requests mixing General, Senior Citizen, and Divyaangjan PwD categories with varying wait times to demonstrate how OS Priority Aging elevates waiting general requests to guarantee starvation freedom.
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+            Enforces the Assistive Priority Hierarchy: <strong>P1 Pregnant Women</strong> (Highest) &gt; <strong>P2 Persons with Disabilities (PwD)</strong> &gt; <strong>P3 Senior Citizens</strong> &gt; <strong>P4 General Voters</strong>. Simulates CPU scheduling algorithms (FCFS, Shortest Job First, Priority with Aging, and Round Robin) to demonstrate starvation freedom, burst completion, and turnaround metrics.
           </p>
 
-          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px;">
-            <select class="form-select" id="selectPolicySwitch" style="max-width: 240px;">
-              <option value="PRIORITY_AGING">Policy: Priority with Aging</option>
-              <option value="FCFS">Policy: First-Come-First-Served (FCFS)</option>
-            </select>
-            <button type="button" class="btn-primary" id="btnComparePolicies" style="font-size: 12px; padding: 8px 18px;">
-              Run 6-Request Policy Simulation
+          <!-- 4 Priority Level Badges Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #1d4ed8; text-transform: uppercase;">P1 · Pregnant Women</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+                <span style="font-size: 20px; font-weight: 800; color: #1e3a8a;" id="p1RegCount">6</span>
+                <span style="font-size: 11px; color: #475569;">Reg</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                <span>Confirmed: <strong id="p1ConfCount" style="color: var(--irctc-status-avl);">0</strong></span>
+                <span>Pending: <strong id="p1PendCount" style="color: var(--irctc-orange-primary);">6</strong></span>
+              </div>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase;">P2 · PwD (Divyaangjan)</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+                <span style="font-size: 20px; font-weight: 800; color: #14532d;" id="p2RegCount">5</span>
+                <span style="font-size: 11px; color: #475569;">Reg</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                <span>Confirmed: <strong id="p2ConfCount" style="color: var(--irctc-status-avl);">0</strong></span>
+                <span>Pending: <strong id="p2PendCount" style="color: var(--irctc-orange-primary);">5</strong></span>
+              </div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #b45309; text-transform: uppercase;">P3 · Senior Citizens</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+                <span style="font-size: 20px; font-weight: 800; color: #78350f;" id="p3RegCount">16</span>
+                <span style="font-size: 11px; color: #475569;">Reg</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                <span>Confirmed: <strong id="p3ConfCount" style="color: var(--irctc-status-avl);">0</strong></span>
+                <span>Pending: <strong id="p3PendCount" style="color: var(--irctc-orange-primary);">16</strong></span>
+              </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase;">P4 · General Voters</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+                <span style="font-size: 20px; font-weight: 800; color: #0f172a;" id="p4RegCount">34</span>
+                <span style="font-size: 11px; color: #475569;">Reg</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">
+                <span>Confirmed: <strong id="p4ConfCount" style="color: var(--irctc-status-avl);">17</strong></span>
+                <span>Pending: <strong id="p4PendCount" style="color: var(--irctc-orange-primary);">17</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Bar -->
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; background: #f8fafc; padding: 10px 14px; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-sm);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <label for="selectPriorityAlgorithm" style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary);">Algorithm:</label>
+              <select class="form-select" id="selectPriorityAlgorithm" style="min-width: 200px; font-size: 12px;">
+                <option value="PRIORITY_AGING">Priority with Aging (Starvation-Free)</option>
+                <option value="FCFS">First-Come, First-Served (FCFS)</option>
+                <option value="SJF">Shortest Job First (SJF)</option>
+                <option value="ROUND_ROBIN">Round Robin (Time-Sliced)</option>
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <label for="inputTimeQuantum" style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary);">Quantum (ms):</label>
+              <input type="number" class="form-input" id="inputTimeQuantum" value="20" min="5" max="100" step="5" style="width: 75px; font-size: 12px; padding: 4px 8px;">
+            </div>
+
+            <button type="button" class="btn-primary" id="btnRunPrioritySimulation" style="font-size: 12px; padding: 6px 16px;">
+              Simulate Algorithm
+            </button>
+            <button type="button" class="btn-secondary" id="btnCompareAllAlgorithms" style="font-size: 12px; padding: 6px 16px;">
+              Compare All (FCFS/SJF/Priority/RR)
+            </button>
+            <button type="button" class="btn-primary" id="btnRunPriorityBatchAllocation" style="background: #16a34a; border-color: #15803d; font-size: 12px; padding: 6px 16px;">
+              Run Priority Batch Allocation
             </button>
           </div>
 
-          <div id="policyComparisonArea" style="display: none;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); margin-bottom: 6px;" id="policyActiveNotice"></div>
+          <!-- Batch Allocation Feedback Area -->
+          <div id="priorityBatchFeedback" style="display:none; margin-bottom: 14px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px;"></div>
+
+          <!-- Gantt Chart Container -->
+          <div id="priorityGanttWrapper" style="display: none; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase;">Visual Gantt Execution Timeline</span>
+              <span id="ganttTimelineDuration" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">Duration: 0ms</span>
+            </div>
+            <div id="priorityGanttTimeline" style="background: #0f172a; padding: 12px 14px; border-radius: var(--radius-sm); overflow-x: auto; min-height: 50px; display: flex; align-items: center; gap: 4px;">
+              <!-- Dynamically populated by JS -->
+            </div>
+          </div>
+
+          <!-- Algorithm Comparison Table -->
+          <div id="priorityComparisonWrapper" style="display: none; margin-bottom: 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); margin-bottom: 6px; text-transform: uppercase;">
+              Side-by-Side Algorithm Benchmark (Identical 6-Task Workload)
+            </div>
             <div class="data-table-container">
-              <table class="data-table" id="policyComparisonTable">
+              <table class="data-table" id="priorityComparisonTable">
                 <thead>
                   <tr>
-                    <th>Dispatch Rank</th>
-                    <th>Voter Name</th>
-                    <th>Category Quota</th>
-                    <th>Base Priority</th>
-                    <th>Wait Time</th>
-                    <th>Effective Priority</th>
-                    <th>Starvation Freedom Status</th>
+                    <th>Algorithm</th>
+                    <th>Average Waiting Time</th>
+                    <th>Average Turnaround Time</th>
+                    <th>Average Response Time</th>
+                    <th>Total CPU Time</th>
+                    <th>Starvation Freedom</th>
+                    <th>Academic Note</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Populated by admin_dashboard.js -->
-                </tbody>
+                <tbody id="priorityComparisonTbody"></tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Per-Task Execution Breakdown Table -->
+          <div id="priorityTaskBreakdownWrapper" style="display: none;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); margin-bottom: 6px; text-transform: uppercase;">
+              PCB Task Lifecycle Metrics (<span id="priorityActiveAlgorithmLabel">PRIORITY_AGING</span>)
+            </div>
+            <div class="data-table-container">
+              <table class="data-table" id="priorityTasksTable">
+                <thead>
+                  <tr>
+                    <th>Task ID</th>
+                    <th>Voter Name</th>
+                    <th>Category &amp; Priority</th>
+                    <th>Arrival</th>
+                    <th>Burst</th>
+                    <th>Completion</th>
+                    <th>Wait</th>
+                    <th>Turnaround</th>
+                    <th>Response</th>
+                  </tr>
+                </thead>
+                <tbody id="priorityTasksTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- OS IPC & MEMORY SUBSYSTEM TELEMETRY -->
+      <section class="irctc-card" id="ipcMemoryTelemetryCard" style="margin-bottom: 16px;">
+        <div class="irctc-card-header">
+          <span>OS INTER-PROCESS COMMUNICATION (IPC) &amp; LRU CACHE SUBSYSTEM</span>
+          <span class="header-sub">Producer-Consumer Queue, Outbox Delivery &amp; In-Memory LRU Cache</span>
+        </div>
+        <div class="irctc-card-body">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+            <!-- IPC Subsystem Panel -->
+            <div style="background: #f8fafc; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 8px;">
+                IPC Producer-Consumer Event Queue
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Worker Thread State:</span>
+                  <strong id="ipcWorkerState" style="color:var(--irctc-status-avl); font-family:var(--font-mono);">RUNNING</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">In-Memory Queue Depth:</span>
+                  <strong id="ipcQueueDepth" style="font-family:var(--font-mono);">0 / 100</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Total Published Events:</span>
+                  <strong id="ipcTotalPublished" style="font-family:var(--font-mono);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Total Processed Events:</span>
+                  <strong id="ipcTotalProcessed" style="font-family:var(--font-mono);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Transactional Outbox Stranded:</span>
+                  <strong id="ipcOutboxPending" style="font-family:var(--font-mono); color:var(--irctc-status-avl);">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- LRU Cache Subsystem Panel -->
+            <div style="background: #f8fafc; border: 1px solid var(--irctc-border-grey); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 8px;">
+                OS In-Memory LRU Cache (Bounded)
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Cache Capacity / Size:</span>
+                  <strong id="lruCapacitySize" style="font-family:var(--font-mono);">0 / 256</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Cache Hit Ratio:</span>
+                  <strong id="lruHitRatio" style="color:var(--irctc-status-avl); font-family:var(--font-mono);">0.0%</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Total Hits:</span>
+                  <strong id="lruHits" style="font-family:var(--font-mono);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Total Misses:</span>
+                  <strong id="lruMisses" style="font-family:var(--font-mono);">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:var(--text-secondary);">Evictions under Pressure:</span>
+                  <strong id="lruEvictions" style="font-family:var(--font-mono);">0</strong>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -261,12 +261,16 @@ class VoterService:
         if not self.SYNTHETIC_EPIC_PATTERN.match(epic):
             return False, "INVALID_EPIC_FORMAT_MUST_BE_DEM-UK-2026-XXXX", None
 
-        # Determine priority level based on category
+        # Centralized project-defined priority hierarchy:
+        # P1: PREGNANT_WOMEN (1), P2: PERSON_WITH_DISABILITY (2), P3: SENIOR_CITIZEN (3), P4: GENERAL (4)
+        CATEGORY_PRIORITY_MAP = {
+            "PREGNANT_WOMEN": 1,
+            "PERSON_WITH_DISABILITY": 2,
+            "SENIOR_CITIZEN": 3,
+            "GENERAL": 4
+        }
         category = voter_data.get("special_category", "GENERAL").upper()
-        if category in ("SENIOR_CITIZEN", "PERSON_WITH_DISABILITY", "PREGNANT_WOMEN"):
-            priority_level = 1
-        else:
-            priority_level = 3
+        priority_level = CATEGORY_PRIORITY_MAP.get(category, 4)
 
         insert_sql = """
         INSERT INTO voters (

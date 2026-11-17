@@ -37,7 +37,7 @@ def test_voter_retrieval_and_jurisdiction():
     assert voter["demo_epic_no"] == "DEM-UK-2026-0001"
     assert voter["assigned_booth_id"] == 1
     assert voter["special_category"] == "SENIOR_CITIZEN"
-    assert voter["priority_level"] == 1
+    assert voter["priority_level"] == 3
     assert voter["station_name"] == "Graphic Era Hill University, Bhimtal Campus"
     assert voter["parliamentary_constituency"] == "Nainital-Udhamsingh Nagar Parliamentary Constituency"
     assert voter["assembly_constituency"] == "Bhimtal Assembly Constituency"
@@ -164,4 +164,4 @@ def test_voter_pagination_and_filters():
     assert senior_total >= 10
     for r in senior_rows:
         assert r["special_category"] == "SENIOR_CITIZEN"
-        assert r["priority_level"] == 1
+        assert r["priority_level"] == 3

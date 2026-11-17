@@ -659,5 +659,318 @@ def export_telemetry_snapshot():
     }), 200
 
 
+# -----------------------------------------------------------------------------
+# 8. PRIORITY-BASED POLLING SCHEDULER: SUMMARY
+# -----------------------------------------------------------------------------
+@admin_bp.route("/priority-scheduler/summary", methods=["GET"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def get_priority_scheduler_summary():
+    """
+    GET /api/admin/priority-scheduler/summary
+    Returns real-time voter counts, pending/confirmed status, and reserved capacity
+    across the four priority levels (P1: Pregnant Women, P2: PwD, P3: Senior Citizens, P4: General).
+    """
+    from backend.app.priority_constants import PRIORITY_LEVELS, PRIORITY_LABELS
+
+    with db_pool.get_cursor(dictionary=True) as (conn, cursor):
+        # Query total registered voters grouped by priority level
+        cursor.execute("""
+            SELECT 
+                priority_level,
+                special_category,
+                COUNT(*) AS total_registered
+            FROM voters
+            GROUP BY priority_level, special_category
+            ORDER BY priority_level ASC;
+        """)
+        voter_counts = cursor.fetchall()
+
+        # Query confirmed bookings grouped by voter priority level
+        cursor.execute("""
+            SELECT 
+                v.priority_level,
+                COUNT(a.allocation_id) AS confirmed_count
+            FROM slot_allocations a
+            JOIN voters v ON a.voter_id = v.voter_id
+            WHERE a.status = 'CONFIRMED'
+            GROUP BY v.priority_level;
+        """)
+        confirmed_by_priority = {row["priority_level"]: row["confirmed_count"] for row in cursor.fetchall()}
+
+        # Query booth capacity metrics
+        cursor.execute("""
+            SELECT 
+                COALESCE(SUM(max_capacity), 0) AS total_capacity,
+                COALESCE(SUM(allocated_count), 0) AS total_allocated,
+                COALESCE(SUM(priority_reserved_capacity), 0) AS priority_reserved_capacity,
+                COALESCE(SUM(max_capacity - allocated_count), 0) AS available_capacity
+            FROM time_slots
+            WHERE status = 'OPEN';
+        """)
+        capacity_summary = cursor.fetchone() or {}
+
+    # Compile priority breakdown
+    priority_data = []
+    total_reg = 0
+    total_conf = 0
+    total_pend = 0
+
+    registered_map = {row["priority_level"]: row["total_registered"] for row in voter_counts}
+    category_map = {row["priority_level"]: row["special_category"] for row in voter_counts}
+
+    for p_level in (1, 2, 3, 4):
+        reg = registered_map.get(p_level, 0)
+        conf = confirmed_by_priority.get(p_level, 0)
+        pend = max(0, reg - conf)
+        total_reg += reg
+        total_conf += conf
+        total_pend += pend
+
+        priority_data.append({
+            "priority_level": p_level,
+            "priority_code": f"P{p_level}",
+            "category": category_map.get(p_level, "GENERAL"),
+            "label": PRIORITY_LABELS.get(p_level, f"Priority {p_level}"),
+            "registered": reg,
+            "confirmed": conf,
+            "pending": pend
+        })
+
+    return jsonify({
+        "success": True,
+        "summary": {
+            "total_registered_voters": total_reg,
+            "total_confirmed_allocations": total_conf,
+            "total_pending_voters": total_pend,
+            "capacity": {
+                "total_capacity": int(capacity_summary.get("total_capacity", 0)),
+                "total_allocated": int(capacity_summary.get("total_allocated", 0)),
+                "priority_reserved_capacity": int(capacity_summary.get("priority_reserved_capacity", 0)),
+                "available_capacity": int(capacity_summary.get("available_capacity", 0))
+            }
+        },
+        "priorities": priority_data
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 9. PRIORITY-BASED POLLING SCHEDULER: SIMULATE
+# -----------------------------------------------------------------------------
+@admin_bp.route("/priority-scheduler/simulate", methods=["POST"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def simulate_priority_scheduler():
+    """
+    POST /api/admin/priority-scheduler/simulate
+    Runs an OS scheduling simulation using FCFS, SJF, PRIORITY_AGING, ROUND_ROBIN, or ALL.
+    Generates execution timelines (Gantt chart slices) and performance metrics.
+    """
+    from backend.app.os_engine.request_scheduler import os_scheduler
+
+    data = request.get_json(silent=True) or {}
+    algorithm = str(data.get("algorithm", "PRIORITY_AGING")).strip().upper()
+    time_quantum_ms = float(data.get("time_quantum_ms", 20.0))
+    compare_all = data.get("compare_all", False) or algorithm == "ALL"
+
+    if compare_all:
+        comparison_results = os_scheduler.compare_all_algorithms(quantum_ms=time_quantum_ms)
+        return jsonify({
+            "success": True,
+            "mode": "COMPARISON",
+            "results": comparison_results
+        }), 200
+
+    valid_algorithms = ("FCFS", "SJF", "PRIORITY_AGING", "ROUND_ROBIN")
+    if algorithm not in valid_algorithms:
+        return jsonify({
+            "error": "BAD_REQUEST",
+            "message": f"Invalid algorithm '{algorithm}'. Must be one of {valid_algorithms}."
+        }), 400
+
+    sim_result = os_scheduler.simulate_workload(
+        policy=algorithm,
+        quantum_ms=time_quantum_ms
+    )
+
+    return jsonify({
+        "success": True,
+        "mode": "SINGLE",
+        "algorithm": algorithm,
+        "metrics": sim_result["metrics"],
+        "timeline": sim_result["timeline"],
+        "gantt_chart": sim_result["timeline"],
+        "tasks": sim_result["tasks"],
+        "policy_characteristics": sim_result.get("policy_characteristics", ""),
+        "total_tasks": sim_result["metrics"]["total_tasks"]
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 10. PRIORITY-BASED POLLING SCHEDULER: BATCH ALLOCATION
+# -----------------------------------------------------------------------------
+@admin_bp.route("/priority-scheduler/allocate-batch", methods=["POST"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def allocate_priority_batch():
+    """
+    POST /api/admin/priority-scheduler/allocate-batch
+    Dispatches pending voters strictly following the Priority Hierarchy:
+      P1 (Pregnant Women) -> P2 (PwD) -> P3 (Senior Citizens) -> P4 (General)
+    Allocates next available slot in voter's assigned booth atomically.
+    """
+    data = request.get_json(silent=True) or {}
+    max_batch = min(int(data.get("max_batch_size", 20)), 50)
+
+    # 1. Fetch pending voters ordered strictly by priority_level ASC, voter_id ASC
+    with db_pool.get_cursor(dictionary=True) as (conn, cursor):
+        cursor.execute("""
+            SELECT 
+                v.voter_id,
+                v.full_name,
+                v.demo_epic_no,
+                v.special_category,
+                v.priority_level,
+                v.assigned_booth_id
+            FROM voters v
+            LEFT JOIN slot_allocations a 
+                ON v.voter_id = a.voter_id AND a.status = 'CONFIRMED'
+            WHERE a.allocation_id IS NULL
+            ORDER BY v.priority_level ASC, v.voter_id ASC
+            LIMIT %s;
+        """, (max_batch,))
+        pending_voters = cursor.fetchall()
+
+    if not pending_voters:
+        return jsonify({
+            "success": True,
+            "message": "No pending voters require time-slot allocation.",
+            "allocated_count": 0,
+            "failed_count": 0,
+            "allocations": []
+        }), 200
+
+    allocated_records = []
+    failed_records = []
+
+    for voter in pending_voters:
+        v_id = voter["voter_id"]
+        b_id = voter["assigned_booth_id"]
+
+        # Find next open slot with available capacity in voter's assigned booth
+        with db_pool.get_cursor(dictionary=True) as (conn, cursor):
+            cursor.execute("""
+                SELECT slot_id, slot_date, start_time, max_capacity, allocated_count
+                FROM time_slots
+                WHERE booth_id = %s AND status = 'OPEN' AND allocated_count < max_capacity
+                ORDER BY slot_date ASC, start_time ASC
+                LIMIT 1;
+            """, (b_id,))
+            target_slot = cursor.fetchone()
+
+        if not target_slot:
+            failed_records.append({
+                "voter_id": v_id,
+                "voter_name": voter["full_name"],
+                "priority_level": voter["priority_level"],
+                "reason": f"No open slots with capacity available at Booth ID {b_id}."
+            })
+            continue
+
+        res = allocation_service.allocate_voter_slot(
+            voter_id=v_id,
+            booth_id=b_id,
+            slot_id=target_slot["slot_id"],
+            allocation_type="ALGORITHMIC_ALLOCATED"
+        )
+
+        if res.get("success"):
+            allocated_records.append({
+                "voter_id": v_id,
+                "voter_name": voter["full_name"],
+                "priority_level": voter["priority_level"],
+                "category": voter["special_category"],
+                "booth_id": b_id,
+                "slot_id": target_slot["slot_id"],
+                "booking_reference_token": res.get("booking_reference_token")
+            })
+        else:
+            failed_records.append({
+                "voter_id": v_id,
+                "voter_name": voter["full_name"],
+                "priority_level": voter["priority_level"],
+                "reason": res.get("message", "Allocation rejected.")
+            })
+
+    return jsonify({
+        "success": True,
+        "message": f"Batch allocation complete. {len(allocated_records)} allocated, {len(failed_records)} skipped/failed.",
+        "allocated_count": len(allocated_records),
+        "failed_count": len(failed_records),
+        "allocations": allocated_records,
+        "failures": failed_records
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 11. OS TELEMETRY (SCHEDULER, IPC, SYNC & MEMORY CACHE)
+# -----------------------------------------------------------------------------
+@admin_bp.route("/os-telemetry-full", methods=["GET"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def get_os_telemetry_full():
+    """
+    GET /api/admin/os-telemetry-full
+    Returns consolidated real-time OS subsystem metrics:
+      - CPU Scheduler: dispatch metrics, waiting/turnaround averages, Gantt execution
+      - Inter-Process Communication (IPC): queue depth, throughput, worker state, outbox recovery
+      - Synchronization & Concurrency: Mutex and Bounded Semaphore metrics, Havender deadlock prevention
+      - Memory Management: LRU bounded cache size, hit/miss stats, memory pressure
+    """
+    from backend.app.os_engine.request_scheduler import os_scheduler
+    from backend.app.os_engine.ipc_event_queue import ipc_engine
+    from backend.app.os_engine.memory_and_logger import os_lru_cache
+
+    sync_telemetry = allocation_service.get_system_telemetry()
+    sched_metrics = os_scheduler.get_metrics()
+    ipc_metrics = ipc_engine.get_ipc_metrics()
+    cache_stats = os_lru_cache.get_stats()
+
+    return jsonify({
+        "success": True,
+        "scheduler": sched_metrics,
+        "ipc": ipc_metrics,
+        "cache": cache_stats,
+        "synchronization": sync_telemetry.get("synchronization", {})
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 12. DBMS ADVANCED ANALYTICS (VIEWS & STORED PROCEDURES)
+# -----------------------------------------------------------------------------
+@admin_bp.route("/dbms-analytics", methods=["GET"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def get_dbms_analytics():
+    """
+    GET /api/admin/dbms-analytics
+    Returns aggregated metrics from MySQL 3NF views:
+      - vw_administrative_statistics
+      - vw_booth_occupancy
+      - vw_available_booths
+    """
+    with db_pool.get_cursor(dictionary=True) as (conn, cursor):
+        cursor.execute("SELECT * FROM vw_administrative_statistics;")
+        admin_stats = cursor.fetchone() or {}
+
+        cursor.execute("SELECT * FROM vw_booth_occupancy;")
+        booth_occupancy = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM vw_available_booths;")
+        available_booths = cursor.fetchall()
+
+    return jsonify({
+        "success": True,
+        "admin_statistics": admin_stats,
+        "booth_occupancy": booth_occupancy,
+        "available_booths": available_booths
+    }), 200
+
+
 
 

@@ -26,7 +26,7 @@ class SlotSynchronizationManager:
     """
     def __init__(self):
         max_workers = int(os.getenv("OS_MAX_WORKER_THREADS", "8"))
-        self.lock_timeout = float(os.getenv("OS_LOCK_TIMEOUT_SECONDS", "5.0"))
+        self.lock_timeout = float(os.getenv("OS_LOCK_TIMEOUT_SECONDS", "10.0"))
         
         # OS Bounded Semaphore: Limits concurrent active workers accessing critical sections
         self._worker_semaphore = threading.BoundedSemaphore(value=max_workers)
