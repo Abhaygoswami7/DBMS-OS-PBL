@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profVoterEpic").textContent = voter.demo_epic_no;
     document.getElementById("profCategoryBadge").textContent = `${voter.special_category} · PRIORITY ${voter.priority_level}`;
     document.getElementById("profBoothName").textContent = voter.booth_name || `Booth ${voter.assigned_booth_id}`;
-    document.getElementById("profConstituency").textContent = `${voter.parliamentary_constituency || 'Tehri Garhwal (PC)'} · ${voter.assembly_constituency || 'Dehradun Cantt (AC)'}`;
+    document.getElementById("profConstituency").textContent = `${voter.parliamentary_constituency || 'Nainital-Udhamsingh Nagar Parliamentary Constituency'} · ${voter.assembly_constituency || 'Bhimtal Assembly Constituency'}`;
     
     const verifElem = document.getElementById("profVerifStatus");
     if (state.isVerified) {
@@ -1862,7 +1862,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = slip.booking_reference_token || slip.allocation_token;
     document.getElementById("slipVoterName").textContent = slip.voter_name;
     document.getElementById("slipEpicNo").textContent = slip.demo_epic_no;
-    document.getElementById("slipConstituency").textContent = `${slip.parliamentary_constituency || 'Tehri Garhwal'} (PC) · ${slip.assembly_constituency || 'Dehradun Cantt'} (AC)`;
+    document.getElementById("slipConstituency").textContent = `${slip.parliamentary_constituency || 'Nainital-Udhamsingh Nagar Parliamentary Constituency'} (PC) · ${slip.assembly_constituency || 'Bhimtal Assembly Constituency'} (AC)`;
     document.getElementById("slipStationBooth").textContent = `${slip.station_name} · ${slip.booth_name}`;
     document.getElementById("slipTimeWindow").textContent = `${slip.slot_date} | ${slip.start_time} - ${slip.end_time}`;
     document.getElementById("slipQueueNo").textContent = `#${String(slip.queue_token_number || slip.queue_token_no || 1).padStart(2, '0')}`;
