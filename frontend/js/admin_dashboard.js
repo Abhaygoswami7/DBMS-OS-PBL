@@ -90,6 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     await refreshDashboardData();
     await loadCrowdPredictionsChart();
+    await loadRecentBookings(0);
+    if (recentBookingsAutoRefreshTimer) clearInterval(recentBookingsAutoRefreshTimer);
+    recentBookingsAutoRefreshTimer = setInterval(() => loadRecentBookings(recentBookingsPage), 30000);
     document.dispatchEvent(new Event("adminDashboardReady"));
   }
 
@@ -124,7 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnRefresh) {
     btnRefresh.addEventListener("click", async () => {
       btnRefresh.textContent = "Refreshing...";
-      await refreshDashboardData();
+      await Promise.all([
+        refreshDashboardData(),
+        loadRecentBookings(recentBookingsPage)
+      ]);
       btnRefresh.textContent = "Refresh Data";
       window.apiClient.showToast("Operational status updated from database.", "success");
     });
@@ -620,22 +626,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const nextBtn = document.getElementById("btnNextBookings");
     const tsEl = document.getElementById("recentBookingsTimestamp");
 
-    if (loadingEl && !tableWrap.style.display.includes("block")) {
+    if (loadingEl && (!tableWrap || tableWrap.style.display === "none")) {
       loadingEl.style.display = "block";
     }
     if (emptyEl) emptyEl.style.display = "none";
     if (errorEl) errorEl.style.display = "none";
 
     const token = window.apiClient.getAdminToken();
-    if (!token) return;
+    if (!token) {
+      if (loadingEl) loadingEl.style.display = "none";
+      if (errorEl) {
+        errorEl.textContent = "Admin authorization required to view booking records.";
+        errorEl.style.display = "block";
+      }
+      return;
+    }
 
     let data = null;
     try {
-      const res = await fetch(`/api/admin/recent-bookings?limit=${limit}&offset=${offset}`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
+      const res = await window.apiClient.getRecentBookings(limit, offset);
+      if (!res.ok) {
+        throw new Error(res.message || `HTTP ${res.status}`);
+      }
+      data = res;
     } catch (err) {
       if (loadingEl) loadingEl.style.display = "none";
       if (errorEl) {
@@ -686,10 +699,10 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.innerHTML = `
         <td style="font-family:var(--font-mono);font-size:11px;" title="${b.booking_reference_token || ""}">${shortRef}</td>
         <td><strong>${b.full_name || "--"}</strong></td>
-        <td style="font-family:var(--font-mono);font-size:11px;">${b.demo_epic_no || "--"}</td>
         <td><span class="jurisdiction-tag" style="font-size:10px;">${categoryLabel} &middot; ${priorityLabel}</span></td>
         <td>${b.station_name || "--"}</td>
         <td style="font-size:11px;">${b.booth_name || "--"} <span style="color:var(--text-muted);">#${b.booth_number || ""}</span></td>
+        <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${b.event_name || ""}">${b.event_name || "One Nation One Election 2026"}</td>
         <td style="font-family:var(--font-mono);font-size:11px;">${slotLabel}</td>
         <td>${formatBookingStatus(b.allocation_status)}</td>
         <td style="font-size:11px;color:var(--text-muted);">${formatCreatedAt(b.created_at)}</td>
@@ -706,8 +719,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!recentBookingsViewAll && totalCount > limit) {
       if (paginationEl) paginationEl.style.display = "flex";
       if (pageInfoEl) pageInfoEl.textContent = `Showing ${offset + 1}–${offset + bookings.length} of ${totalCount} bookings`;
-      if (prevBtn) prevBtn.disabled = currentPage <= 0;
-      if (nextBtn) nextBtn.disabled = !pageInfo.has_more;
+      if (prevBtn) {
+        prevBtn.style.display = "";
+        prevBtn.disabled = currentPage <= 0;
+      }
+      if (nextBtn) {
+        nextBtn.style.display = "";
+        nextBtn.disabled = !pageInfo.has_more;
+      }
     } else {
       if (paginationEl) {
         if (totalCount > 0) {

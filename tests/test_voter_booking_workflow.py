@@ -108,7 +108,8 @@ def test_index_html_voter_dropdown_alignment():
     # Authentic voter profile card elements must be preserved
     assert "voterProfileCard" in content
     assert "profVoterName" in content
-    assert "profVoterEpic" in content
+    # Synthetic Voter ID visual element must be removed from the profile card
+    assert "profVoterEpic" not in content
 
 
 # -----------------------------------------------------------------------------

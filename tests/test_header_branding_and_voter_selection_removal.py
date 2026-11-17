@@ -99,7 +99,10 @@ class TestVoterSelectionSectionRemoval:
             "#voterProfileCard must be preserved in index.html"
         )
         assert 'id="profVoterName"' in voter_html
-        assert 'id="profVoterEpic"' in voter_html
+        # Synthetic Voter ID visual element must be removed from the profile card
+        assert 'id="profVoterEpic"' not in voter_html, (
+            "#profVoterEpic must be removed from index.html"
+        )
         assert 'id="profCategoryBadge"' in voter_html
         assert 'id="profBoothName"' in voter_html
         assert 'id="profConstituency"' in voter_html
@@ -108,6 +111,16 @@ class TestVoterSelectionSectionRemoval:
         assert 'id="btnProceedToStep2"' in voter_html, (
             "#btnProceedToStep2 (Proceed to ECI Verification) must be preserved"
         )
+
+    def test_no_unwanted_top_nav_branding(self):
+        login_html = get_html("login.html")
+        voter_html = get_html("index.html")
+        admin_html = get_html("admin.html")
+        assert "ECI · ONOE CENTRAL AUTHENTICATION GATEWAY" not in login_html, (
+            "'ECI · ONOE CENTRAL AUTHENTICATION GATEWAY' must be removed from login.html"
+        )
+        assert "ECI · ONOE CENTRAL AUTHENTICATION GATEWAY" not in voter_html
+        assert "ECI · ONOE CENTRAL AUTHENTICATION GATEWAY" not in admin_html
 
     def test_no_empty_gap_or_broken_structure(self, voter_html):
         assert "quickSelectPanel" not in voter_html

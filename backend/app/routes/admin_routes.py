@@ -11,7 +11,7 @@ Endpoints (All Admin JWT Protected):
   - GET /api/admin/crowd-predictions: AI crowd forecasts across booths alongside Baseline vs. Random Forest evaluation metrics.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from database.db_pool import db_pool
 from backend.app.routes.auth_middleware import token_required
 from backend.app.services.booth_service import booth_service
@@ -125,9 +125,9 @@ def get_recent_bookings():
         FROM slot_allocations sa
         JOIN voters v ON sa.voter_id = v.voter_id
         JOIN polling_booths pb ON sa.booth_id = pb.booth_id
-        JOIN polling_stations ps ON pb.station_id = ps.station_id
-        JOIN time_slots ts ON sa.slot_id = ts.slot_id
-        JOIN election_events ee ON sa.event_id = ee.event_id
+        LEFT JOIN polling_stations ps ON pb.station_id = ps.station_id
+        LEFT JOIN time_slots ts ON sa.slot_id = ts.slot_id
+        LEFT JOIN election_events ee ON sa.event_id = ee.event_id
         ORDER BY sa.booked_at DESC, sa.allocation_id DESC
         LIMIT %s OFFSET %s;
     """
@@ -136,18 +136,23 @@ def get_recent_bookings():
         SELECT COUNT(*) AS total_count
         FROM slot_allocations sa
         JOIN voters v ON sa.voter_id = v.voter_id
-        JOIN polling_booths pb ON sa.booth_id = pb.booth_id
-        JOIN polling_stations ps ON pb.station_id = ps.station_id
-        JOIN time_slots ts ON sa.slot_id = ts.slot_id
-        JOIN election_events ee ON sa.event_id = ee.event_id;
+        JOIN polling_booths pb ON sa.booth_id = pb.booth_id;
     """
 
-    with db_pool.get_cursor() as (conn, cursor):
-        cursor.execute(count_sql)
-        total_count = (cursor.fetchone() or {}).get("total_count", 0)
+    try:
+        with db_pool.get_cursor() as (conn, cursor):
+            cursor.execute(count_sql)
+            total_count = (cursor.fetchone() or {}).get("total_count", 0)
 
-        cursor.execute(data_sql, (limit, offset))
-        rows = cursor.fetchall()
+            cursor.execute(data_sql, (limit, offset))
+            rows = cursor.fetchall()
+    except Exception as exc:
+        current_app.logger.error(f"Error fetching recent bookings: {exc}")
+        return jsonify({
+            "error": "DATABASE_ERROR",
+            "message": "Failed to retrieve booking records from database.",
+            "status_code": 500
+        }), 500
 
     bookings = []
     for row in rows:
@@ -162,13 +167,13 @@ def get_recent_bookings():
             "full_name": row["full_name"],
             "special_category": row["special_category"],
             "priority_level": row["priority_level"],
-            "station_name": row["station_name"],
-            "booth_name": row["booth_name"],
-            "booth_number": row["booth_number"],
+            "station_name": row["station_name"] or "Assigned Polling Station",
+            "booth_name": row["booth_name"] or "Polling Booth",
+            "booth_number": row["booth_number"] or "01",
             "slot_date": str(row["slot_date"]) if row["slot_date"] else None,
             "start_time": str(row["start_time"]) if row["start_time"] else None,
             "end_time": str(row["end_time"]) if row["end_time"] else None,
-            "event_name": row["event_name"],
+            "event_name": row["event_name"] or "One Nation One Election 2026",
         })
 
     return jsonify({

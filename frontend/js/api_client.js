@@ -354,6 +354,13 @@ class ApiClient {
     });
   }
 
+  // 17. GET /api/admin/recent-bookings
+  async getRecentBookings(limit = 10, offset = 0) {
+    return await this.request(`/api/admin/recent-bookings?limit=${limit}&offset=${offset}`, {
+      method: "GET"
+    });
+  }
+
   // Health check
   async checkHealth() {
     return await this.request("/api/health", {

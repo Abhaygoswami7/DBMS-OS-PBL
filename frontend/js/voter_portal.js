@@ -290,7 +290,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById("profVoterName").textContent = voter.full_name;
-    document.getElementById("profVoterEpic").textContent = voter.demo_epic_no;
+    const profEpicElem = document.getElementById("profVoterEpic");
+    if (profEpicElem) {
+      profEpicElem.textContent = voter.demo_epic_no;
+    }
     document.getElementById("profCategoryBadge").textContent = `${voter.special_category} · PRIORITY ${voter.priority_level}`;
     document.getElementById("profBoothName").textContent = voter.booth_name || `Booth ${voter.assigned_booth_id}`;
     document.getElementById("profConstituency").textContent = `${voter.parliamentary_constituency || 'Nainital-Udhamsingh Nagar Parliamentary Constituency'} · ${voter.assembly_constituency || 'Bhimtal Assembly Constituency'}`;
