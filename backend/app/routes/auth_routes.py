@@ -43,6 +43,17 @@ def login():
                 "status_code": 400
             }), 400
 
+        # Optional server-side captcha check if passed directly to admin login
+        captcha_answer = data.get("captcha")
+        if captcha_answer is not None:
+            expected_admin_captcha = session.pop("admin_captcha_answer", None) or session.pop("captcha_answer", None)
+            if not expected_admin_captcha or str(captcha_answer).strip().lower() != expected_admin_captcha:
+                return jsonify({
+                    "error": "BAD_REQUEST",
+                    "message": "Invalid or expired CAPTCHA. Please refresh and try again.",
+                    "status_code": 400
+                }), 400
+
         auth_result = auth_service.authenticate_admin(username=username, password=password)
         if not auth_result:
             return jsonify({
@@ -102,13 +113,17 @@ def login():
 @auth_bp.route("/captcha/generate", methods=["GET"])
 def generate_captcha():
     """
-    GET /api/auth/captcha/generate
+    GET /api/auth/captcha/generate?scope=admin|voter
     Generates a 6-character random alphanumeric CAPTCHA challenge
     (uppercase, lowercase, numbers) and stores its lowercase value in Flask session.
     """
+    scope = request.args.get("scope", "voter")
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
     captcha = "".join(random.choices(chars, k=6))
-    session["captcha_answer"] = captcha.lower()
+    if scope == "admin":
+        session["admin_captcha_answer"] = captcha.lower()
+    else:
+        session["captcha_answer"] = captcha.lower()
     return jsonify({
         "success": True,
         "captcha": captcha
@@ -123,17 +138,22 @@ def validate_captcha():
     Invalidates the challenge after check to prevent replay.
     """
     data = request.get_json(silent=True) or {}
+    scope = data.get("scope", "voter")
     user_answer = str(data.get("answer", "")).strip().lower()
-    expected = session.get("captcha_answer", "")
+
+    if scope == "admin":
+        expected = session.get("admin_captcha_answer", "")
+        session.pop("admin_captcha_answer", None)
+    else:
+        expected = session.get("captcha_answer", "")
+        session.pop("captcha_answer", None)
 
     if not expected or not user_answer or user_answer != expected:
-        session.pop("captcha_answer", None)
         return jsonify({
             "valid": False,
             "error": "Invalid or expired CAPTCHA. Please refresh and try again."
         }), 400
 
-    session.pop("captcha_answer", None)
     return jsonify({
         "valid": True,
         "message": "CAPTCHA verification successful."

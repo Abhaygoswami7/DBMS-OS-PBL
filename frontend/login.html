@@ -103,20 +103,13 @@
           <div class="form-group">
             <label class="form-label">CAPTCHA VERIFICATION</label>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <div id="captchaDisplay" style="font-family:var(--font-mono);font-size:1.35rem;font-weight:800;letter-spacing:0.22em;background:#f1f5f9;border:1px solid #d6dce5;padding:8px 20px;border-radius:4px;color:#14264c;user-select:none;min-width:140px;text-align:center;">&nbsp;</div>
-              <button type="button" id="btnRefreshCaptcha" title="Refresh CAPTCHA" style="background:none;border:1px solid var(--irctc-border-grey,#d6dce5);border-radius:4px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--irctc-navy-primary,#213d77);font-weight:600;">
+              <div id="captchaDisplay" style="font-family:var(--font-mono);font-size:1.35rem;font-weight:800;letter-spacing:0.22em;background:#f1f5f9;border:1px solid #d6dce5;padding:8px 20px;border-radius:var(--radius-sm,12px);corner-shape:squircle;-webkit-corner-shape:squircle;color:#14264c;user-select:none;min-width:140px;text-align:center;">&nbsp;</div>
+              <button type="button" id="btnRefreshCaptcha" title="Refresh CAPTCHA" style="background:none;border:1px solid var(--irctc-border-grey,#d6dce5);border-radius:var(--radius-sm,12px);corner-shape:squircle;-webkit-corner-shape:squircle;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--irctc-navy-primary,#213d77);font-weight:600;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 Refresh
               </button>
             </div>
             <input type="text" class="form-control" id="captchaInput" placeholder="Enter the characters shown above" autocomplete="off" style="letter-spacing:0.05em;" />
-          </div>
-
-          <!-- 6-Digit Demo OTP -->
-          <div class="form-group">
-            <label class="form-label" for="otpInput">ENTER 6-DIGIT ONE-TIME PASSWORD (OTP)</label>
-            <input type="text" class="form-control" id="otpInput" placeholder="6-digit demo OTP" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" />
-            <div style="font-size:10.5px;color:var(--text-muted);margin-top:4px;">DEMO PROTOTYPE: Enter any 6-digit numeric code for simulation.</div>
           </div>
 
           <button type="button" class="btn-primary" id="btnProceedVoter"
@@ -131,32 +124,27 @@
 
         <!-- 2. ADMIN LOGIN PANEL (Switched via Tab) -->
         <div id="adminLoginPanel" style="display: none;">
-          <div
-            style="font-size: 11.5px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Administrator JWT Verification
+          <div class="form-group">
+            <label class="form-label" for="loginAdminUser">ADMIN USERNAME</label>
+            <input type="text" class="form-control" id="loginAdminUser" value="admin" placeholder="Enter admin username" autocomplete="username" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="loginAdminPreset">Demo Role Preset</label>
-            <select class="form-select" id="loginAdminPreset">
-              <option value="admin|Admin@ONOE2026!">State Election Logistics Officer (admin)</option>
-              <option value="eci_observer|observer2026">ECI Central Observer (eci_observer)</option>
-              <option value="booth_officer|officer456">Booth Returning Officer (booth_officer)</option>
-            </select>
+            <label class="form-label" for="loginAdminPass">ADMIN PASSWORD</label>
+            <input type="password" class="form-control" id="loginAdminPass" value="admin123" placeholder="Enter admin password" autocomplete="current-password" />
           </div>
 
+          <!-- Captcha Verification -->
           <div class="form-group">
-            <label class="form-label" for="loginAdminUser">Admin Username</label>
-            <input type="text" class="form-control" id="loginAdminUser" value="admin" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="loginAdminPass">Admin Password</label>
-            <input type="password" class="form-control" id="loginAdminPass" value="Admin@ONOE2026!" />
+            <label class="form-label" for="adminCaptchaInput">CAPTCHA VERIFICATION</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div id="adminCaptchaDisplay" style="font-family:var(--font-mono);font-size:1.35rem;font-weight:800;letter-spacing:0.22em;background:#f1f5f9;border:1px solid #d6dce5;padding:8px 20px;border-radius:var(--radius-sm,12px);corner-shape:squircle;-webkit-corner-shape:squircle;color:#14264c;user-select:none;min-width:140px;text-align:center;">&nbsp;</div>
+              <button type="button" id="btnRefreshAdminCaptcha" title="Refresh CAPTCHA" style="background:none;border:1px solid var(--irctc-border-grey,#d6dce5);border-radius:var(--radius-sm,12px);corner-shape:squircle;-webkit-corner-shape:squircle;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--irctc-navy-primary,#213d77);font-weight:600;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Refresh
+              </button>
+            </div>
+            <input type="text" class="form-control" id="adminCaptchaInput" placeholder="Enter the characters shown above" autocomplete="off" style="letter-spacing:0.05em;" />
           </div>
 
           <button type="button" class="btn-primary" id="btnAuthenticateAdmin"
@@ -196,12 +184,13 @@
       const captchaDisplay = document.getElementById("captchaDisplay");
       const captchaInput = document.getElementById("captchaInput");
       const btnRefreshCaptcha = document.getElementById("btnRefreshCaptcha");
-      const otpInput = document.getElementById("otpInput");
       const btnProceedVoter = document.getElementById("btnProceedVoter");
 
-      const adminPreset = document.getElementById("loginAdminPreset");
       const adminUser = document.getElementById("loginAdminUser");
       const adminPass = document.getElementById("loginAdminPass");
+      const adminCaptchaDisplay = document.getElementById("adminCaptchaDisplay");
+      const adminCaptchaInput = document.getElementById("adminCaptchaInput");
+      const btnRefreshAdminCaptcha = document.getElementById("btnRefreshAdminCaptcha");
       const btnAuthAdmin = document.getElementById("btnAuthenticateAdmin");
 
       // Aadhaar ID auto-formatting: exactly 12 numeric digits in groups of 4 (XXXX-XXXX-XXXX)
@@ -253,9 +242,40 @@
         refreshCaptcha();
       });
 
-      // OTP: allow only digits, enforce max 6
-      otpInput?.addEventListener("input", (e) => {
-        e.target.value = e.target.value.replace(/\D/g, "").substring(0, 6);
+      // Server-backed Admin CAPTCHA with resilient fallback
+      let fallbackAdminCaptchaAnswer = "";
+
+      async function refreshAdminCaptcha() {
+        if (adminCaptchaDisplay) adminCaptchaDisplay.textContent = "...";
+        if (adminCaptchaInput) adminCaptchaInput.value = "";
+        try {
+          const res = await fetch("/api/auth/captcha/generate?scope=admin");
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.captcha) {
+              if (adminCaptchaDisplay) adminCaptchaDisplay.textContent = data.captcha;
+              fallbackAdminCaptchaAnswer = "";
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Server admin captcha unavailable, using fallback challenge:", e);
+        }
+
+        const pool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+        let localCaptcha = "";
+        for (let i = 0; i < 6; i++) {
+          localCaptcha += pool.charAt(Math.floor(Math.random() * pool.length));
+        }
+        fallbackAdminCaptchaAnswer = localCaptcha.toLowerCase();
+        if (adminCaptchaDisplay) adminCaptchaDisplay.textContent = localCaptcha;
+      }
+
+      // Load Admin CAPTCHA on page ready
+      refreshAdminCaptcha();
+
+      btnRefreshAdminCaptcha?.addEventListener("click", () => {
+        refreshAdminCaptcha();
       });
 
       // Tab Toggling
@@ -283,6 +303,9 @@
         tabVoter.style.borderBottom = "3px solid transparent";
         adminPanel.style.display = "block";
         voterPanel.style.display = "none";
+        if (!adminCaptchaDisplay?.textContent || adminCaptchaDisplay.textContent.trim() === "" || adminCaptchaDisplay.textContent === "...") {
+          refreshAdminCaptcha();
+        }
       });
 
       // Voter Proceed Action
@@ -336,15 +359,7 @@
           return;
         }
 
-        // 3. Validate OTP format (exactly 6 numeric digits)
-        const otpVal = (otpInput?.value || "").trim();
-        if (!/^\d{6}$/.test(otpVal)) {
-          window.apiClient.showToast("OTP must be exactly 6 digits.", "warning");
-          otpInput?.focus();
-          return;
-        }
-
-        // 4. Map the 12-digit demo ID to an authoritative seeded voter profile
+        // 3. Map the 12-digit demo ID to an authoritative seeded voter profile
         const lastDigits = parseInt(aadhaarRaw.slice(-4), 10) || 1;
         const voterIndex = ((lastDigits - 1) % 60) + 1;
         const epic = `DEM-UK-2026-${String(voterIndex).padStart(4, "0")}`;
@@ -383,19 +398,45 @@
         }, 300);
       });
 
-      // Admin Preset change
-      adminPreset?.addEventListener("change", (e) => {
-        const [u, p] = e.target.value.split("|");
-        adminUser.value = u;
-        adminPass.value = p;
-      });
-
       // Admin Proceed Action
       btnAuthAdmin?.addEventListener("click", async () => {
         const u = adminUser.value.trim();
         const p = adminPass.value.trim();
         if (!u || !p) {
           window.apiClient.showToast("Username and password are required.", "warning");
+          return;
+        }
+
+        const enteredCaptcha = (adminCaptchaInput?.value || "").trim().toLowerCase();
+        if (!enteredCaptcha) {
+          window.apiClient.showToast("Please enter the CAPTCHA.", "warning");
+          adminCaptchaInput?.focus();
+          return;
+        }
+
+        let captchaValid = false;
+        if (!fallbackAdminCaptchaAnswer) {
+          try {
+            const valRes = await fetch("/api/auth/captcha/validate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ answer: enteredCaptcha, scope: "admin" })
+            });
+            if (valRes.ok) {
+              const valData = await valRes.json();
+              if (valData.valid) captchaValid = true;
+            }
+          } catch (e) {
+            console.warn("Admin captcha validation exception:", e);
+          }
+        } else {
+          captchaValid = (enteredCaptcha === fallbackAdminCaptchaAnswer);
+        }
+
+        if (!captchaValid) {
+          window.apiClient.showToast("Incorrect CAPTCHA. Please try again.", "error");
+          await refreshAdminCaptcha();
+          adminCaptchaInput?.focus();
           return;
         }
 
@@ -406,6 +447,8 @@
         let res = await window.apiClient.loginAdmin(u, p);
         if (!res.ok && p === "Admin@ONOE2026!") {
           res = await window.apiClient.loginAdmin(u, "admin123");
+        } else if (!res.ok && p === "admin123") {
+          res = await window.apiClient.loginAdmin(u, "Admin@ONOE2026!");
         }
 
         btnAuthAdmin.disabled = false;
@@ -416,6 +459,9 @@
           setTimeout(() => {
             window.location.href = "/admin";
           }, 300);
+        } else {
+          window.apiClient.showToast("Invalid administrator username or password.", "error");
+          await refreshAdminCaptcha();
         }
       });
 

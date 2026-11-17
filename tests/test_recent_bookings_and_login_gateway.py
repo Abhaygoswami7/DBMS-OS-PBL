@@ -182,17 +182,12 @@ class TestLoginPageMarkup:
             "CAPTCHA input field not found in login.html"
         )
 
-    def test_otp_input_present(self, login_html):
-        assert 'id="otpInput"' in login_html, (
-            "OTP input field not found in login.html"
+    def test_otp_input_removed(self, login_html):
+        assert 'id="otpInput"' not in login_html, (
+            "OTP input field '#otpInput' should be completely removed from login.html"
         )
-
-    def test_otp_input_is_numeric_only(self, login_html):
-        assert 'inputmode="numeric"' in login_html, (
-            "OTP input missing inputmode='numeric'"
-        )
-        assert 'maxlength="6"' in login_html, (
-            "OTP input missing maxlength='6'"
+        assert "ONE-TIME PASSWORD (OTP)" not in login_html, (
+            "OTP label should be completely removed from login.html"
         )
 
     def test_heading_updated_to_aadhaar(self, login_html):
@@ -245,7 +240,7 @@ class TestLoginPageMarkup:
             "Proceed button not found in login.html"
         )
 
-    def test_admin_panel_unchanged(self, login_html):
+    def test_admin_panel_elements(self, login_html):
         assert 'id="loginAdminUser"' in login_html, (
             "Admin login username field removed from login.html"
         )
@@ -255,15 +250,55 @@ class TestLoginPageMarkup:
         assert 'id="btnAuthenticateAdmin"' in login_html, (
             "Admin authenticate button removed from login.html"
         )
+        # Heading and demo role preset completely removed
+        assert "ADMINISTRATOR JWT VERIFICATION" not in login_html.upper(), (
+            "ADMINISTRATOR JWT VERIFICATION heading still present in login.html"
+        )
+        assert "DEMO ROLE PRESET" not in login_html.upper(), (
+            "DEMO ROLE PRESET label still present in login.html"
+        )
+        assert 'id="loginAdminPreset"' not in login_html, (
+            "Role preset dropdown '#loginAdminPreset' still present in login.html"
+        )
+        assert "State Election Logistics Officer" not in login_html, (
+            "State Election Logistics Officer role option still present in login.html"
+        )
+        assert "ECI Central Observer" not in login_html, (
+            "ECI Central Observer role option still present in login.html"
+        )
+        assert "Booth Returning Officer" not in login_html, (
+            "Booth Returning Officer role option still present in login.html"
+        )
+
+    def test_admin_login_form_order(self, login_html):
+        admin_panel_start = login_html.find('id="adminLoginPanel"')
+        assert admin_panel_start != -1
+        pos_user = login_html.find('ADMIN USERNAME', admin_panel_start)
+        pos_pass = login_html.find('ADMIN PASSWORD', admin_panel_start)
+        pos_captcha = login_html.find('CAPTCHA VERIFICATION', admin_panel_start)
+        pos_btn = login_html.find('id="btnAuthenticateAdmin"', admin_panel_start)
+
+        assert pos_user != -1, "ADMIN USERNAME label not found in adminLoginPanel"
+        assert pos_pass != -1, "ADMIN PASSWORD label not found in adminLoginPanel"
+        assert pos_captcha != -1, "CAPTCHA VERIFICATION label not found in adminLoginPanel"
+        assert pos_btn != -1, "btnAuthenticateAdmin not found in adminLoginPanel"
+        assert pos_user < pos_pass < pos_captcha < pos_btn, (
+            "Admin login form elements not in order: USERNAME -> PASSWORD -> CAPTCHA -> BUTTON"
+        )
+
+    def test_admin_captcha_elements_present(self, login_html):
+        assert 'id="adminCaptchaDisplay"' in login_html
+        assert 'id="btnRefreshAdminCaptcha"' in login_html
+        assert 'id="adminCaptchaInput"' in login_html
 
     def test_captcha_refresh_js_present(self, login_html):
         assert "refreshCaptcha" in login_html, (
             "refreshCaptcha function not found in login.html script"
         )
 
-    def test_otp_validation_js_present(self, login_html):
-        assert r"\d{6}" in login_html, (
-            "OTP 6-digit regex validation not found in login.html script"
+    def test_otp_validation_js_removed(self, login_html):
+        assert "otpInput" not in login_html, (
+            "otpInput reference should be removed from login.html script"
         )
 
     def test_server_side_captcha_endpoints_integrated(self, login_html):
@@ -327,6 +362,24 @@ class TestServerSideCaptchaEndpoints:
         # Replay attempt fails because challenge was invalidated
         val2 = client.post("/api/auth/captcha/validate", json={"answer": code})
         assert val2.status_code == 400
+
+    def test_admin_scope_captcha_generate_and_validate(self, client):
+        resp = client.get("/api/auth/captcha/generate?scope=admin")
+        assert resp.status_code == 200
+        code = resp.get_json()["captcha"]
+        assert len(code) == 6
+
+        # Validating with wrong answer fails
+        val_bad = client.post("/api/auth/captcha/validate", json={"answer": "INCORRECT", "scope": "admin"})
+        assert val_bad.status_code == 400
+
+        # Refresh generates new code
+        resp2 = client.get("/api/auth/captcha/generate?scope=admin")
+        code2 = resp2.get_json()["captcha"]
+
+        # Validating with correct answer succeeds
+        val_good = client.post("/api/auth/captcha/validate", json={"answer": code2, "scope": "admin"})
+        assert val_good.status_code == 200
 
 
 class TestAadhaarAuthenticationEndpoint:
@@ -408,4 +461,58 @@ class TestLoginPageCSS:
         )
         assert "bookingRowIn" in styles_css, (
             "bookingRowIn keyframe missing from styles.css"
+        )
+
+    def test_auth_card_apple_squircle_corners(self, styles_css):
+        assert "corner-shape: squircle" in styles_css, (
+            "corner-shape: squircle property missing from styles.css"
+        )
+        assert "border-radius: 26px" in styles_css, (
+            "border-radius: 26px fallback missing from styles.css"
+        )
+
+
+class TestAdminRecentBookingsFrontendIntegration:
+    """Tests ensuring the admin dashboard properly integrates Recently Booked Voters."""
+
+    @pytest.fixture(scope="class")
+    def admin_html(self):
+        path = os.path.join(os.path.dirname(__file__), "..", "frontend", "admin.html")
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    @pytest.fixture(scope="class")
+    def admin_js(self):
+        path = os.path.join(os.path.dirname(__file__), "..", "frontend", "js", "admin_dashboard.js")
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    @pytest.fixture(scope="class")
+    def api_client_js(self):
+        path = os.path.join(os.path.dirname(__file__), "..", "frontend", "js", "api_client.js")
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    def test_admin_table_headers_present(self, admin_html):
+        for header in [
+            "Ref / PNR", "Voter Name", "Category &amp; Priority",
+            "Polling Station", "Booth", "Election Event",
+            "Date &amp; Slot", "Status", "Booked At"
+        ]:
+            assert header in admin_html, f"Table header '{header}' missing from admin.html"
+
+    def test_api_client_has_get_recent_bookings(self, api_client_js):
+        assert "getRecentBookings" in api_client_js, (
+            "getRecentBookings method missing from api_client.js"
+        )
+        assert "/api/admin/recent-bookings" in api_client_js
+
+    def test_admin_dashboard_uses_api_client_method(self, admin_js):
+        assert "window.apiClient.getRecentBookings" in admin_js, (
+            "admin_dashboard.js must use window.apiClient.getRecentBookings"
+        )
+
+    def test_admin_dashboard_auto_refresh_configured(self, admin_js):
+        assert "30000" in admin_js, (
+            "30-second auto-refresh interval missing from admin_dashboard.js"
         )
