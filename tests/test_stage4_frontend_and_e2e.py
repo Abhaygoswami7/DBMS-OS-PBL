@@ -47,8 +47,7 @@ def test_frontend_static_serving(client):
     assert res_login.status_code == 200
     assert "text/html" in res_login.content_type
     html_login = res_login.get_data(as_text=True)
-    assert "VoteIT" in html_login
-    assert "IRCTC Authentication Gateway" in html_login
+    assert "SMART AI POLL BOOTH ALLOCATION SYSTEM" in html_login
     assert "VOTER LOGIN (DEFAULT)" in html_login
     assert "ADMIN CONTROL ROOM LOGIN" in html_login
     assert "btnProceedVoter" in html_login
@@ -64,9 +63,7 @@ def test_frontend_static_serving(client):
     assert res_voter.status_code == 200
     assert "text/html" in res_voter.content_type
     html_voter = res_voter.get_data(as_text=True)
-    assert "VoteIT" in html_voter
-    assert "Smart Polling & Time-Slot Platform" in html_voter
-    assert "Voter Arrival Scheduling & Digital Pass Portal" in html_voter
+    assert "SMART AI POLL BOOTH ALLOCATION SYSTEM" in html_voter
     assert "stepper-container" in html_voter
     assert "appointment-slip" in html_voter
 
@@ -78,9 +75,8 @@ def test_frontend_static_serving(client):
     assert res_admin.status_code == 200
     assert "text/html" in res_admin.content_type
     html_admin = res_admin.get_data(as_text=True)
-    assert "VoteIT" in html_admin
-    assert "Admin Logistics & Telemetry Console" in html_admin
-    assert "Live OS Concurrency & Race Condition Simulator" in html_admin
+    assert "SMART AI POLL BOOTH ALLOCATION SYSTEM" in html_admin
+    assert "LIVE OS CONCURRENCY & RACE CONDITION SIMULATOR" in html_admin
 
     res_admin_html = client.get("/admin.html")
     assert res_admin_html.status_code == 200

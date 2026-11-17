@@ -38,9 +38,7 @@
         <div class="brand-container" style="display: flex; align-items: center; gap: 12px;">
           <img src="/assets/vote_logo.png" alt="VoteIT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 2px;" />
           <div>
-            <h1 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">VoteIT</h1>
-            <span style="font-size: 0.72rem; color: #a0aec0; letter-spacing: 0.04em; text-transform: uppercase;">One Nation One Election · Polling Logistics</span>
-            <div style="font-size: 0.68rem; color: #fb792b; font-weight: 600;">Admin Logistics & Telemetry Console · Live OS Concurrency & Race Condition Simulator</div>
+            <h1 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; text-transform: uppercase;">SMART AI POLL BOOTH ALLOCATION SYSTEM</h1>
           </div>
         </div>
       </a>
@@ -135,6 +133,48 @@
 
       <!-- Overloaded Booths Alert Container -->
       <div id="overloadedAlertsArea" style="margin-bottom: 16px;"></div>
+
+      <!-- RECENTLY BOOKED VOTERS -->
+      <section class="irctc-card" id="recentBookingsCard" style="margin-bottom: 16px;">
+        <div class="irctc-card-header">
+          <span>RECENTLY BOOKED VOTERS</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="header-sub" id="recentBookingsTimestamp" style="font-size:11px;">--</span>
+            <button type="button" class="btn-secondary" id="btnRefreshRecentBookings" style="font-size:11px;padding:4px 10px;">Refresh</button>
+            <button type="button" class="btn-secondary" id="btnViewAllBookings" style="font-size:11px;padding:4px 10px;">View All</button>
+          </div>
+        </div>
+        <div class="irctc-card-body" style="padding:0;">
+          <div id="recentBookingsLoading" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Loading recent bookings...</div>
+          <div id="recentBookingsEmpty" style="display:none;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">No booking records found.</div>
+          <div id="recentBookingsError" style="display:none;text-align:center;padding:20px;color:var(--irctc-status-wl);font-size:12px;">Unable to load booking records.</div>
+          <div class="data-table-container" id="recentBookingsTableWrap" style="display:none;">
+            <table class="data-table" id="recentBookingsTable">
+              <thead>
+                <tr>
+                  <th>Ref / PNR</th>
+                  <th>Voter Name</th>
+                  <th>EPIC No</th>
+                  <th>Category</th>
+                  <th>Polling Station</th>
+                  <th>Booth</th>
+                  <th>Date &amp; Slot</th>
+                  <th>Status</th>
+                  <th>Booked At</th>
+                </tr>
+              </thead>
+              <tbody id="recentBookingsTbody"></tbody>
+            </table>
+          </div>
+          <div id="recentBookingsPagination" style="display:none;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--irctc-border-grey);">
+            <span id="recentBookingsPageInfo" style="font-size:11px;color:var(--text-muted);"></span>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn-secondary" id="btnPrevBookings" style="font-size:11px;padding:4px 10px;">Prev</button>
+              <button type="button" class="btn-secondary" id="btnNextBookings" style="font-size:11px;padding:4px 10px;">Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- Machine Learning Forecast Chart -->
       <section class="irctc-card">

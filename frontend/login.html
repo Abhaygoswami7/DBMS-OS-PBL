@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VoteIT — One Nation One Election Polling Logistics Portal</title>
-  
+
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
   <!-- Core IRCTC Stylesheet -->
   <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body class="login-page">
 
   <!-- Tier 1: Top Utility Bar -->
@@ -32,11 +36,10 @@
     <div class="main-header-inner">
       <a href="/" class="brand-section">
         <div class="brand-container" style="display: flex; align-items: center; gap: 12px;">
-          <img src="/assets/vote_logo.png" alt="VoteIT Logo" style="height: 38px; width: 38px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 2px;" />
+          <img src="/assets/vote_logo.png" alt="VoteIT Logo"
+            style="height: 38px; width: 38px; object-fit: contain; border-radius: 50%; background: #ffffff; padding: 2px;" />
           <div>
-            <h1 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">VoteIT</h1>
-            <span style="font-size: 0.72rem; color: #a0aec0; letter-spacing: 0.04em; text-transform: uppercase;">One Nation One Election · Polling Logistics</span>
-            <div style="font-size: 0.68rem; color: #fb792b; font-weight: 600;">IRCTC Authentication Gateway · Central Identity Verification & Access Gate</div>
+            <h1 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: 0.02em; text-transform: uppercase;">SMART AI POLL BOOTH ALLOCATION SYSTEM</h1>
           </div>
         </div>
       </a>
@@ -47,22 +50,35 @@
   <div class="advisory-ticker">
     <span class="advisory-badge">Official Advisory</span>
     <span class="advisory-text">
-      ADVISORY: This gateway verifies authorized access to the One Nation One Election advisory arrival time-slot scheduler. Raw identification numbers are never stored in plain text.
+      ADVISORY: This gateway verifies authorized access to the One Nation One Election advisory arrival time-slot
+      scheduler. Raw identification numbers are never stored in plain text.
     </span>
   </div>
 
   <!-- Central IRCTC Authentication Card -->
-  <main class="main-content" style="max-width: 100%; padding: 24px 16px; flex: 1; display: flex; align-items: center; justify-content: center;">
-    <div id="authCard" style="width: 100%; max-width: 460px; margin: 0 auto; overflow: hidden; position: relative; z-index: 10;">
-      
+  <main class="main-content"
+    style="max-width: 100%; padding: 24px 16px; flex: 1; display: flex; align-items: center; justify-content: center;">
+    <div id="authCard"
+      style="width: 100%; max-width: 460px; margin: 0 auto; overflow: hidden; position: relative; z-index: 10;">
+
       <!-- Card Header Tab Switcher (background: #e9eff8; border-bottom: 1px solid #c5d2e8; display: flex) -->
-      <div class="card-header-tabs" id="authTabSwitcher" style="background: #e9eff8; border-bottom: 1px solid #c5d2e8; display: flex;">
-        <button type="button" class="tab-btn active" id="tabLoginVoter" style="flex: 1; padding: 12px 14px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.03em; background: #213d77; color: #ffffff; border-bottom: 3px solid #fb792b; transition: all 0.2s ease;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+      <div class="card-header-tabs" id="authTabSwitcher"
+        style="background: #e9eff8; border-bottom: 1px solid #c5d2e8; display: flex;">
+        <button type="button" class="tab-btn active" id="tabLoginVoter"
+          style="flex: 1; padding: 12px 14px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.03em; background: #213d77; color: #ffffff; border-bottom: 3px solid #fb792b; transition: all 0.2s ease;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="8.5" cy="7" r="4" />
+            <polyline points="17 11 19 13 23 9" />
+          </svg>
           VOTER LOGIN (DEFAULT)
         </button>
-        <button type="button" class="tab-btn" id="tabLoginAdmin" style="flex: 1; padding: 12px 14px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.03em; background: transparent; color: #6c757d; border-bottom: 3px solid transparent; transition: all 0.2s ease;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <button type="button" class="tab-btn" id="tabLoginAdmin"
+          style="flex: 1; padding: 12px 14px; border: none; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.03em; background: transparent; color: #6c757d; border-bottom: 3px solid transparent; transition: all 0.2s ease;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
           ADMIN CONTROL ROOM LOGIN
         </button>
       </div>
@@ -71,104 +87,58 @@
 
         <!-- 1. VOTER LOGIN PANEL (Default Mode) -->
         <div id="voterLoginPanel">
-          <div style="font-size: 11.5px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Select or Enter Voter Credentials
+          <div
+            style="font-size: 11.5px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            ENTER AADHAAR AUTHENTICATION ID
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="loginVoterSelect">Quick-Select Demo Voter (DEM-UK-2026-0001 to 0060)</label>
-            <select class="form-select" id="loginVoterSelect" style="font-size: 12px;">
-              <!-- Bhimtal - Graphic Era Hill University (Booth 1) -->
-              <option value="DEM-UK-2026-0001|Ramesh Chandra Sharma|SENIOR_CITIZEN|1|1">DEM-UK-2026-0001 · Ramesh Chandra Sharma (Senior Citizen · P1 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0002|Sunita Devi Rawat|SENIOR_CITIZEN|1|1">DEM-UK-2026-0002 · Sunita Devi Rawat (Senior Citizen · P1 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0003|Arvind Singh Negi|PERSON_WITH_DISABILITY|1|1">DEM-UK-2026-0003 · Arvind Singh Negi (PwD Assistive · P1 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0004|Deepa Joshi|PREGNANT_WOMEN|1|1">DEM-UK-2026-0004 · Deepa Joshi (Pregnant Women · P1 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0005|Manmohan Singh Bisht|GENERAL|3|1">DEM-UK-2026-0005 · Manmohan Singh Bisht (General · P3 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0006|Pooja Bhatt|GENERAL|3|1">DEM-UK-2026-0006 · Pooja Bhatt (General · P3 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0007|Vikram Pant|GENERAL|3|1">DEM-UK-2026-0007 · Vikram Pant (General · P3 · GEHU Booth 1)</option>
-              <option value="DEM-UK-2026-0008|Neelam Chauhan|GENERAL|3|1">DEM-UK-2026-0008 · Neelam Chauhan (General · P3 · GEHU Booth 1)</option>
-              <!-- Bhimtal - Graphic Era Hill University (Booth 2) -->
-              <option value="DEM-UK-2026-0009|Bhagwati Prasad Uniyal|SENIOR_CITIZEN|1|2">DEM-UK-2026-0009 · Bhagwati Prasad Uniyal (Senior Citizen · P1 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0010|Kamla Devi Khanduri|SENIOR_CITIZEN|1|2">DEM-UK-2026-0010 · Kamla Devi Khanduri (Senior Citizen · P1 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0011|Suresh Kumar Thapa|PERSON_WITH_DISABILITY|1|2">DEM-UK-2026-0011 · Suresh Kumar Thapa (PwD Assistive · P1 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0012|Anjali Gurung|GENERAL|3|2">DEM-UK-2026-0012 · Anjali Gurung (General · P3 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0013|Gaurav Semwal|GENERAL|3|2">DEM-UK-2026-0013 · Gaurav Semwal (General · P3 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0014|Meenakshi Thapliyal|GENERAL|3|2">DEM-UK-2026-0014 · Meenakshi Thapliyal (General · P3 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0015|Rohit Gairola|GENERAL|3|2">DEM-UK-2026-0015 · Rohit Gairola (General · P3 · GEHU Booth 2)</option>
-              <option value="DEM-UK-2026-0016|Kavita Nautiyal|PREGNANT_WOMEN|1|2">DEM-UK-2026-0016 · Kavita Nautiyal (Pregnant Women · P1 · GEHU Booth 2)</option>
-              <!-- Nagri Gaon Area - Woodbridge School (Booth 3) -->
-              <option value="DEM-UK-2026-0017|Dharam Singh Rana|SENIOR_CITIZEN|1|3">DEM-UK-2026-0017 · Dharam Singh Rana (Senior Citizen · P1 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0018|Shanti Devi Panwar|SENIOR_CITIZEN|1|3">DEM-UK-2026-0018 · Shanti Devi Panwar (Senior Citizen · P1 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0019|Naveen Chandra Tiwari|GENERAL|3|3">DEM-UK-2026-0019 · Naveen Chandra Tiwari (General · P3 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0020|Rachna Dobhal|GENERAL|3|3">DEM-UK-2026-0020 · Rachna Dobhal (General · P3 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0021|Pankaj Sundriyal|PERSON_WITH_DISABILITY|1|3">DEM-UK-2026-0021 · Pankaj Sundriyal (PwD Assistive · P1 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0022|Monika Gusain|GENERAL|3|3">DEM-UK-2026-0022 · Monika Gusain (General · P3 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0023|Ashok Kumar Badoni|GENERAL|3|3">DEM-UK-2026-0023 · Ashok Kumar Badoni (General · P3 · Woodbridge Booth 3)</option>
-              <option value="DEM-UK-2026-0024|Sarita Maletha|GENERAL|3|3">DEM-UK-2026-0024 · Sarita Maletha (General · P3 · Woodbridge Booth 3)</option>
-              <!-- Nagri Gaon Area - Woodbridge School (Booth 4) -->
-              <option value="DEM-UK-2026-0025|Trilok Chand Dabral|SENIOR_CITIZEN|1|4">DEM-UK-2026-0025 · Trilok Chand Dabral (Senior Citizen · P1 · Woodbridge Booth 4)</option>
-              <option value="DEM-UK-2026-0026|Usha Dabral|SENIOR_CITIZEN|1|4">DEM-UK-2026-0026 · Usha Dabral (Senior Citizen · P1 · Woodbridge Booth 4)</option>
-              <option value="DEM-UK-2026-0027|Himanshu Pokhriyal|GENERAL|3|4">DEM-UK-2026-0027 · Himanshu Pokhriyal (General · P3 · Woodbridge Booth 4)</option>
-              <option value="DEM-UK-2026-0028|Priyanka Raturi|PREGNANT_WOMEN|1|4">DEM-UK-2026-0028 · Priyanka Raturi (Pregnant Women · P1 · Woodbridge Booth 4)</option>
-              <option value="DEM-UK-2026-0029|Vipin Balodi|GENERAL|3|4">DEM-UK-2026-0029 · Vipin Balodi (General · P3 · Woodbridge Booth 4)</option>
-              <option value="DEM-UK-2026-0030|Rashmi Kaintura|GENERAL|3|4">DEM-UK-2026-0030 · Rashmi Kaintura (General · P3 · Woodbridge Booth 4)</option>
-              <!-- Around Bhimtal - Vikas Bhawan (Booth 5) -->
-              <option value="DEM-UK-2026-0031|Jagdish Prasad Bahuguna|SENIOR_CITIZEN|1|5">DEM-UK-2026-0031 · Jagdish Prasad Bahuguna (Senior Citizen · P1 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0032|Maya Devi Dimri|SENIOR_CITIZEN|1|5">DEM-UK-2026-0032 · Maya Devi Dimri (Senior Citizen · P1 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0033|Kailash Chandra Sati|PERSON_WITH_DISABILITY|1|5">DEM-UK-2026-0033 · Kailash Chandra Sati (PwD Assistive · P1 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0034|Shweta Maithani|PREGNANT_WOMEN|1|5">DEM-UK-2026-0034 · Shweta Maithani (Pregnant Women · P1 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0035|Manish Purohit|GENERAL|3|5">DEM-UK-2026-0035 · Manish Purohit (General · P3 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0036|Archana Chamoli|GENERAL|3|5">DEM-UK-2026-0036 · Archana Chamoli (General · P3 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0037|Sanjay Bhatt|GENERAL|3|5">DEM-UK-2026-0037 · Sanjay Bhatt (General · P3 · Vikas Bhawan Booth 5)</option>
-              <option value="DEM-UK-2026-0038|Bhavna Kothari|GENERAL|3|5">DEM-UK-2026-0038 · Bhavna Kothari (General · P3 · Vikas Bhawan Booth 5)</option>
-              <!-- Around Bhimtal - Vikas Bhawan (Booth 6) -->
-              <option value="DEM-UK-2026-0039|Harish Chandra Kukreti|SENIOR_CITIZEN|1|6">DEM-UK-2026-0039 · Harish Chandra Kukreti (Senior Citizen · P1 · Vikas Bhawan Booth 6)</option>
-              <option value="DEM-UK-2026-0040|Savitri Kukreti|SENIOR_CITIZEN|1|6">DEM-UK-2026-0040 · Savitri Kukreti (Senior Citizen · P1 · Vikas Bhawan Booth 6)</option>
-              <option value="DEM-UK-2026-0041|Deepak Lingwal|GENERAL|3|6">DEM-UK-2026-0041 · Deepak Lingwal (General · P3 · Vikas Bhawan Booth 6)</option>
-              <option value="DEM-UK-2026-0042|Garima Semwal|GENERAL|3|6">DEM-UK-2026-0042 · Garima Semwal (General · P3 · Vikas Bhawan Booth 6)</option>
-              <option value="DEM-UK-2026-0043|Vijay Pal Rawat|GENERAL|3|6">DEM-UK-2026-0043 · Vijay Pal Rawat (General · P3 · Vikas Bhawan Booth 6)</option>
-              <option value="DEM-UK-2026-0044|Nisha Payal|PREGNANT_WOMEN|1|6">DEM-UK-2026-0044 · Nisha Payal (Pregnant Women · P1 · Vikas Bhawan Booth 6)</option>
-              <!-- Around Bhimtal - Nagar Palika Parishad (Booth 7) -->
-              <option value="DEM-UK-2026-0045|Bishambhar Dutt Joshi|SENIOR_CITIZEN|1|7">DEM-UK-2026-0045 · Bishambhar Dutt Joshi (Senior Citizen · P1 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0046|Parvati Joshi|SENIOR_CITIZEN|1|7">DEM-UK-2026-0046 · Parvati Joshi (Senior Citizen · P1 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0047|Naresh Kumar Chauhan|PERSON_WITH_DISABILITY|1|7">DEM-UK-2026-0047 · Naresh Kumar Chauhan (PwD Assistive · P1 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0048|Vandana Chauhan|GENERAL|3|7">DEM-UK-2026-0048 · Vandana Chauhan (General · P3 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0049|Alok Kumar Verma|GENERAL|3|7">DEM-UK-2026-0049 · Alok Kumar Verma (General · P3 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0050|Ritika Verma|GENERAL|3|7">DEM-UK-2026-0050 · Ritika Verma (General · P3 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0051|Ravi Kant Tyagi|GENERAL|3|7">DEM-UK-2026-0051 · Ravi Kant Tyagi (General · P3 · Nagar Palika Booth 7)</option>
-              <option value="DEM-UK-2026-0052|Shashi Prabha Tyagi|GENERAL|3|7">DEM-UK-2026-0052 · Shashi Prabha Tyagi (General · P3 · Nagar Palika Booth 7)</option>
-              <!-- Around Bhimtal - Nagar Palika Parishad (Booth 8) -->
-              <option value="DEM-UK-2026-0053|Madan Mohan Upadhyay|SENIOR_CITIZEN|1|8">DEM-UK-2026-0053 · Madan Mohan Upadhyay (Senior Citizen · P1 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0054|Kanta Upadhyay|SENIOR_CITIZEN|1|8">DEM-UK-2026-0054 · Kanta Upadhyay (Senior Citizen · P1 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0055|Devendra Singh Tomar|GENERAL|3|8">DEM-UK-2026-0055 · Devendra Singh Tomar (General · P3 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0056|Anupama Tomar|GENERAL|3|8">DEM-UK-2026-0056 · Anupama Tomar (General · P3 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0057|Sunil Kumar Kashyap|GENERAL|3|8">DEM-UK-2026-0057 · Sunil Kumar Kashyap (General · P3 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0058|Geeta Kashyap|PREGNANT_WOMEN|1|8">DEM-UK-2026-0058 · Geeta Kashyap (Pregnant Women · P1 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0059|Ashish Panthari|GENERAL|3|8">DEM-UK-2026-0059 · Ashish Panthari (General · P3 · Nagar Palika Booth 8)</option>
-              <option value="DEM-UK-2026-0060|Mamta Panthari|GENERAL|3|8">DEM-UK-2026-0060 · Mamta Panthari (General · P3 · Nagar Palika Booth 8)</option>
-            </select>
+            <input type="text" class="form-control" id="aadhaarInput" placeholder="XXXX-XXXX-XXXX" maxlength="14" inputmode="numeric" autocomplete="off" style="width: 100%; letter-spacing: 0.12em; font-family: var(--font-mono); font-size: 1.1rem; font-weight: 600; text-align: center;" />
+            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px; text-align: center;">DEMO PROTOTYPE: Enter any synthetic 12-digit ID (e.g. 1234-5678-0001). Real Aadhaar numbers are never collected.</div>
           </div>
 
-          <div style="text-align: center; margin: 12px 0; font-size: 11px; color: var(--text-muted); font-weight: 700;">
-            --- OR ENTER SYNTHETIC EPIC NUMBER / VERIFICATION HASH ---
-          </div>
-
+          <!-- CAPTCHA Verification -->
           <div class="form-group">
-            <label class="form-label" for="loginEpicInput">Synthetic EPIC or Verification Token</label>
-            <input type="text" class="form-control" id="loginEpicInput" placeholder="DEM-UK-2026-0001" value="DEM-UK-2026-0001" />
+            <label class="form-label">CAPTCHA VERIFICATION</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div id="captchaDisplay" style="font-family:var(--font-mono);font-size:1.35rem;font-weight:800;letter-spacing:0.22em;background:#f1f5f9;border:1px solid #d6dce5;padding:8px 20px;border-radius:4px;color:#14264c;user-select:none;min-width:140px;text-align:center;">&nbsp;</div>
+              <button type="button" id="btnRefreshCaptcha" title="Refresh CAPTCHA" style="background:none;border:1px solid var(--irctc-border-grey,#d6dce5);border-radius:4px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--irctc-navy-primary,#213d77);font-weight:600;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Refresh
+              </button>
+            </div>
+            <input type="text" class="form-control" id="captchaInput" placeholder="Enter the characters shown above" autocomplete="off" style="letter-spacing:0.05em;" />
           </div>
 
-          <button type="button" class="btn-primary" id="btnProceedVoter" style="width: 100%; height: 44px; font-size: 13.5px; margin-top: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          <!-- 6-Digit Demo OTP -->
+          <div class="form-group">
+            <label class="form-label" for="otpInput">ENTER 6-DIGIT ONE-TIME PASSWORD (OTP)</label>
+            <input type="text" class="form-control" id="otpInput" placeholder="6-digit demo OTP" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" />
+            <div style="font-size:10.5px;color:var(--text-muted);margin-top:4px;">DEMO PROTOTYPE: Enter any 6-digit numeric code for simulation.</div>
+          </div>
+
+          <button type="button" class="btn-primary" id="btnProceedVoter"
+            style="width: 100%; height: 44px; font-size: 13.5px; margin-top: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
             PROCEED TO VOTER PORTAL
           </button>
         </div>
 
         <!-- 2. ADMIN LOGIN PANEL (Switched via Tab) -->
         <div id="adminLoginPanel" style="display: none;">
-          <div style="font-size: 11.5px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div
+            style="font-size: 11.5px; font-weight: 700; color: var(--irctc-navy-primary); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
             Administrator JWT Verification
           </div>
 
@@ -191,8 +161,11 @@
             <input type="password" class="form-control" id="loginAdminPass" value="Admin@ONOE2026!" />
           </div>
 
-          <button type="button" class="btn-primary" id="btnAuthenticateAdmin" style="width: 100%; height: 44px; font-size: 13.5px; margin-top: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <button type="button" class="btn-primary" id="btnAuthenticateAdmin"
+            style="width: 100%; height: 44px; font-size: 13.5px; margin-top: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             AUTHENTICATE ADMIN SESSION
           </button>
         </div>
@@ -221,14 +194,71 @@
       const voterPanel = document.getElementById("voterLoginPanel");
       const adminPanel = document.getElementById("adminLoginPanel");
 
-      const voterSelect = document.getElementById("loginVoterSelect");
-      const epicInput = document.getElementById("loginEpicInput");
+      const aadhaarInput = document.getElementById("aadhaarInput");
+      const captchaDisplay = document.getElementById("captchaDisplay");
+      const captchaInput = document.getElementById("captchaInput");
+      const btnRefreshCaptcha = document.getElementById("btnRefreshCaptcha");
+      const otpInput = document.getElementById("otpInput");
       const btnProceedVoter = document.getElementById("btnProceedVoter");
 
       const adminPreset = document.getElementById("loginAdminPreset");
       const adminUser = document.getElementById("loginAdminUser");
       const adminPass = document.getElementById("loginAdminPass");
       const btnAuthAdmin = document.getElementById("btnAuthenticateAdmin");
+
+      // Aadhaar ID auto-formatting: exactly 12 numeric digits in groups of 4 (XXXX-XXXX-XXXX)
+      aadhaarInput?.addEventListener("input", (e) => {
+        let raw = e.target.value.replace(/\D/g, "");
+        if (raw.length > 12) raw = raw.substring(0, 12);
+        let formatted = "";
+        for (let i = 0; i < raw.length; i += 4) {
+          if (i > 0) formatted += "-";
+          formatted += raw.substring(i, i + 4);
+        }
+        e.target.value = formatted;
+      });
+
+      // Server-backed CAPTCHA with resilient fallback
+      let fallbackCaptchaAnswer = "";
+
+      async function refreshCaptcha() {
+        if (captchaDisplay) captchaDisplay.textContent = "...";
+        if (captchaInput) captchaInput.value = "";
+        try {
+          const res = await fetch("/api/auth/captcha/generate");
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.captcha) {
+              if (captchaDisplay) captchaDisplay.textContent = data.captcha;
+              fallbackCaptchaAnswer = "";
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Server captcha unavailable, using fallback challenge:", e);
+        }
+
+        // Local fallback if API is unreachable
+        const pool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+        let localCaptcha = "";
+        for (let i = 0; i < 6; i++) {
+          localCaptcha += pool.charAt(Math.floor(Math.random() * pool.length));
+        }
+        fallbackCaptchaAnswer = localCaptcha.toLowerCase();
+        if (captchaDisplay) captchaDisplay.textContent = localCaptcha;
+      }
+
+      // Load CAPTCHA on page ready
+      refreshCaptcha();
+
+      btnRefreshCaptcha?.addEventListener("click", () => {
+        refreshCaptcha();
+      });
+
+      // OTP: allow only digits, enforce max 6
+      otpInput?.addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/\D/g, "").substring(0, 6);
+      });
 
       // Tab Toggling
       tabVoter?.addEventListener("click", () => {
@@ -257,19 +287,74 @@
         voterPanel.style.display = "none";
       });
 
-      // Voter Preset change updates EPIC input
-      voterSelect?.addEventListener("change", (e) => {
-        const parts = e.target.value.split("|");
-        if (parts[0]) epicInput.value = parts[0];
-      });
-
       // Voter Proceed Action
       btnProceedVoter?.addEventListener("click", async () => {
-        const epic = epicInput.value.trim() || "DEM-UK-2026-0001";
+        // 1. Validate Aadhaar ID (must be exactly 12 numeric digits)
+        const aadhaarRaw = (aadhaarInput?.value || "").replace(/\D/g, "");
+        if (!aadhaarRaw) {
+          window.apiClient.showToast("Please enter your 12-digit Aadhaar Authentication ID.", "warning");
+          aadhaarInput?.focus();
+          return;
+        }
+        if (aadhaarRaw.length !== 12) {
+          window.apiClient.showToast("Aadhaar ID must be exactly 12 numeric digits (XXXX-XXXX-XXXX).", "warning");
+          aadhaarInput?.focus();
+          return;
+        }
+
+        // 2. Validate CAPTCHA
+        const captchaEntered = (captchaInput?.value || "").trim().toLowerCase();
+        if (!captchaEntered) {
+          window.apiClient.showToast("Please enter the CAPTCHA.", "warning");
+          captchaInput?.focus();
+          return;
+        }
+
+        let captchaValid = false;
+        if (!fallbackCaptchaAnswer) {
+          // Validate server-side via session
+          try {
+            const valRes = await fetch("/api/auth/captcha/validate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ answer: captchaEntered })
+            });
+            if (valRes.ok) {
+              const valData = await valRes.json();
+              if (valData.valid) captchaValid = true;
+            }
+          } catch (e) {
+            console.warn("Captcha server validation error:", e);
+          }
+        } else {
+          // Local fallback verification
+          captchaValid = (captchaEntered === fallbackCaptchaAnswer);
+        }
+
+        if (!captchaValid) {
+          window.apiClient.showToast("Incorrect CAPTCHA. Please try again.", "error");
+          await refreshCaptcha();
+          captchaInput?.focus();
+          return;
+        }
+
+        // 3. Validate OTP format (exactly 6 numeric digits)
+        const otpVal = (otpInput?.value || "").trim();
+        if (!/^\d{6}$/.test(otpVal)) {
+          window.apiClient.showToast("OTP must be exactly 6 digits.", "warning");
+          otpInput?.focus();
+          return;
+        }
+
+        // 4. Map the 12-digit demo ID to an authoritative seeded voter profile
+        const lastDigits = parseInt(aadhaarRaw.slice(-4), 10) || 1;
+        const voterIndex = ((lastDigits - 1) % 60) + 1;
+        const epic = `DEM-UK-2026-${String(voterIndex).padStart(4, "0")}`;
+
         btnProceedVoter.disabled = true;
         btnProceedVoter.textContent = "Establishing Voter Session...";
 
-        // Query voter profile or use selected metadata
+        // Look up authoritative voter profile from backend
         let voterObj = null;
         try {
           const res = await window.apiClient.lookupVoter(epic);
@@ -281,14 +366,13 @@
         }
 
         if (!voterObj) {
-          const parts = voterSelect.value.split("|");
           voterObj = {
-            voter_id: 1,
-            demo_epic_no: parts[0] || epic,
-            full_name: parts[1] || "Ramesh Chandra Sharma",
-            special_category: parts[2] || "SENIOR_CITIZEN",
-            priority_level: parseInt(parts[3] || "1", 10),
-            assigned_booth_id: parseInt(parts[4] || "1", 10),
+            voter_id: voterIndex,
+            demo_epic_no: epic,
+            full_name: "Ramesh Chandra Sharma",
+            special_category: "SENIOR_CITIZEN",
+            priority_level: 1,
+            assigned_booth_id: 1,
             parliamentary_constituency: "Nainital-Udhamsingh Nagar Parliamentary Constituency (PC)",
             assembly_constituency: "Bhimtal Assembly Constituency (AC)"
           };
@@ -340,4 +424,5 @@
     });
   </script>
 </body>
+
 </html>

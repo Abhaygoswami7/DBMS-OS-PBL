@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     await refreshDashboardData();
     await loadCrowdPredictionsChart();
+    document.dispatchEvent(new Event("adminDashboardReady"));
   }
 
   // ---------------------------------------------------------------------------
@@ -565,5 +566,191 @@ document.addEventListener("DOMContentLoaded", () => {
       window.apiClient.showToast(`Scheduler switched to ${res.active_policy}: 6 requests dispatched.`, "success");
     }
   });
+
+  // ---------------------------------------------------------------------------
+  // Recently Booked Voters Section
+  // ---------------------------------------------------------------------------
+  let recentBookingsPage = 0;
+  const BOOKINGS_PAGE_LIMIT = 10;
+  let recentBookingsViewAll = false;
+  let recentBookingsAutoRefreshTimer = null;
+  let recentBookingsKnownIds = new Set();
+
+  function formatBookingStatus(status) {
+    if (status === "CONFIRMED") {
+      return `<span class="badge badge-open" style="background:rgba(22,163,74,0.12);color:#166534;border:1px solid rgba(22,163,74,0.3);">CONFIRMED</span>`;
+    }
+    if (status === "CANCELLED") {
+      return `<span class="badge" style="background:rgba(220,38,38,0.1);color:#991b1b;border:1px solid rgba(220,38,38,0.3);">CANCELLED</span>`;
+    }
+    if (status === "RESCHEDULED") {
+      return `<span class="badge badge-partial" style="color:#92400e;">RESCHEDULED</span>`;
+    }
+    return `<span class="badge">${status || "--"}</span>`;
+  }
+
+  function formatTimeStr(t) {
+    if (!t) return "--";
+    return String(t).substring(0, 5);
+  }
+
+  function formatCreatedAt(ts) {
+    if (!ts) return "--";
+    try {
+      const d = new Date(ts);
+      return d.toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short", hour12: false });
+    } catch (_) {
+      return String(ts).substring(0, 16);
+    }
+  }
+
+  async function loadRecentBookings(page) {
+    if (page === undefined) page = recentBookingsPage;
+    const limit = recentBookingsViewAll ? 50 : BOOKINGS_PAGE_LIMIT;
+    const offset = page * limit;
+
+    const loadingEl = document.getElementById("recentBookingsLoading");
+    const emptyEl = document.getElementById("recentBookingsEmpty");
+    const errorEl = document.getElementById("recentBookingsError");
+    const tableWrap = document.getElementById("recentBookingsTableWrap");
+    const tbody = document.getElementById("recentBookingsTbody");
+    const paginationEl = document.getElementById("recentBookingsPagination");
+    const pageInfoEl = document.getElementById("recentBookingsPageInfo");
+    const prevBtn = document.getElementById("btnPrevBookings");
+    const nextBtn = document.getElementById("btnNextBookings");
+    const tsEl = document.getElementById("recentBookingsTimestamp");
+
+    if (loadingEl && !tableWrap.style.display.includes("block")) {
+      loadingEl.style.display = "block";
+    }
+    if (emptyEl) emptyEl.style.display = "none";
+    if (errorEl) errorEl.style.display = "none";
+
+    const token = window.apiClient.getAdminToken();
+    if (!token) return;
+
+    let data = null;
+    try {
+      const res = await fetch(`/api/admin/recent-bookings?limit=${limit}&offset=${offset}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } catch (err) {
+      if (loadingEl) loadingEl.style.display = "none";
+      if (errorEl) {
+        errorEl.textContent = "Unable to load booking records. Check server connection.";
+        errorEl.style.display = "block";
+      }
+      return;
+    }
+
+    if (loadingEl) loadingEl.style.display = "none";
+
+    const bookings = data.bookings || [];
+    const totalCount = data.total_count || 0;
+    const pageInfo = data.page_info || {};
+
+    if (tsEl) {
+      const now = new Date();
+      tsEl.textContent = `Updated ${now.toLocaleTimeString("en-IN", { hour12: false })}`;
+    }
+
+    if (bookings.length === 0) {
+      if (tableWrap) tableWrap.style.display = "none";
+      if (paginationEl) paginationEl.style.display = "none";
+      if (emptyEl) emptyEl.style.display = "block";
+      return;
+    }
+
+    if (tableWrap) tableWrap.style.display = "block";
+
+    // Identify newly appeared rows for animation
+    const incoming = new Set(bookings.map(b => b.allocation_id));
+
+    tbody.innerHTML = "";
+    bookings.forEach(b => {
+      const tr = document.createElement("tr");
+      const isNew = !recentBookingsKnownIds.has(b.allocation_id) && recentBookingsKnownIds.size > 0;
+      if (isNew) tr.classList.add("booking-row-new");
+
+      const shortRef = b.booking_reference_token
+        ? b.booking_reference_token.substring(0, 12) + "..."
+        : "--";
+      const slotLabel = b.slot_date
+        ? `${b.slot_date} ${formatTimeStr(b.start_time)}-${formatTimeStr(b.end_time)}`
+        : "--";
+      const categoryLabel = (b.special_category || "--").replace(/_/g, " ");
+      const priorityLabel = b.priority_level === 1 ? "P1" : b.priority_level === 2 ? "P2" : "P3";
+
+      tr.innerHTML = `
+        <td style="font-family:var(--font-mono);font-size:11px;" title="${b.booking_reference_token || ""}">${shortRef}</td>
+        <td><strong>${b.full_name || "--"}</strong></td>
+        <td style="font-family:var(--font-mono);font-size:11px;">${b.demo_epic_no || "--"}</td>
+        <td><span class="jurisdiction-tag" style="font-size:10px;">${categoryLabel} &middot; ${priorityLabel}</span></td>
+        <td>${b.station_name || "--"}</td>
+        <td style="font-size:11px;">${b.booth_name || "--"} <span style="color:var(--text-muted);">#${b.booth_number || ""}</span></td>
+        <td style="font-family:var(--font-mono);font-size:11px;">${slotLabel}</td>
+        <td>${formatBookingStatus(b.allocation_status)}</td>
+        <td style="font-size:11px;color:var(--text-muted);">${formatCreatedAt(b.created_at)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    recentBookingsKnownIds = incoming;
+
+    // Pagination controls
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = page;
+
+    if (!recentBookingsViewAll && totalCount > limit) {
+      if (paginationEl) paginationEl.style.display = "flex";
+      if (pageInfoEl) pageInfoEl.textContent = `Showing ${offset + 1}–${offset + bookings.length} of ${totalCount} bookings`;
+      if (prevBtn) prevBtn.disabled = currentPage <= 0;
+      if (nextBtn) nextBtn.disabled = !pageInfo.has_more;
+    } else {
+      if (paginationEl) {
+        if (totalCount > 0) {
+          paginationEl.style.display = "flex";
+          if (pageInfoEl) pageInfoEl.textContent = `Showing all ${bookings.length} of ${totalCount} bookings`;
+          if (prevBtn) prevBtn.style.display = "none";
+          if (nextBtn) nextBtn.style.display = "none";
+        } else {
+          paginationEl.style.display = "none";
+        }
+      }
+    }
+
+    recentBookingsPage = page;
+  }
+
+  // Wire up recently booked voters buttons
+  document.getElementById("btnRefreshRecentBookings")?.addEventListener("click", () => {
+    loadRecentBookings(recentBookingsPage);
+  });
+
+  document.getElementById("btnViewAllBookings")?.addEventListener("click", () => {
+    recentBookingsViewAll = !recentBookingsViewAll;
+    const btn = document.getElementById("btnViewAllBookings");
+    if (btn) btn.textContent = recentBookingsViewAll ? "Show Less" : "View All";
+    recentBookingsPage = 0;
+    loadRecentBookings(0);
+  });
+
+  document.getElementById("btnPrevBookings")?.addEventListener("click", () => {
+    if (recentBookingsPage > 0) loadRecentBookings(recentBookingsPage - 1);
+  });
+
+  document.getElementById("btnNextBookings")?.addEventListener("click", () => {
+    loadRecentBookings(recentBookingsPage + 1);
+  });
+
+  // Kick off initial load and auto-refresh inside initializeDashboard via event
+  document.addEventListener("adminDashboardReady", () => {
+    loadRecentBookings(0);
+    if (recentBookingsAutoRefreshTimer) clearInterval(recentBookingsAutoRefreshTimer);
+    recentBookingsAutoRefreshTimer = setInterval(() => loadRecentBookings(recentBookingsPage), 30000);
+  });
+
 });
 

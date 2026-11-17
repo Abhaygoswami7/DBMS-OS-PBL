@@ -96,21 +96,19 @@ def test_seed_data_voter_mapping_integrity():
 # 3. HTML VOTER DROPDOWN SYNCHRONIZATION
 # -----------------------------------------------------------------------------
 def test_index_html_voter_dropdown_alignment():
-    """Verify index.html voter dropdown matches authentic database identities."""
+    """Verify index.html has removed the seeded voter dropdown and preserved the voter profile card."""
     index_path = FRONTEND_DIR / "index.html"
     content = index_path.read_text(encoding="utf-8")
 
-    # Eliminates fake demo names: Aarav Sharma should NOT be DEM-UK-2026-0001
-    assert "Aarav Sharma (General - DEM-UK-2026-0001)" not in content, "Fake identity 'Aarav Sharma' must be removed"
-    assert "Priya Negi (PwD Assistive Priority - DEM-UK-2026-0002)" not in content, "Fake identity 'Priya Negi' must be removed"
+    # Seeded demo voter dropdown and quick select panel must be removed
+    assert "quickSelectPanel" not in content
+    assert "seededVoterSelect" not in content
+    assert "manualEpicInput" not in content
 
-    # Authentic seed records present in dropdown options
-    assert 'value="DEM-UK-2026-0001"' in content
-    assert "Ramesh Chandra Sharma" in content
-    assert 'value="DEM-UK-2026-0002"' in content
-    assert "Sunita Devi Rawat" in content
-    assert 'value="DEM-UK-2026-0003"' in content
-    assert "Arvind Singh Negi" in content
+    # Authentic voter profile card elements must be preserved
+    assert "voterProfileCard" in content
+    assert "profVoterName" in content
+    assert "profVoterEpic" in content
 
 
 # -----------------------------------------------------------------------------

@@ -58,11 +58,9 @@ def test_styles_css_contains_background_specifications(client):
     assert "align-items: center" in css
     assert "justify-content: center" in css
 
-    # Glassmorphism assertions
-    assert "backdrop-filter: blur(15px)" in css
-    assert "-webkit-backdrop-filter: blur(15px)" in css
-    assert "rgba(255, 255, 255, 0.18)" in css
-    assert "@supports (backdrop-filter: blur(15px))" in css
+    # Solid card: glassmorphism was intentionally removed in favour of a clean white card.
+    # Verify the solid white background is present instead.
+    assert "background: #ffffff" in css
 
 
 def test_login_authentication_endpoint_functionality(client):

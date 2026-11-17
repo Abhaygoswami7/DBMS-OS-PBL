@@ -5,6 +5,7 @@ Module: backend/app/routes/admin_routes.py
 
 Endpoints (All Admin JWT Protected):
   - GET /api/admin/dashboard: Aggregated logistics, overloaded alerts, OS telemetry, and cache hit/miss stats.
+  - GET /api/admin/recent-bookings: Latest slot allocation records with voter and booth details (paginated).
   - POST /api/admin/booths: Add or update a polling booth configuration.
   - POST /api/admin/slots: Configure or update polling time slots and capacity limits.
   - GET /api/admin/crowd-predictions: AI crowd forecasts across booths alongside Baseline vs. Random Forest evaluation metrics.
@@ -84,7 +85,107 @@ def get_admin_dashboard():
 
 
 # -----------------------------------------------------------------------------
-# 2. CREATE OR UPDATE POLLING BOOTH
+# 2. RECENTLY BOOKED VOTERS (Paginated, Admin-Protected)
+# -----------------------------------------------------------------------------
+@admin_bp.route("/recent-bookings", methods=["GET"])
+@token_required(allowed_roles=ALL_ADMIN_ROLES)
+def get_recent_bookings():
+    """
+    GET /api/admin/recent-bookings?limit=10&offset=0
+    Returns the latest slot allocation records with full voter, booth, station,
+    time-slot and election-event details. Ordered newest first.
+    Fields returned never include passwords, OTPs, or raw biometric data.
+    """
+    try:
+        limit = min(int(request.args.get("limit", 10)), 100)
+        offset = max(int(request.args.get("offset", 0)), 0)
+    except (ValueError, TypeError):
+        limit = 10
+        offset = 0
+
+    data_sql = """
+        SELECT
+            sa.allocation_id,
+            sa.booking_reference_token,
+            sa.status AS allocation_status,
+            sa.queue_token_no,
+            sa.booked_at AS created_at,
+            v.voter_id,
+            v.demo_epic_no,
+            v.full_name,
+            v.special_category,
+            v.priority_level,
+            ps.station_name,
+            pb.booth_name,
+            pb.booth_number,
+            ts.slot_date,
+            ts.start_time,
+            ts.end_time,
+            ee.event_name
+        FROM slot_allocations sa
+        JOIN voters v ON sa.voter_id = v.voter_id
+        JOIN polling_booths pb ON sa.booth_id = pb.booth_id
+        JOIN polling_stations ps ON pb.station_id = ps.station_id
+        JOIN time_slots ts ON sa.slot_id = ts.slot_id
+        JOIN election_events ee ON sa.event_id = ee.event_id
+        ORDER BY sa.booked_at DESC, sa.allocation_id DESC
+        LIMIT %s OFFSET %s;
+    """
+
+    count_sql = """
+        SELECT COUNT(*) AS total_count
+        FROM slot_allocations sa
+        JOIN voters v ON sa.voter_id = v.voter_id
+        JOIN polling_booths pb ON sa.booth_id = pb.booth_id
+        JOIN polling_stations ps ON pb.station_id = ps.station_id
+        JOIN time_slots ts ON sa.slot_id = ts.slot_id
+        JOIN election_events ee ON sa.event_id = ee.event_id;
+    """
+
+    with db_pool.get_cursor() as (conn, cursor):
+        cursor.execute(count_sql)
+        total_count = (cursor.fetchone() or {}).get("total_count", 0)
+
+        cursor.execute(data_sql, (limit, offset))
+        rows = cursor.fetchall()
+
+    bookings = []
+    for row in rows:
+        bookings.append({
+            "allocation_id": row["allocation_id"],
+            "booking_reference_token": row["booking_reference_token"],
+            "allocation_status": row["allocation_status"],
+            "queue_token_no": row["queue_token_no"],
+            "created_at": str(row["created_at"]) if row["created_at"] else None,
+            "voter_id": row["voter_id"],
+            "demo_epic_no": row["demo_epic_no"],
+            "full_name": row["full_name"],
+            "special_category": row["special_category"],
+            "priority_level": row["priority_level"],
+            "station_name": row["station_name"],
+            "booth_name": row["booth_name"],
+            "booth_number": row["booth_number"],
+            "slot_date": str(row["slot_date"]) if row["slot_date"] else None,
+            "start_time": str(row["start_time"]) if row["start_time"] else None,
+            "end_time": str(row["end_time"]) if row["end_time"] else None,
+            "event_name": row["event_name"],
+        })
+
+    return jsonify({
+        "success": True,
+        "bookings": bookings,
+        "total_count": total_count,
+        "page_info": {
+            "limit": limit,
+            "offset": offset,
+            "returned": len(bookings),
+            "has_more": (offset + limit) < total_count
+        }
+    }), 200
+
+
+# -----------------------------------------------------------------------------
+# 3. CREATE OR UPDATE POLLING BOOTH
 # -----------------------------------------------------------------------------
 @admin_bp.route("/booths", methods=["POST"])
 @token_required(allowed_roles=ELEVATED_ADMIN_ROLES)

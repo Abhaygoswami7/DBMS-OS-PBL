@@ -1958,56 +1958,45 @@ body.login-page .main-content {
   box-sizing: border-box;
 }
 
-/* Base / Solid Translucent Fallback (when backdrop-filter is unsupported) */
+/* Base Solid White Card */
 body.login-page #authCard {
   width: 100%;
   max-width: 460px;
   margin: 0 auto !important;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey, #d6dce5);
   border-radius: var(--radius-sm, 8px);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, 0.12));
   overflow: hidden;
   position: relative;
   z-index: 10;
   transition: all 0.3s ease;
 }
 
-/* Premium Glassmorphism (when backdrop-filter is supported) */
-@supports (backdrop-filter: blur(15px)) or (-webkit-backdrop-filter: blur(15px)) {
-  body.login-page #authCard {
-    background: rgba(255, 255, 255, 0.18) !important;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.35) !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-  }
-}
-
-/* Translucent Glass Tabs */
+/* Solid Tab Bar (no glass) */
 body.login-page #authTabSwitcher {
-  background: rgba(255, 255, 255, 0.14) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: #e9eff8;
+  border-bottom: 1px solid #c5d2e8;
 }
 
-/* High-Contrast Readability for Glassmorphism Inputs & Labels */
+/* Standard Readable Labels & Inputs */
 body.login-page #authCard .form-label {
-  color: #0b172c !important;
-  font-weight: 700 !important;
+  color: var(--irctc-navy-primary, #213d77);
+  font-weight: 700;
 }
 
 body.login-page #authCard .form-control,
 body.login-page #authCard .form-select {
-  background: rgba(255, 255, 255, 0.90) !important;
-  border: 1px solid rgba(255, 255, 255, 0.6) !important;
-  color: #0f172a !important;
+  background: #ffffff;
+  border: 1px solid var(--irctc-border-grey, #d6dce5);
+  color: var(--text-primary, #0f172a);
 }
 
 body.login-page #authCard .form-control:focus,
 body.login-page #authCard .form-select:focus {
-  background: #ffffff !important;
-  border-color: var(--irctc-orange-primary, #fb792b) !important;
-  box-shadow: 0 0 0 3px rgba(251, 121, 43, 0.25) !important;
+  background: #ffffff;
+  border-color: var(--irctc-orange-primary, #fb792b);
+  box-shadow: 0 0 0 3px rgba(251, 121, 43, 0.25);
 }
 
 @media (max-width: 768px) {
@@ -2020,6 +2009,25 @@ body.login-page #authCard .form-select:focus {
   body.login-page #authCard {
     max-width: 100%;
   }
+}
+
+/* ==========================================================================
+   RECENTLY BOOKED VOTERS – Row Entry Animation
+   ========================================================================== */
+
+@keyframes bookingRowIn {
+  from {
+    opacity: 0;
+    background-color: rgba(33, 61, 119, 0.07);
+  }
+  to {
+    opacity: 1;
+    background-color: transparent;
+  }
+}
+
+.booking-row-new {
+  animation: bookingRowIn 0.6s ease forwards;
 }
 
 /* ==========================================================================

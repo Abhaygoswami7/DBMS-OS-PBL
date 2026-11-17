@@ -150,8 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Tab toggling
   tabQuickSelect?.addEventListener("click", () => {
-    quickSelectPanel.style.display = "block";
-    newRegisterPanel.style.display = "none";
+    if (quickSelectPanel) quickSelectPanel.style.display = "block";
+    if (voterProfileCard) voterProfileCard.style.display = "block";
+    if (newRegisterPanel) newRegisterPanel.style.display = "none";
     if (pnrStatusPanel) pnrStatusPanel.style.display = "none";
     tabQuickSelect.classList.add("active");
     tabNewRegister?.classList.remove("active");
@@ -159,8 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   tabNewRegister?.addEventListener("click", () => {
-    quickSelectPanel.style.display = "none";
-    newRegisterPanel.style.display = "block";
+    if (quickSelectPanel) quickSelectPanel.style.display = "none";
+    if (voterProfileCard) voterProfileCard.style.display = "none";
+    if (newRegisterPanel) newRegisterPanel.style.display = "block";
     if (pnrStatusPanel) pnrStatusPanel.style.display = "none";
     tabNewRegister.classList.add("active");
     tabQuickSelect?.classList.remove("active");
@@ -168,8 +170,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   tabPnrStatus?.addEventListener("click", () => {
-    quickSelectPanel.style.display = "none";
-    newRegisterPanel.style.display = "none";
+    if (quickSelectPanel) quickSelectPanel.style.display = "none";
+    if (voterProfileCard) voterProfileCard.style.display = "none";
+    if (newRegisterPanel) newRegisterPanel.style.display = "none";
     if (pnrStatusPanel) pnrStatusPanel.style.display = "block";
     tabPnrStatus.classList.add("active");
     tabQuickSelect?.classList.remove("active");

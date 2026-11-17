@@ -68,15 +68,13 @@ def test_database_views_and_integrity():
 
 
 def test_login_dropdown_bhimtal_alignment():
-    """Ensure login.html demo voter dropdown options contain Bhimtal/Woodbridge/GEHU labels."""
+    """Ensure login.html voter panel has replaced dropdown with Aadhaar ID input and has no legacy labels."""
     login_html_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "login.html")
     with open(login_html_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    assert "GEHU Booth 1" in content
-    assert "Woodbridge Booth 3" in content
-    assert "Vikas Bhawan Booth 5" in content
-    assert "Nagar Palika Booth 7" in content
+    assert "aadhaarInput" in content
+    assert "XXXX-XXXX-XXXX" in content
     # No legacy labels
     assert "Garhi Cantt Booth 1" not in content
     assert "Hathibarkala Booth 1" not in content
