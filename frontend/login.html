@@ -99,6 +99,23 @@
             <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 4px; text-align: center;">DEMO PROTOTYPE: Enter any synthetic 12-digit ID (e.g. 1234-5678-0001). Real Aadhaar numbers are never collected.</div>
           </div>
 
+          <!-- 20 Persistent Demo Voter Accounts Quick-Select & Export Drawer -->
+          <div style="margin-top: 4px; margin-bottom: 12px; text-align: center;">
+            <button type="button" id="btnToggleDemoAccounts" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: var(--radius-sm, 12px); corner-shape: squircle; -webkit-corner-shape: squircle; color: #213d77; font-size: 11px; font-weight: 700; padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+              View 20 Demo Test IDs
+            </button>
+            <div id="demoAccountsDrawer" style="display: none; margin-top: 8px; text-align: left; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: var(--radius-sm, 12px); corner-shape: squircle; -webkit-corner-shape: squircle; padding: 10px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: #1e293b;">
+                <span>20 AUTHORIZED PERSISTENT DEMO VOTERS</span>
+                <a href="/api/auth/demo-voters" target="_blank" style="color: #2563eb; text-decoration: none; font-size: 10.5px; font-weight: 600;">Export JSON</a>
+              </div>
+              <div id="demoAccountsList" style="max-height: 140px; overflow-y: auto; display: grid; grid-template-columns: 1fr; gap: 4px;">
+                <div style="font-size: 11px; color: #64748b;">Loading demo accounts...</div>
+              </div>
+            </div>
+          </div>
+
           <!-- CAPTCHA Verification -->
           <div class="form-group">
             <label class="form-label">CAPTCHA VERIFICATION</label>
@@ -308,6 +325,44 @@
         }
       });
 
+      // Populate and toggle 20 Demo Test IDs Drawer
+      const btnToggleDemo = document.getElementById("btnToggleDemoAccounts");
+      const demoDrawer = document.getElementById("demoAccountsDrawer");
+      const demoList = document.getElementById("demoAccountsList");
+
+      btnToggleDemo?.addEventListener("click", async () => {
+        if (!demoDrawer) return;
+        const isHidden = demoDrawer.style.display === "none";
+        demoDrawer.style.display = isHidden ? "block" : "none";
+        if (isHidden && demoList && demoList.children.length <= 1) {
+          try {
+            const res = await fetch("/api/auth/demo-voters");
+            if (res.ok) {
+              const data = await res.json();
+              const voters = data.demo_voters || [];
+              demoList.innerHTML = "";
+              voters.forEach(v => {
+                const item = document.createElement("div");
+                item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: background 0.15s ease;";
+                item.innerHTML = `<span style="font-weight: 600; color: #1e293b;">${v.full_name} <span style="font-size: 10px; color: #64748b;">(${v.priority_tier || 'P' + v.priority_level})</span></span><code style="font-family: var(--font-mono); font-weight: 700; color: #213d77;">${v.formatted_id}</code>`;
+                item.addEventListener("mouseenter", () => item.style.background = "#e0e7ff");
+                item.addEventListener("mouseleave", () => item.style.background = "#ffffff");
+                item.addEventListener("click", () => {
+                  if (aadhaarInput) {
+                    aadhaarInput.value = v.formatted_id;
+                    demoDrawer.style.display = "none";
+                    window.apiClient.showToast(`Selected: ${v.full_name} (${v.formatted_id})`, "info");
+                  }
+                });
+                demoList.appendChild(item);
+              });
+            }
+          } catch (e) {
+            console.warn("Failed loading demo voters list:", e);
+          }
+        }
+      });
+
       // Voter Proceed Action
       btnProceedVoter?.addEventListener("click", async () => {
         // 1. Validate Aadhaar ID (must be exactly 12 numeric digits)
@@ -359,40 +414,56 @@
           return;
         }
 
-        // 3. Map the 12-digit demo ID to an authoritative seeded voter profile
-        const lastDigits = parseInt(aadhaarRaw.slice(-4), 10) || 1;
-        const voterIndex = ((lastDigits - 1) % 60) + 1;
-        const epic = `DEM-UK-2026-${String(voterIndex).padStart(4, "0")}`;
-
         btnProceedVoter.disabled = true;
-        btnProceedVoter.textContent = "Establishing Voter Session...";
+        btnProceedVoter.textContent = "Verifying Synthetic Voter ID...";
 
-        // Look up authoritative voter profile from backend
-        let voterObj = null;
+        // 3. Authenticate against backend /api/auth/login using persistent synthetic demo voter ID
+        let loginRes = null;
         try {
-          const res = await window.apiClient.lookupVoter(epic);
-          if (res.ok && res.voter) {
-            voterObj = res.voter;
-          }
+          const authFetch = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ aadhaar_id: aadhaarRaw })
+          });
+          loginRes = await authFetch.json().catch(() => ({}));
+          loginRes.ok = authFetch.ok;
+          loginRes.status = authFetch.status;
         } catch (e) {
-          console.warn("Lookup exception:", e);
+          console.warn("Authentication fetch error:", e);
         }
 
-        if (!voterObj) {
-          voterObj = {
-            voter_id: voterIndex,
-            demo_epic_no: epic,
-            full_name: "Ramesh Chandra Sharma",
-            special_category: "SENIOR_CITIZEN",
-            priority_level: 1,
-            assigned_booth_id: 1,
-            parliamentary_constituency: "Nainital-Udhamsingh Nagar Parliamentary Constituency (PC)",
-            assembly_constituency: "Bhimtal Assembly Constituency (AC)"
-          };
+        if (!loginRes || !loginRes.ok) {
+          btnProceedVoter.disabled = false;
+          btnProceedVoter.textContent = "PROCEED TO VOTER PORTAL";
+          const errMsg = loginRes?.message || "Synthetic demo voter ID not recognized. Please use one of the 20 authorized persistent demo accounts.";
+          window.apiClient.showToast(errMsg, "error");
+          await refreshCaptcha();
+          aadhaarInput?.focus();
+          return;
         }
 
-        window.apiClient.setVoterSession(voterObj);
-        window.apiClient.showToast(`Authenticated as ${voterObj.full_name}`, "success");
+        // Store voter JWT token
+        if (loginRes.access_token) {
+          window.apiClient.setVoterToken(loginRes.access_token);
+        }
+
+        // Retrieve full voter profile with station/booth mapping
+        let fullVoter = null;
+        const epic = loginRes.user?.demo_epic_no;
+        if (epic) {
+          try {
+            const lookup = await window.apiClient.lookupVoter(epic);
+            if (lookup.ok && lookup.voter) {
+              fullVoter = lookup.voter;
+            }
+          } catch (e) {
+            console.warn("Lookup exception:", e);
+          }
+        }
+
+        const sessionUser = fullVoter || loginRes.user;
+        window.apiClient.setVoterSession(sessionUser);
+        window.apiClient.showToast(`Authenticated as ${sessionUser.full_name || sessionUser.name}`, "success");
         setTimeout(() => {
           window.location.href = "/voter";
         }, 300);

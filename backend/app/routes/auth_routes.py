@@ -13,6 +13,8 @@ import random
 import string
 from flask import Blueprint, request, jsonify, session
 from backend.app.services.auth_service import auth_service
+from backend.app.services.voter_service import voter_service
+from backend.app.services.demo_voter_service import demo_voter_service
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -77,9 +79,29 @@ def login():
                 "message": "Aadhaar ID must be exactly 12 numeric digits (XXXX-XXXX-XXXX).",
                 "status_code": 400
             }), 400
-        last4 = int(clean_aadhaar[-4:]) if clean_aadhaar[-4:].isdigit() else 1
-        v_idx = ((last4 - 1) % 60) + 1 if last4 > 0 else 1
-        demo_epic_no = f"DEM-UK-2026-{v_idx:04d}"
+
+        # Exact persistent lookup across the 20 demo voter accounts
+        voter = voter_service.get_voter_by_synthetic_aadhaar(clean_aadhaar)
+        if not voter:
+            return jsonify({
+                "error": "NOT_FOUND",
+                "message": f"Synthetic demo voter ID '{clean_aadhaar}' not recognized. Please use one of the 20 authorized persistent demo voter accounts.",
+                "status_code": 404
+            }), 404
+
+        voter_result = auth_service.authenticate_voter_session(voter_id=voter["voter_id"])
+        if not voter_result:
+            return jsonify({
+                "error": "NOT_FOUND",
+                "message": f"Demo voter session could not be established for ID: {clean_aadhaar}",
+                "status_code": 404
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "message": f"Demo voter session authenticated for {voter_result['user']['name']}",
+            **voter_result
+        }), 200
 
     if demo_epic_no or voter_id:
         voter_result = auth_service.authenticate_voter_session(
@@ -158,4 +180,24 @@ def validate_captcha():
         "valid": True,
         "message": "CAPTCHA verification successful."
     }), 200
+
+
+# -----------------------------------------------------------------------------
+# 20 PERSISTENT DEMO VOTER ACCOUNTS EXPORT & LISTING (No credentials exposed)
+# -----------------------------------------------------------------------------
+@auth_bp.route("/demo-voters", methods=["GET"])
+def get_demo_voters():
+    """
+    GET /api/auth/demo-voters
+    Returns the 20 persistent synthetic demo voter accounts for testing and demonstration.
+    Strictly excludes admin passwords and sensitive authentication secrets.
+    """
+    voters = demo_voter_service.get_all_demo_voters()
+    return jsonify({
+        "success": True,
+        "total": len(voters),
+        "description": "20 Persistent Synthetic Demo Voter Accounts (One Nation One Election Prototype)",
+        "demo_voters": voters
+    }), 200
+
 

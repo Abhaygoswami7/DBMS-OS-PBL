@@ -144,6 +144,7 @@ CREATE TABLE `polling_booths` (
 CREATE TABLE `voters` (
     `voter_id` INT AUTO_INCREMENT PRIMARY KEY,
     `demo_epic_no` VARCHAR(25) NOT NULL UNIQUE COMMENT 'Synthetic Identifier format: DEM-UK-2026-XXXX',
+    `synthetic_aadhaar_id` VARCHAR(16) NULL UNIQUE COMMENT 'Synthetic 12-digit demo voter identifier (DEMO ONLY)',
     `full_name` VARCHAR(120) NOT NULL,
     `dob` DATE NOT NULL,
     `gender` ENUM('MALE', 'FEMALE', 'OTHER') NOT NULL,
@@ -159,6 +160,7 @@ CREATE TABLE `voters` (
         FOREIGN KEY (`assigned_booth_id`) REFERENCES `polling_booths` (`booth_id`)
         ON UPDATE CASCADE ON DELETE RESTRICT,
     INDEX `idx_voters_demo_epic` (`demo_epic_no`),
+    INDEX `idx_voters_synthetic_aadhaar` (`synthetic_aadhaar_id`),
     INDEX `idx_voters_priority` (`priority_level`),
     INDEX `idx_voters_category` (`special_category`),
     INDEX `idx_voters_booth` (`assigned_booth_id`)

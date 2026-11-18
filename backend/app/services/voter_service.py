@@ -21,6 +21,16 @@ class VoterService:
     # Strict synthetic identifier regex: DEM-UK-2026-XXXX
     SYNTHETIC_EPIC_PATTERN = re.compile(r"^DEM-UK-2026-\d{4}$")
 
+    @staticmethod
+    def format_aadhaar_id(raw_digits: Optional[str]) -> Optional[str]:
+        """Formats 12 numeric digits into XXXX-XXXX-XXXX display format."""
+        if not raw_digits:
+            return None
+        clean = re.sub(r"\D", "", str(raw_digits))
+        if len(clean) == 12:
+            return f"{clean[:4]}-{clean[4:8]}-{clean[8:]}"
+        return raw_digits
+
     def _attach_active_booking(self, cursor, voter: Dict[str, Any]) -> Dict[str, Any]:
         """Queries and attaches active confirmed booking details if one exists for the voter."""
         if not voter or not voter.get("voter_id"):
@@ -81,6 +91,7 @@ class VoterService:
         SELECT
             v.voter_id,
             v.demo_epic_no,
+            v.synthetic_aadhaar_id,
             v.full_name,
             v.dob,
             v.gender,
@@ -124,6 +135,69 @@ class VoterService:
                     voter["latitude"] = float(voter["latitude"])
                 if voter.get("longitude") is not None:
                     voter["longitude"] = float(voter["longitude"])
+                voter["formatted_synthetic_aadhaar_id"] = self.format_aadhaar_id(voter.get("synthetic_aadhaar_id"))
+                self._attach_active_booking(cursor, voter)
+            return voter
+
+    def get_voter_by_synthetic_aadhaar(self, synthetic_aadhaar: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieves voter details by persistent 12-digit synthetic demo ID.
+        Rejects unknown IDs or non-12-digit numbers. Never falls back to a default voter.
+        """
+        clean_digits = re.sub(r"\D", "", str(synthetic_aadhaar or ""))
+        if len(clean_digits) != 12:
+            logger.warning("Rejected invalid synthetic demo ID (must be exactly 12 digits): %s", synthetic_aadhaar)
+            return None
+
+        query = """
+        SELECT
+            v.voter_id,
+            v.demo_epic_no,
+            v.synthetic_aadhaar_id,
+            v.full_name,
+            v.dob,
+            v.gender,
+            v.address_zone,
+            v.pincode,
+            v.special_category,
+            v.priority_level,
+            v.simulated_verification_status,
+            v.assigned_booth_id,
+            b.booth_number,
+            b.booth_name,
+            b.room_number,
+            b.pc_id,
+            b.ac_id,
+            ps.station_id,
+            ps.station_code,
+            ps.station_name,
+            ps.address AS station_address,
+            ps.pincode AS station_pincode,
+            ps.latitude,
+            ps.longitude,
+            ps.has_wheelchair_ramp,
+            pc.constituency_code AS pc_code,
+            pc.constituency_name AS parliamentary_constituency,
+            ac.constituency_code AS ac_code,
+            ac.constituency_name AS assembly_constituency
+        FROM voters v
+        JOIN polling_booths b ON v.assigned_booth_id = b.booth_id
+        JOIN polling_stations ps ON b.station_id = ps.station_id
+        JOIN constituencies pc ON b.pc_id = pc.constituency_id
+        JOIN constituencies ac ON b.ac_id = ac.constituency_id
+        WHERE v.synthetic_aadhaar_id = %s;
+        """
+        with db_pool.get_cursor() as (conn, cursor):
+            cursor.execute(query, (clean_digits,))
+            voter = cursor.fetchone()
+            if voter:
+                if voter.get("dob"):
+                    voter["dob"] = str(voter["dob"])
+                if voter.get("latitude") is not None:
+                    voter["latitude"] = float(voter["latitude"])
+                if voter.get("longitude") is not None:
+                    voter["longitude"] = float(voter["longitude"])
+                voter["formatted_synthetic_aadhaar_id"] = self.format_aadhaar_id(voter.get("synthetic_aadhaar_id"))
                 self._attach_active_booking(cursor, voter)
             return voter
 
@@ -133,6 +207,7 @@ class VoterService:
         SELECT
             v.voter_id,
             v.demo_epic_no,
+            v.synthetic_aadhaar_id,
             v.full_name,
             v.dob,
             v.gender,
@@ -176,6 +251,7 @@ class VoterService:
                     voter["latitude"] = float(voter["latitude"])
                 if voter.get("longitude") is not None:
                     voter["longitude"] = float(voter["longitude"])
+                voter["formatted_synthetic_aadhaar_id"] = self.format_aadhaar_id(voter.get("synthetic_aadhaar_id"))
                 self._attach_active_booking(cursor, voter)
             return voter
 
@@ -208,6 +284,7 @@ class VoterService:
         SELECT
             v.voter_id,
             v.demo_epic_no,
+            v.synthetic_aadhaar_id,
             v.full_name,
             v.dob,
             v.gender,
@@ -249,6 +326,7 @@ class VoterService:
                     r["latitude"] = float(r["latitude"])
                 if r.get("longitude") is not None:
                     r["longitude"] = float(r["longitude"])
+                r["formatted_synthetic_aadhaar_id"] = self.format_aadhaar_id(r.get("synthetic_aadhaar_id"))
                 r["has_active_booking"] = bool(r.get("has_active_booking", 0))
 
             return rows, total
@@ -272,16 +350,21 @@ class VoterService:
         category = voter_data.get("special_category", "GENERAL").upper()
         priority_level = CATEGORY_PRIORITY_MAP.get(category, 4)
 
+        synthetic_aadhaar = voter_data.get("synthetic_aadhaar_id")
+        if synthetic_aadhaar:
+            synthetic_aadhaar = re.sub(r"\D", "", str(synthetic_aadhaar))
+
         insert_sql = """
         INSERT INTO voters (
-            demo_epic_no, full_name, dob, gender, address_zone, pincode,
+            demo_epic_no, synthetic_aadhaar_id, full_name, dob, gender, address_zone, pincode,
             special_category, priority_level, simulated_verification_status, assigned_booth_id
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'UNVERIFIED', %s);
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'UNVERIFIED', %s);
         """
         with db_pool.get_cursor() as (conn, cursor):
             try:
                 cursor.execute(insert_sql, (
                     epic,
+                    synthetic_aadhaar,
                     voter_data["full_name"],
                     voter_data["dob"],
                     voter_data["gender"],

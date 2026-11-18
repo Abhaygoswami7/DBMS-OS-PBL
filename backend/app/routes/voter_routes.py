@@ -20,6 +20,21 @@ voter_bp = Blueprint("voter_bp", __name__)
 
 FORBIDDEN_REAL_KEYWORDS = ["aadhaar", "pan", "passport", "fingerprint", "iris", "biometric_raw"]
 
+@voter_bp.route("/voters/demo-accounts", methods=["GET"])
+def get_demo_voters_accounts():
+    """
+    GET /api/voters/demo-accounts
+    Returns the 20 persistent synthetic demo voter accounts for testing and verification.
+    """
+    from backend.app.services.demo_voter_service import demo_voter_service
+    demo_voters = demo_voter_service.get_all_demo_voters()
+    return jsonify({
+        "success": True,
+        "total": len(demo_voters),
+        "description": "20 Persistent Synthetic Demo Voter Accounts (One Nation One Election Prototype)",
+        "demo_voters": demo_voters
+    }), 200
+
 @voter_bp.route("/voters", methods=["GET"])
 def get_voters():
     """

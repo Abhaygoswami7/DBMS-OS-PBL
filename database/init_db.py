@@ -190,6 +190,15 @@ def run_init():
 
     cursor.close()
     conn.close()
+
+    # Ensure 20 persistent demo voter accounts are populated
+    try:
+        from backend.app.services.demo_voter_service import demo_voter_service
+        demo_res = demo_voter_service.ensure_demo_voters_seeded()
+        print(f"  - persistent_demo_voters   : {demo_res.get('verified_count', 20)} verified ({demo_res.get('newly_assigned_count', 0)} newly assigned)")
+    except Exception as e:
+        print(f"  - persistent_demo_voters   : [NOTICE] {e}")
+
     print("\n[+] Database setup completed successfully.")
 
 if __name__ == "__main__":

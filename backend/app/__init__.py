@@ -50,6 +50,14 @@ def create_app(test_config=None) -> Flask:
     app.register_blueprint(allocation_bp, url_prefix="/api")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
 
+    # Ensure 20 persistent demo voter accounts are initialized and verified in MySQL
+    try:
+        from backend.app.services.demo_voter_service import demo_voter_service
+        demo_voter_service.ensure_demo_voters_seeded()
+    except Exception:
+        # Graceful fallback if database connection is unavailable in static unit testing
+        pass
+
     # Health check endpoint
     @app.route("/api/health", methods=["GET"])
     def health_check():

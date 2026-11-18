@@ -139,85 +139,86 @@ INSERT INTO `time_slots` (`slot_id`, `booth_id`, `event_id`, `slot_date`, `start
 
 -- ==============================================================================
 -- 7. SEED SYNTHETIC VOTERS (DEM-UK-2026-0001 to DEM-UK-2026-0060)
--- Diverse categories: SENIOR_CITIZEN (P1), PWD (P1), PREGNANT (P1), GENERAL (P3)
+-- Diverse categories: SENIOR_CITIZEN (P3), PWD (P2), PREGNANT (P1), GENERAL (P4)
 -- Distributed across Bhimtal & Nagri Gaon sectors
+-- Exactly 20 persistent 12-digit synthetic demo IDs assigned to Users 1-20
 -- ==============================================================================
-INSERT INTO `voters` (`voter_id`, `demo_epic_no`, `full_name`, `dob`, `gender`, `address_zone`, `pincode`, `special_category`, `priority_level`, `simulated_verification_status`, `assigned_booth_id`) VALUES
+INSERT INTO `voters` (`voter_id`, `demo_epic_no`, `synthetic_aadhaar_id`, `full_name`, `dob`, `gender`, `address_zone`, `pincode`, `special_category`, `priority_level`, `simulated_verification_status`, `assigned_booth_id`) VALUES
 -- Booth 1 (Graphic Era Hill Univ - Room 101) Voters
-(1,  'DEM-UK-2026-0001', 'Ramesh Chandra Sharma', '1948-03-14', 'MALE',   'Sattal Road Sector 1, Bhimtal', '263136', 'SENIOR_CITIZEN',          3, 'SIMULATED_VERIFIED', 1),
-(2,  'DEM-UK-2026-0002', 'Sunita Devi Rawat',     '1952-07-21', 'FEMALE', 'Sattal Road Sector 1, Bhimtal', '263136', 'SENIOR_CITIZEN',          3, 'SIMULATED_VERIFIED', 1),
-(3,  'DEM-UK-2026-0003', 'Arvind Singh Negi',     '1985-11-05', 'MALE',   'Sattal Road Sector 2, Bhimtal', '263136', 'PERSON_WITH_DISABILITY',  2, 'SIMULATED_VERIFIED', 1),
-(4,  'DEM-UK-2026-0004', 'Deepa Joshi',           '1995-02-18', 'FEMALE', 'Sattal Road Sector 2, Bhimtal', '263136', 'PREGNANT_WOMEN',          1, 'SIMULATED_VERIFIED', 1),
-(5,  'DEM-UK-2026-0005', 'Manmohan Singh Bisht',  '1990-09-12', 'MALE',   'Sattal Road Sector 3, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
-(6,  'DEM-UK-2026-0006', 'Pooja Bhatt',           '1994-06-25', 'FEMALE', 'Sattal Road Sector 3, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
-(7,  'DEM-UK-2026-0007', 'Vikram Pant',           '1988-12-30', 'MALE',   'Sattal Road Sector 4, Bhimtal', '263136', 'GENERAL',                  4, 'UNVERIFIED',         1),
-(8,  'DEM-UK-2026-0008', 'Neelam Chauhan',        '1982-04-16', 'FEMALE', 'Sattal Road Sector 4, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
+(1,  'DEM-UK-2026-0001', '123456780001', 'Ramesh Chandra Sharma', '1948-03-14', 'MALE',   'Sattal Road Sector 1, Bhimtal', '263136', 'SENIOR_CITIZEN',          3, 'SIMULATED_VERIFIED', 1),
+(2,  'DEM-UK-2026-0002', '999988880002', 'Sunita Devi Rawat',     '1952-07-21', 'FEMALE', 'Sattal Road Sector 1, Bhimtal', '263136', 'SENIOR_CITIZEN',          3, 'SIMULATED_VERIFIED', 1),
+(3,  'DEM-UK-2026-0003', '847291035621', 'Arvind Singh Negi',     '1985-11-05', 'MALE',   'Sattal Road Sector 2, Bhimtal', '263136', 'PERSON_WITH_DISABILITY',  2, 'SIMULATED_VERIFIED', 1),
+(4,  'DEM-UK-2026-0004', '619284730192', 'Deepa Joshi',           '1995-02-18', 'FEMALE', 'Sattal Road Sector 2, Bhimtal', '263136', 'PREGNANT_WOMEN',          1, 'SIMULATED_VERIFIED', 1),
+(5,  'DEM-UK-2026-0005', '384910295738', 'Manmohan Singh Bisht',  '1990-09-12', 'MALE',   'Sattal Road Sector 3, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
+(6,  'DEM-UK-2026-0006', '729401826491', 'Pooja Bhatt',           '1994-06-25', 'FEMALE', 'Sattal Road Sector 3, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
+(7,  'DEM-UK-2026-0007', '481920384756', 'Vikram Pant',           '1988-12-30', 'MALE',   'Sattal Road Sector 4, Bhimtal', '263136', 'GENERAL',                  4, 'UNVERIFIED',         1),
+(8,  'DEM-UK-2026-0008', '938471029482', 'Neelam Chauhan',        '1982-04-16', 'FEMALE', 'Sattal Road Sector 4, Bhimtal', '263136', 'GENERAL',                  4, 'SIMULATED_VERIFIED', 1),
 
 -- Booth 2 (Graphic Era Hill Univ - Room 102) Voters
-(9,  'DEM-UK-2026-0009', 'Bhagwati Prasad Uniyal','1945-10-09', 'MALE',   'GEHU Campus Sector, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 2),
-(10, 'DEM-UK-2026-0010', 'Kamla Devi Khanduri',   '1950-01-14', 'FEMALE', 'GEHU Campus Sector, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 2),
-(11, 'DEM-UK-2026-0011', 'Suresh Kumar Thapa',    '1983-08-22', 'MALE',   'Bhimtal Hills Lane 2',          '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 2),
-(12, 'DEM-UK-2026-0012', 'Anjali Gurung',         '1997-03-31', 'FEMALE', 'Bhimtal Hills Lane 3',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
-(13, 'DEM-UK-2026-0013', 'Gaurav Semwal',         '1992-05-19', 'MALE',   'Bhimtal Hills Lane 4',          '263136', 'GENERAL',                 4, 'UNVERIFIED',         2),
-(14, 'DEM-UK-2026-0014', 'Meenakshi Thapliyal',   '1989-11-27', 'FEMALE', 'Bhimtal Hills Lane 5',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
-(15, 'DEM-UK-2026-0015', 'Rohit Gairola',         '1991-07-08', 'MALE',   'Sattal Approach Road',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
-(16, 'DEM-UK-2026-0016', 'Kavita Nautiyal',       '1996-09-14', 'FEMALE', 'Sattal Approach Road',          '263136', 'PREGNANT_WOMEN',         1, 'SIMULATED_VERIFIED', 2),
+(9,  'DEM-UK-2026-0009', '510293847561', 'Bhagwati Prasad Uniyal','1945-10-09', 'MALE',   'GEHU Campus Sector, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 2),
+(10, 'DEM-UK-2026-0010', '274819203948', 'Kamla Devi Khanduri',   '1950-01-14', 'FEMALE', 'GEHU Campus Sector, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 2),
+(11, 'DEM-UK-2026-0011', '639201948572', 'Suresh Kumar Thapa',    '1983-08-22', 'MALE',   'Bhimtal Hills Lane 2',          '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 2),
+(12, 'DEM-UK-2026-0012', '184920384729', 'Anjali Gurung',         '1997-03-31', 'FEMALE', 'Bhimtal Hills Lane 3',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
+(13, 'DEM-UK-2026-0013', '749201837492', 'Gaurav Semwal',         '1992-05-19', 'MALE',   'Bhimtal Hills Lane 4',          '263136', 'GENERAL',                 4, 'UNVERIFIED',         2),
+(14, 'DEM-UK-2026-0014', '395810294827', 'Meenakshi Thapliyal',   '1989-11-27', 'FEMALE', 'Bhimtal Hills Lane 5',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
+(15, 'DEM-UK-2026-0015', '827491029471', 'Rohit Gairola',         '1991-07-08', 'MALE',   'Sattal Approach Road',          '263136', 'GENERAL',                 4, 'SIMULATED_VERIFIED', 2),
+(16, 'DEM-UK-2026-0016', '491029485720', 'Kavita Nautiyal',       '1996-09-14', 'FEMALE', 'Sattal Approach Road',          '263136', 'PREGNANT_WOMEN',         1, 'SIMULATED_VERIFIED', 2),
 
 -- Booth 3 (Woodbridge School - Room 1) Voters
-(17, 'DEM-UK-2026-0017', 'Dharam Singh Rana',     '1947-06-18', 'MALE',   'Nagri Gaon Sector A',           '263132', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 3),
-(18, 'DEM-UK-2026-0018', 'Shanti Devi Panwar',    '1951-12-03', 'FEMALE', 'Nagri Gaon Sector A',           '263132', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 3),
-(19, 'DEM-UK-2026-0019', 'Naveen Chandra Tiwari', '1980-04-29', 'MALE',   'Nagri Gaon Sector B',           '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
-(20, 'DEM-UK-2026-0020', 'Rachna Dobhal',         '1986-09-15', 'FEMALE', 'Nagri Gaon Sector B',           '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
-(21, 'DEM-UK-2026-0021', 'Pankaj Sundriyal',     '1993-01-20', 'MALE',   'Lewshal Road, Nagri Gaon',      '263132', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 3),
-(22, 'DEM-UK-2026-0022', 'Monika Gusain',         '1998-11-11', 'FEMALE', 'Lewshal Road, Nagri Gaon',      '263132', 'GENERAL',                4, 'UNVERIFIED',         3),
-(23, 'DEM-UK-2026-0023', 'Ashok Kumar Badoni',    '1975-08-04', 'MALE',   'Bhowali-Bhimtal Road',          '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
-(24, 'DEM-UK-2026-0024', 'Sarita Maletha',        '1981-02-23', 'FEMALE', 'Bhowali-Bhimtal Road',          '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
+(17, 'DEM-UK-2026-0017', '602938471928', 'Dharam Singh Rana',     '1947-06-18', 'MALE',   'Nagri Gaon Sector A',           '263132', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 3),
+(18, 'DEM-UK-2026-0018', '284719203849', 'Shanti Devi Panwar',    '1951-12-03', 'FEMALE', 'Nagri Gaon Sector A',           '263132', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 3),
+(19, 'DEM-UK-2026-0019', '918273645019', 'Naveen Chandra Tiwari', '1980-04-29', 'MALE',   'Nagri Gaon Sector B',           '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
+(20, 'DEM-UK-2026-0020', '573829104928', 'Rachna Dobhal',         '1986-09-15', 'FEMALE', 'Nagri Gaon Sector B',           '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
+(21, 'DEM-UK-2026-0021', NULL,           'Pankaj Sundriyal',     '1993-01-20', 'MALE',   'Lewshal Road, Nagri Gaon',      '263132', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 3),
+(22, 'DEM-UK-2026-0022', NULL,           'Monika Gusain',         '1998-11-11', 'FEMALE', 'Lewshal Road, Nagri Gaon',      '263132', 'GENERAL',                4, 'UNVERIFIED',         3),
+(23, 'DEM-UK-2026-0023', NULL,           'Ashok Kumar Badoni',    '1975-08-04', 'MALE',   'Bhowali-Bhimtal Road',          '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
+(24, 'DEM-UK-2026-0024', NULL,           'Sarita Maletha',        '1981-02-23', 'FEMALE', 'Bhowali-Bhimtal Road',          '263132', 'GENERAL',                4, 'SIMULATED_VERIFIED', 3),
 
 -- Booth 4 (Woodbridge School - Room 2) Voters
-(25, 'DEM-UK-2026-0025', 'Trilok Chand Dabral',   '1949-05-30', 'MALE',   'Nagri Gaon Upper Enclave',      '263132', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 4),
-(26, 'DEM-UK-2026-0026', 'Usha Dabral',           '1953-09-17', 'FEMALE', 'Nagri Gaon Upper Enclave',      '263132', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 4),
-(27, 'DEM-UK-2026-0027', 'Himanshu Pokhriyal',    '1987-10-10', 'MALE',   'Dob Valley Lane 1',             '263132', 'GENERAL',        4, 'SIMULATED_VERIFIED', 4),
-(28, 'DEM-UK-2026-0028', 'Priyanka Raturi',       '1992-06-06', 'FEMALE', 'Dob Valley Lane 2',             '263132', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 4),
-(29, 'DEM-UK-2026-0029', 'Vipin Balodi',          '1990-03-25', 'MALE',   'Bhowali Range Foothills',       '263132', 'GENERAL',        4, 'UNVERIFIED',         4),
-(30, 'DEM-UK-2026-0030', 'Rashmi Kaintura',       '1994-12-14', 'FEMALE', 'Bhowali Range Foothills',       '263132', 'GENERAL',        4, 'SIMULATED_VERIFIED', 4),
+(25, 'DEM-UK-2026-0025', NULL,           'Trilok Chand Dabral',   '1949-05-30', 'MALE',   'Nagri Gaon Upper Enclave',      '263132', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 4),
+(26, 'DEM-UK-2026-0026', NULL,           'Usha Dabral',           '1953-09-17', 'FEMALE', 'Nagri Gaon Upper Enclave',      '263132', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 4),
+(27, 'DEM-UK-2026-0027', NULL,           'Himanshu Pokhriyal',    '1987-10-10', 'MALE',   'Dob Valley Lane 1',             '263132', 'GENERAL',        4, 'SIMULATED_VERIFIED', 4),
+(28, 'DEM-UK-2026-0028', NULL,           'Priyanka Raturi',       '1992-06-06', 'FEMALE', 'Dob Valley Lane 2',             '263132', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 4),
+(29, 'DEM-UK-2026-0029', NULL,           'Vipin Balodi',          '1990-03-25', 'MALE',   'Bhowali Range Foothills',       '263132', 'GENERAL',        4, 'UNVERIFIED',         4),
+(30, 'DEM-UK-2026-0030', NULL,           'Rashmi Kaintura',       '1994-12-14', 'FEMALE', 'Bhowali Range Foothills',       '263132', 'GENERAL',        4, 'SIMULATED_VERIFIED', 4),
 
 -- Booth 5 (Vikas Bhawan - Room 1) Voters
-(31, 'DEM-UK-2026-0031', 'Jagdish Prasad Bahuguna','1946-04-12', 'MALE',   'Block Road Sector 1, Bhimtal',  '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 5),
-(32, 'DEM-UK-2026-0032', 'Maya Devi Dimri',       '1950-08-20', 'FEMALE', 'Block Road Sector 1, Bhimtal',  '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 5),
-(33, 'DEM-UK-2026-0033', 'Kailash Chandra Sati',  '1979-01-16', 'MALE',   'Block Road Sector 2, Bhimtal',  '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 5),
-(34, 'DEM-UK-2026-0034', 'Shweta Maithani',       '1996-07-28', 'FEMALE', 'Vikas Bhawan Complex Lane A',  '263136', 'PREGNANT_WOMEN',         1, 'SIMULATED_VERIFIED', 5),
-(35, 'DEM-UK-2026-0035', 'Manish Purohit',        '1988-11-02', 'MALE',   'Vikas Bhawan Complex Lane A',  '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
-(36, 'DEM-UK-2026-0036', 'Archana Chamoli',       '1991-03-19', 'FEMALE', 'Pangot Road Junction',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
-(37, 'DEM-UK-2026-0037', 'Sanjay Bhatt',          '1985-05-14', 'MALE',   'Pangot Road Junction',          '263136', 'GENERAL',                4, 'UNVERIFIED',         5),
-(38, 'DEM-UK-2026-0038', 'Bhavna Kothari',        '1995-10-24', 'FEMALE', 'Awas Vikas Bhimtal',           '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
+(31, 'DEM-UK-2026-0031', NULL,           'Jagdish Prasad Bahuguna','1946-04-12', 'MALE',   'Block Road Sector 1, Bhimtal',  '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 5),
+(32, 'DEM-UK-2026-0032', NULL,           'Maya Devi Dimri',       '1950-08-20', 'FEMALE', 'Block Road Sector 1, Bhimtal',  '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 5),
+(33, 'DEM-UK-2026-0033', NULL,           'Kailash Chandra Sati',  '1979-01-16', 'MALE',   'Block Road Sector 2, Bhimtal',  '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 5),
+(34, 'DEM-UK-2026-0034', NULL,           'Shweta Maithani',       '1996-07-28', 'FEMALE', 'Vikas Bhawan Complex Lane A',  '263136', 'PREGNANT_WOMEN',         1, 'SIMULATED_VERIFIED', 5),
+(35, 'DEM-UK-2026-0035', NULL,           'Manish Purohit',        '1988-11-02', 'MALE',   'Vikas Bhawan Complex Lane A',  '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
+(36, 'DEM-UK-2026-0036', NULL,           'Archana Chamoli',       '1991-03-19', 'FEMALE', 'Pangot Road Junction',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
+(37, 'DEM-UK-2026-0037', NULL,           'Sanjay Bhatt',          '1985-05-14', 'MALE',   'Pangot Road Junction',          '263136', 'GENERAL',                4, 'UNVERIFIED',         5),
+(38, 'DEM-UK-2026-0038', NULL,           'Bhavna Kothari',        '1995-10-24', 'FEMALE', 'Awas Vikas Bhimtal',           '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 5),
 
 -- Booth 6 (Vikas Bhawan - Room 2) Voters
-(39, 'DEM-UK-2026-0039', 'Harish Chandra Kukreti', '1944-02-17', 'MALE',   'Vikas Bhawan Colony Sector A',  '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 6),
-(40, 'DEM-UK-2026-0040', 'Savitri Kukreti',       '1948-11-09', 'FEMALE', 'Vikas Bhawan Colony Sector A',  '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 6),
-(41, 'DEM-UK-2026-0041', 'Deepak Lingwal',        '1984-06-30', 'MALE',   'Vikas Bhawan Colony Sector B',  '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 6),
-(42, 'DEM-UK-2026-0042', 'Garima Semwal',         '1993-08-12', 'FEMALE', 'Vikas Bhawan Colony Sector C',  '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 6),
-(43, 'DEM-UK-2026-0043', 'Vijay Pal Rawat',       '1981-12-05', 'MALE',   'Bhimtal Bypass Road',           '263136', 'GENERAL',        4, 'UNVERIFIED',         6),
-(44, 'DEM-UK-2026-0044', 'Nisha Payal',           '1997-04-18', 'FEMALE', 'Bhimtal Bypass Road',           '263136', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 6),
+(39, 'DEM-UK-2026-0039', NULL,           'Harish Chandra Kukreti', '1944-02-17', 'MALE',   'Vikas Bhawan Colony Sector A',  '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 6),
+(40, 'DEM-UK-2026-0040', NULL,           'Savitri Kukreti',       '1948-11-09', 'FEMALE', 'Vikas Bhawan Colony Sector A',  '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 6),
+(41, 'DEM-UK-2026-0041', NULL,           'Deepak Lingwal',        '1984-06-30', 'MALE',   'Vikas Bhawan Colony Sector B',  '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 6),
+(42, 'DEM-UK-2026-0042', NULL,           'Garima Semwal',         '1993-08-12', 'FEMALE', 'Vikas Bhawan Colony Sector C',  '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 6),
+(43, 'DEM-UK-2026-0043', NULL,           'Vijay Pal Rawat',       '1981-12-05', 'MALE',   'Bhimtal Bypass Road',           '263136', 'GENERAL',        4, 'UNVERIFIED',         6),
+(44, 'DEM-UK-2026-0044', NULL,           'Nisha Payal',           '1997-04-18', 'FEMALE', 'Bhimtal Bypass Road',           '263136', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 6),
 
 -- Booth 7 (Nagar Palika - Room 1) Voters
-(45, 'DEM-UK-2026-0045', 'Bishambhar Dutt Joshi', '1943-09-23', 'MALE',   'Lake Road Sector 1, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 7),
-(46, 'DEM-UK-2026-0046', 'Parvati Joshi',         '1947-03-11', 'FEMALE', 'Lake Road Sector 1, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 7),
-(47, 'DEM-UK-2026-0047', 'Naresh Kumar Chauhan',  '1982-07-14', 'MALE',   'Lake Road Sector 2, Bhimtal',   '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 7),
-(48, 'DEM-UK-2026-0048', 'Vandana Chauhan',       '1986-10-29', 'FEMALE', 'Lake Road Sector 2, Bhimtal',   '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
-(49, 'DEM-UK-2026-0049', 'Alok Kumar Verma',      '1990-01-08', 'MALE',   'Bhimtal Lake Front Rd',         '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
-(50, 'DEM-UK-2026-0050', 'Ritika Verma',          '1994-05-16', 'FEMALE', 'Bhimtal Lake Front Rd',         '263136', 'GENERAL',                4, 'UNVERIFIED',         7),
-(51, 'DEM-UK-2026-0051', 'Ravi Kant Tyagi',       '1978-08-20', 'MALE',   'Mallital Main Market',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
-(52, 'DEM-UK-2026-0052', 'Shashi Prabha Tyagi',   '1983-11-25', 'FEMALE', 'Mallital Main Market',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
+(45, 'DEM-UK-2026-0045', NULL,           'Bishambhar Dutt Joshi', '1943-09-23', 'MALE',   'Lake Road Sector 1, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 7),
+(46, 'DEM-UK-2026-0046', NULL,           'Parvati Joshi',         '1947-03-11', 'FEMALE', 'Lake Road Sector 1, Bhimtal',   '263136', 'SENIOR_CITIZEN',         3, 'SIMULATED_VERIFIED', 7),
+(47, 'DEM-UK-2026-0047', NULL,           'Naresh Kumar Chauhan',  '1982-07-14', 'MALE',   'Lake Road Sector 2, Bhimtal',   '263136', 'PERSON_WITH_DISABILITY', 2, 'SIMULATED_VERIFIED', 7),
+(48, 'DEM-UK-2026-0048', NULL,           'Vandana Chauhan',       '1986-10-29', 'FEMALE', 'Lake Road Sector 2, Bhimtal',   '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
+(49, 'DEM-UK-2026-0049', NULL,           'Alok Kumar Verma',      '1990-01-08', 'MALE',   'Bhimtal Lake Front Rd',         '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
+(50, 'DEM-UK-2026-0050', NULL,           'Ritika Verma',          '1994-05-16', 'FEMALE', 'Bhimtal Lake Front Rd',         '263136', 'GENERAL',                4, 'UNVERIFIED',         7),
+(51, 'DEM-UK-2026-0051', NULL,           'Ravi Kant Tyagi',       '1978-08-20', 'MALE',   'Mallital Main Market',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
+(52, 'DEM-UK-2026-0052', NULL,           'Shashi Prabha Tyagi',   '1983-11-25', 'FEMALE', 'Mallital Main Market',          '263136', 'GENERAL',                4, 'SIMULATED_VERIFIED', 7),
 
 -- Booth 8 (Nagar Palika - Room 2) Voters
-(53, 'DEM-UK-2026-0053', 'Madan Mohan Upadhyay',  '1945-08-15', 'MALE',   'Bhimtal Island View Sector',    '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 8),
-(54, 'DEM-UK-2026-0054', 'Kanta Upadhyay',        '1949-12-01', 'FEMALE', 'Bhimtal Island View Sector',    '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 8),
-(55, 'DEM-UK-2026-0055', 'Devendra Singh Tomar',  '1987-03-17', 'MALE',   'Bhimtal Mandir Lane',           '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
-(56, 'DEM-UK-2026-0056', 'Anupama Tomar',         '1991-09-22', 'FEMALE', 'Bhimtal Mandir Lane',           '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
-(57, 'DEM-UK-2026-0057', 'Sunil Kumar Kashyap',   '1984-04-05', 'MALE',   'Tallital Road, Bhimtal',        '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
-(58, 'DEM-UK-2026-0058', 'Geeta Kashyap',         '1989-08-30', 'FEMALE', 'Tallital Road, Bhimtal',        '263136', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 8),
-(59, 'DEM-UK-2026-0059', 'Ashish Panthari',       '1993-02-14', 'MALE',   'Nainital Road Junction',        '263136', 'GENERAL',        4, 'UNVERIFIED',         8),
-(60, 'DEM-UK-2026-0060', 'Mamta Panthari',        '1996-06-20', 'FEMALE', 'Nainital Road Junction',        '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8);
+(53, 'DEM-UK-2026-0053', NULL,           'Madan Mohan Upadhyay',  '1945-08-15', 'MALE',   'Bhimtal Island View Sector',    '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 8),
+(54, 'DEM-UK-2026-0054', NULL,           'Kanta Upadhyay',        '1949-12-01', 'FEMALE', 'Bhimtal Island View Sector',    '263136', 'SENIOR_CITIZEN', 3, 'SIMULATED_VERIFIED', 8),
+(55, 'DEM-UK-2026-0055', NULL,           'Devendra Singh Tomar',  '1987-03-17', 'MALE',   'Bhimtal Mandir Lane',           '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
+(56, 'DEM-UK-2026-0056', NULL,           'Anupama Tomar',         '1991-09-22', 'FEMALE', 'Bhimtal Mandir Lane',           '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
+(57, 'DEM-UK-2026-0057', NULL,           'Sunil Kumar Kashyap',   '1984-04-05', 'MALE',   'Tallital Road, Bhimtal',        '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8),
+(58, 'DEM-UK-2026-0058', NULL,           'Geeta Kashyap',         '1989-08-30', 'FEMALE', 'Tallital Road, Bhimtal',        '263136', 'PREGNANT_WOMEN', 1, 'SIMULATED_VERIFIED', 8),
+(59, 'DEM-UK-2026-0059', NULL,           'Ashish Panthari',       '1993-02-14', 'MALE',   'Nainital Road Junction',        '263136', 'GENERAL',        4, 'UNVERIFIED',         8),
+(60, 'DEM-UK-2026-0060', NULL,           'Mamta Panthari',        '1996-06-20', 'FEMALE', 'Nainital Road Junction',        '263136', 'GENERAL',        4, 'SIMULATED_VERIFIED', 8);
 
 -- ==============================================================================
 -- 8. SEED INITIAL SLOT ALLOCATIONS (Pre-booked test tokens for testing backend)
