@@ -187,19 +187,14 @@ def get_available_slots():
             "status_code": 404
         }), 404
 
-    # Verify voter booth jurisdiction upfront if voter_id provided
+    # Capture voter assigned booth for informational metadata (all booths are selectable in demo)
+    assigned_booth = None
+    assigned_booth_name = None
     if voter_id:
         voter = voter_service.get_voter_by_id(voter_id)
         if voter:
             assigned_booth = voter.get("assigned_booth_id")
-            if assigned_booth is not None and assigned_booth != booth_id:
-                return jsonify({
-                    "error": "INVALID_BOOTH_JURISDICTION",
-                    "status_code": 403,
-                    "message": f"Voter {voter.get('full_name')} is registered at Polling Booth {assigned_booth} ({voter.get('booth_name')}), not Booth {booth_id}.",
-                    "assigned_booth_id": assigned_booth,
-                    "assigned_booth_name": voter.get("booth_name")
-                }), 403
+            assigned_booth_name = voter.get("booth_name")
 
     # Fetch slots for this booth
     slots = booth_service.get_time_slots_for_booth(booth_id=booth_id, event_id=event_id)
@@ -263,7 +258,10 @@ def get_available_slots():
             "booth_name": booth_info["booth_name"],
             "station_name": booth_info["station_name"],
             "parliamentary_constituency": booth_info["parliamentary_constituency"],
-            "assembly_constituency": booth_info["assembly_constituency"]
+            "assembly_constituency": booth_info["assembly_constituency"],
+            "is_registered_booth": (assigned_booth == booth_id) if assigned_booth is not None else True,
+            "assigned_booth_id": assigned_booth,
+            "assigned_booth_name": assigned_booth_name
         },
         "recommendation": {
             "recommended_slot_id": recommended_slot_id,

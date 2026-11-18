@@ -23,8 +23,13 @@ from backend.app.os_engine.ipc_event_queue import ipc_engine
 logger = logging.getLogger("allocation_service")
 
 def _extract_proc_args(result_args) -> List[Any]:
-    """Handles both dict (mysql-connector 26+) and tuple/list (standard) callproc returns."""
+    """Handles dict with named out-params, dict of all args, and tuple/list callproc returns."""
     if isinstance(result_args, dict):
+        if "p_status_code" in result_args or "status_code" in result_args:
+            status = result_args.get("p_status_code", result_args.get("status_code"))
+            token = result_args.get("p_booking_token", result_args.get("booking_token"))
+            queue = result_args.get("p_queue_token", result_args.get("queue_token", 0))
+            return [None, None, None, None, status, token, queue]
         return [v for k, v in sorted(result_args.items())]
     return list(result_args)
 
@@ -167,7 +172,7 @@ class AllocationService:
         4. Calls stored procedure sp_allocate_slot_atomic (ACID row-level X-lock).
         5. Records complete OS telemetry in the response.
         """
-        # Step A: Fetch voter's details and pre-validate booth jurisdiction
+        # Step A: Fetch voter's details
         voter_category = "GENERAL"
         with db_pool.get_cursor() as (conn, cursor):
             cursor.execute("SELECT assigned_booth_id, special_category FROM voters WHERE voter_id = %s;", (voter_id,))
@@ -177,12 +182,6 @@ class AllocationService:
                     "success": False,
                     "status_code": "VOTER_NOT_FOUND",
                     "message": f"Voter ID {voter_id} not found in electoral roll registry."
-                }
-            if v_row.get("assigned_booth_id") != booth_id:
-                return {
-                    "success": False,
-                    "status_code": "INVALID_BOOTH_JURISDICTION",
-                    "message": f"Voter is assigned to Polling Booth {v_row.get('assigned_booth_id')}, cannot book Booth {booth_id}."
                 }
             if v_row.get("special_category"):
                 voter_category = v_row["special_category"]
@@ -275,6 +274,7 @@ class AllocationService:
             "success": status_code == "SUCCESS",
             "status_code": status_code,
             "booking_reference_token": booking_token,
+            "booking_token": booking_token,
             "queue_token_no": queue_token,
             "appointment_slip": appointment_slip,
             "pcb_telemetry": dispatched_pcb.to_dict()

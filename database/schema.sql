@@ -418,7 +418,7 @@ proc_block: BEGIN
 
     START TRANSACTION;
 
-    -- 1. Validate voter existence, booth mapping, and priority
+    -- 1. Validate voter existence and priority
     SELECT `assigned_booth_id`, `priority_level`
     INTO v_voter_assigned_booth, v_voter_priority
     FROM `voters`
@@ -427,12 +427,6 @@ proc_block: BEGIN
     IF v_voter_assigned_booth IS NULL THEN
         ROLLBACK;
         SET p_status_code = 'VOTER_NOT_FOUND';
-        LEAVE proc_block;
-    END IF;
-
-    IF v_voter_assigned_booth <> p_booth_id THEN
-        ROLLBACK;
-        SET p_status_code = 'INVALID_BOOTH_JURISDICTION';
         LEAVE proc_block;
     END IF;
 

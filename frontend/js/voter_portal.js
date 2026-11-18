@@ -1163,17 +1163,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const voterId = state.voter ? state.voter.voter_id : null;
-    const pcId = state.voter ? state.voter.pc_id : null;
-    const acId = state.voter ? state.voter.ac_id : null;
 
+    // Demonstration platform: Load all candidate stations and booths without AC/PC restriction
     const res = await window.apiClient.getNearbyBooths(
       state.gps.lat,
       state.gps.lon,
       null,
       state.accessibilityNeeded,
-      voterId,
-      pcId,
-      acId
+      voterId
     );
 
     if (!res.ok || !res.booths) {
@@ -1199,9 +1196,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const acName = state.voter?.assembly_constituency || 'Bhimtal AC';
       boothListContainer.innerHTML = `
         <div style="color: var(--irctc-status-wl); padding: 1.5rem; font-size: 12px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 4px;">
-          <strong>No Eligible Polling Booths Found</strong><br/>
-          No eligible polling booths found for your registered jurisdiction (${pcName}, ${acName}).
-          Please consult your ECI Electoral Registration Officer.
+          <strong>No Active Polling Booths Found</strong><br/>
+          No active polling booths currently available for polling logistics.
         </div>`;
       if (btnProceedToStep4) btnProceedToStep4.disabled = true;
       return;
@@ -1211,7 +1207,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     booths.forEach((b) => {
       const isAssigned = (state.voter && state.voter.assigned_booth_id === b.booth_id);
-      const isEligible = b.is_eligible !== false;
 
       if (isAssigned) {
         foundAssignedBooth = b;
@@ -1230,7 +1225,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : (state.gpsSource === "REGISTERED_STATION" ? `${b.distance_km} KM FROM ASSIGNED STATION` : `${b.distance_km} KM ${distanceSuffix}`);
       const jurisdictionBadge = isAssigned
         ? '<span class="badge badge-open">REGISTERED POLLING BOOTH</span>'
-        : (isEligible ? '<span class="badge badge-partial">ELIGIBLE IN AC</span>' : '<span class="badge badge-regret">INELIGIBLE - WRONG JURISDICTION</span>');
+        : '<span class="badge badge-open">AVAILABLE FOR ALLOCATION</span>';
 
       card.innerHTML = `
         <div class="booth-card-header">
@@ -1253,20 +1248,16 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
-      if (isEligible) {
-        card.addEventListener("click", () => {
-          selectPollingStation(b.station_id, {
-            flyTo: true,
-            zoomLevel: 16.5,
-            openPopup: true,
-            preferredBoothId: b.booth_id,
-            scrollList: false
-          });
+      // All polling booths are fully selectable
+      card.addEventListener("click", () => {
+        selectPollingStation(b.station_id, {
+          flyTo: true,
+          zoomLevel: 16.5,
+          openPopup: true,
+          preferredBoothId: b.booth_id,
+          scrollList: false
         });
-      } else {
-        card.style.opacity = "0.5";
-        card.style.cursor = "not-allowed";
-      }
+      });
 
       boothListContainer.appendChild(card);
     });
@@ -1478,26 +1469,13 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadAvailableSlots(boothId) {
     if (!state.selectedBooth) return;
 
-    // Upfront jurisdiction validation: prevent viewing or selecting slots for ineligible booths
-    if (state.voter && state.voter.assigned_booth_id && state.voter.assigned_booth_id !== boothId) {
-      slotsGridContainer.innerHTML = `
-        <div style="color: var(--irctc-status-wl); padding: 1.5rem; font-size: 12px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 4px;">
-          <strong>Ineligible Polling Booth Selected</strong><br/>
-          You are legally registered at Polling Booth ${state.voter.assigned_booth_id} (${state.voter.booth_name}).
-          Electoral rules prohibit booking slots at Booth ${boothId}.
-        </div>`;
-      if (btnBookSlot) {
-        btnBookSlot.disabled = true;
-        btnBookSlot.textContent = "Ineligible Polling Booth";
-      }
-      if (aiRecommendationBanner) aiRecommendationBanner.style.display = "none";
-      const selBanner = document.getElementById("slotSelectionStatusBanner");
-      if (selBanner) selBanner.style.display = "none";
-      window.apiClient.showToast("Cannot book slots outside your assigned polling booth jurisdiction.", "warning");
-      return;
-    }
+    // All polling booths and stations are selectable; display actual constituency metadata
+    const isAssigned = (state.voter && state.voter.assigned_booth_id === boothId);
+    const boothBadge = isAssigned
+      ? `<span class="badge badge-open" style="margin-left: 6px;">REGISTERED BOOTH</span>`
+      : `<span class="badge badge-open" style="margin-left: 6px;">AVAILABLE BOOTH</span>`;
 
-    selectedBoothSummary.textContent = `Showing time-slots for ${state.selectedBooth.station_name} (${state.selectedBooth.booth_name})`;
+    selectedBoothSummary.innerHTML = `Showing time-slots for <strong>${state.selectedBooth.station_name}</strong> (${state.selectedBooth.booth_name}) ${boothBadge} · <span style="font-size: 11px; color: var(--text-muted);">PC: ${state.selectedBooth.parliamentary_constituency} · AC: ${state.selectedBooth.assembly_constituency}</span>`;
     slotsGridContainer.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 12px;">Querying discretized polling windows and AI crowd forecasts...</div>`;
 
     const res = await window.apiClient.getAvailableSlots(
@@ -1702,11 +1680,6 @@ document.addEventListener("DOMContentLoaded", () => {
   btnBookSlot?.addEventListener("click", async () => {
     if (!state.voter || !state.selectedBooth || !state.selectedSlot) {
       window.apiClient.showToast("Missing required booking parameters.", "warning");
-      return;
-    }
-
-    if (state.voter.assigned_booth_id && state.voter.assigned_booth_id !== state.selectedBooth.booth_id) {
-      window.apiClient.showToast("Jurisdiction mismatch: You are not registered to vote at this polling booth.", "error");
       return;
     }
 

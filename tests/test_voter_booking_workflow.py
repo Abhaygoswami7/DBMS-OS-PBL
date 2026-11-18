@@ -253,11 +253,12 @@ def test_geo_booth_ranker_voter_scoping():
             voter_id=1
         )
 
-        # 1. Rishikesh Booth 5 must be excluded because AC = 5 != voter AC 3
+        # 1. Rishikesh Booth 5 must be included because all booths are selectable regardless of AC/PC
         booth_ids = [b["booth_id"] for b in ranked]
-        assert 5 not in booth_ids, "Booth 5 (Rishikesh) must be filtered out for Dehradun Cantt voter"
+        assert 5 in booth_ids, "Booth 5 (Rishikesh) must be included as all booths are selectable"
         assert 1 in booth_ids, "Assigned Booth 1 must be present"
         assert 2 in booth_ids, "Booth 2 in same AC must be present"
+        assert all(b.get("is_eligible", False) for b in ranked), "All booths must be marked eligible"
 
         # 2. Assigned booth must be Rank 1
         assert ranked[0]["booth_id"] == 1, "Voter's assigned booth must be Rank 1"
@@ -303,9 +304,10 @@ def test_crowd_prediction_service_recommendation_scoping():
 # -----------------------------------------------------------------------------
 # 7. BACKEND JURISDICTION ENFORCEMENT & PRE-VALIDATION
 # -----------------------------------------------------------------------------
-def test_backend_ineligible_booth_rejection():
-    """Verify backend pre-validation rejects ineligible booth requests upfront."""
-    # Attempt booking for Booth 6 (Veerbhadra Rishikesh) when assigned to Booth 1
+# 7. CROSS-BOOTH ALLOCATION PERMISSION (Demonstration Feature)
+# -----------------------------------------------------------------------------
+def test_backend_cross_booth_allocation_permitted():
+    """Verify backend allows voters to select and book any available booth in demo."""
     with patch.object(db_pool, "get_cursor") as mock_cursor_ctx:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -314,39 +316,46 @@ def test_backend_ineligible_booth_rejection():
             "assigned_booth_id": 1,
             "special_category": "SENIOR_CITIZEN"
         }
+        mock_cursor.callproc.return_value = {
+            "p_status_code": "SUCCESS",
+            "p_booking_token": "TKN-UK-6-1763180400-9999",
+            "p_queue_token": 1
+        }
         mock_cursor_ctx.return_value.__enter__.return_value = (mock_conn, mock_cursor)
 
         result = allocation_service.allocate_voter_slot(
             voter_id=1,
-            booth_id=6,  # Ineligible booth
+            booth_id=6,  # Cross-booth allocation
             slot_id=25
         )
 
-        assert result["success"] is False
-        assert result["status_code"] == "INVALID_BOOTH_JURISDICTION"
-        assert "cannot book Booth 6" in result["message"]
+        assert result["success"] is True
+        assert result["status_code"] == "SUCCESS"
+        assert result["booking_token"] == "TKN-UK-6-1763180400-9999"
 
 
 # -----------------------------------------------------------------------------
-# 8. FRONTEND JURISDICTION GUARDS & API CLIENT INTEGRITY
+# 8. FRONTEND ALL BOOTHS SELECTABLE & API INTEGRITY
 # -----------------------------------------------------------------------------
-def test_frontend_upfront_jurisdiction_guards():
-    """Verify voter_portal.js and api_client.js contain upfront jurisdiction guards."""
+def test_frontend_all_booths_selectable():
+    """Verify voter_portal.js makes every booth selectable with no misleading restrictions."""
     portal_js_path = FRONTEND_DIR / "js" / "voter_portal.js"
     client_js_path = FRONTEND_DIR / "js" / "api_client.js"
     portal_content = portal_js_path.read_text(encoding="utf-8")
     client_content = client_js_path.read_text(encoding="utf-8")
 
-    # 1. API client supports voter_id, pc_id, ac_id in getNearbyBooths
+    # 1. API client supports getNearbyBooths and getVoters
     assert "voter_id" in client_content
     assert "getVoters" in client_content
 
-    # 2. voter_portal.js checks assigned_booth_id in loadAvailableSlots
-    assert "assigned_booth_id !== boothId" in portal_content
-    assert "Ineligible Polling Booth Selected" in portal_content
+    # 2. voter_portal.js does NOT contain misleading eligibility restriction labels
+    assert "ELIGIBLE IN AC" not in portal_content
+    assert "INELIGIBLE - WRONG JURISDICTION" not in portal_content
+    assert "Ineligible Polling Booth Selected" not in portal_content
 
-    # 3. voter_portal.js checks assigned_booth_id before initiating booking
-    assert "assigned_booth_id !== state.selectedBooth.booth_id" in portal_content
+    # 3. All booths are selectable via selectPollingStation and selectBoothFromMap
+    assert "selectPollingStation" in portal_content
+    assert "selectBoothFromMap" in portal_content
 
 
 # -----------------------------------------------------------------------------

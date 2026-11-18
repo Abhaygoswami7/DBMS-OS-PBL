@@ -88,12 +88,15 @@ def test_05_nearby_booths_geospatial_accuracy(client):
     for b in booths:
         assert b["distance_km"] < 50.0
 
-def test_06_jurisdiction_guard_on_slots(client):
-    # Voter 1 is registered at Booth 1. Requesting Booth 2 slots must be rejected with 403
-    res_ineligible = client.get("/api/slots/available?booth_id=2&voter_id=1")
-    assert res_ineligible.status_code == 403
-    data = res_ineligible.get_json()
-    assert data["error"] == "INVALID_BOOTH_JURISDICTION"
+def test_06_all_booths_slots_accessible_for_voter(client):
+    # Demonstration requirement: all polling booths are selectable and slots accessible
+    # Voter 1 is registered at Booth 1. Requesting Booth 2 slots succeeds with 200 OK
+    res_other = client.get("/api/slots/available?booth_id=2&voter_id=1")
+    assert res_other.status_code == 200
+    data_other = res_other.get_json()
+    assert data_other["success"] is True
+    assert len(data_other["slots"]) > 0
+    assert data_other["booth"]["booth_id"] == 2
 
     # Requesting Booth 1 slots for Voter 1 must succeed
     res_eligible = client.get("/api/slots/available?booth_id=1&voter_id=1")
@@ -138,7 +141,7 @@ def test_08_new_booking_and_cancellation_lifecycle(client):
     assert book_data["success"] is True
     assert book_data["status"] == "CONFIRMED"
     token = book_data["booking_reference_token"]
-    assert token.startswith("TKN-UK-4-")
+    assert token.startswith(f"TKN-UK-{book_payload['booth_id']}-")
 
     # Verify appointment slip is retrievable via vw_voter_appointment_slip
     slip_res = client.get(f"/api/allocations/{token}")

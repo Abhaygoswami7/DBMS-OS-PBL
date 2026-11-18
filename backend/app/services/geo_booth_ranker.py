@@ -119,10 +119,8 @@ class GeoBoothRanker:
                 voter = voter_service.get_voter_by_id(voter_id)
                 if voter:
                     assigned_booth_id = voter.get("assigned_booth_id")
-                    if pc_id is None and voter.get("pc_id") is not None:
-                        pc_id = voter["pc_id"]
-                    if ac_id is None and voter.get("ac_id") is not None:
-                        ac_id = voter["ac_id"]
+                    # In demonstration platform, all active booths are selectable regardless of voter's registered AC/PC.
+                    # Do not override pc_id and ac_id from voter profile so all booths remain accessible.
                     if voter.get("latitude") is not None and voter.get("longitude") is not None:
                         if (abs(user_lat - self.default_ref_lat) < 0.001 and abs(user_lon - self.default_ref_lon) < 0.001) or \
                            (abs(user_lat - 30.34215) < 0.001 and abs(user_lon - 78.02148) < 0.001) or \
